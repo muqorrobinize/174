@@ -3,14 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Been On Exam 1.4 - Coquette</title>
+    <title>Been On Exam 1.4 - Secured</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Luckiest+Guy&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* === TEMA: MOBILE PRINCESS COQUETTE === */
+        /* === WEB3 GATEKEEPER STYLES (NEW) === */
+        #gatekeeper-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f172a; /* Dark Blue Slate */
+            z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; font-family: 'Poppins', sans-serif;
+            transition: opacity 0.5s ease;
+        }
+        
+        #gatekeeper-overlay.hidden {
+            opacity: 0; pointer-events: none;
+        }
+
+        .gate-box {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid #334155;
+            padding: 40px; border-radius: 20px;
+            text-align: center; max-width: 400px; width: 90%;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .gate-icon { font-size: 3rem; margin-bottom: 20px; display: inline-block; }
+        
+        .connect-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none; color: white; padding: 12px 24px;
+            border-radius: 12px; font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: 0.2s; margin-top: 20px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%;
+        }
+        .connect-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4); }
+        .connect-btn:disabled { opacity: 0.7; cursor: wait; }
+
+        .error-msg {
+            color: #ef4444; font-size: 0.9rem; margin-top: 15px; 
+            background: rgba(239, 68, 68, 0.1); padding: 10px; rounded: 8px;
+            display: none; border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* === TEMA: MOBILE PRINCESS COQUETTE (EXISTING) === */
         :root {
             /* Palette Feminim */
             --bg-body: #FFF0F5;          /* Lavender Blush */
@@ -47,7 +89,9 @@
         }
 
         /* === LAYOUT STRUCTURE === */
-        .app-shell { display: flex; min-height: 100vh; }
+        /* Initially hidden until unlocked */
+        .app-shell { display: flex; min-height: 100vh; opacity: 0; transition: opacity 1s ease; }
+        .app-shell.visible { opacity: 1; }
 
         /* === SIDEBAR (DESKTOP ONLY) === */
         .sidebar {
@@ -327,6 +371,22 @@
 </head>
 <body>
 
+    <!-- === GATEKEEPER OVERLAY (NEW) === -->
+    <div id="gatekeeper-overlay">
+        <div class="gate-box">
+            <div class="gate-icon">🔒</div>
+            <h2 style="margin-bottom: 10px;">Akses Terbatas</h2>
+            <p style="font-size: 0.9rem; color: #94a3b8;">Halaman ini berisi materi rahasia (Project Bab 4 & Skripsi). Harap login menggunakan Wallet Owner.</p>
+            
+            <button class="connect-btn" onclick="connectWallet()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M16 8v.01"/><path d="M12 8v.01"/><path d="M8 8v.01"/><path d="M16 12v.01"/><path d="M12 12v.01"/><path d="M8 12v.01"/><path d="M16 16v.01"/><path d="M12 16v.01"/><path d="M8 16v.01"/></svg>
+                Login dengan MetaMask
+            </button>
+            <div id="wallet-error" class="error-msg"></div>
+        </div>
+    </div>
+
+    <!-- === MAIN APP (INITIALLY HIDDEN) === -->
     <div class="app-shell">
         
         <!-- SIDEBAR (DESKTOP ONLY) -->
@@ -422,6 +482,59 @@
     </div>
 
     <script>
+        // === KONFIGURASI WEB3 ===
+        // GANTI INI DENGAN ALAMAT WALLET METAMASK KAMU!
+        const OWNER_WALLET = "0xYourWalletAddressHere".toLowerCase(); 
+
+        const gateOverlay = document.getElementById('gatekeeper-overlay');
+        const appShell = document.querySelector('.app-shell');
+        const errorMsg = document.getElementById('wallet-error');
+
+        async function connectWallet() {
+            errorMsg.style.display = 'none';
+            const btn = document.querySelector('.connect-btn');
+            btn.innerHTML = "Menghubungkan...";
+            btn.disabled = true;
+
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Minta user login metamask
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const userAddress = accounts[0].toLowerCase();
+                    
+                    // Cek Whitelist
+                    if (userAddress === OWNER_WALLET) {
+                        // SUKSES
+                        btn.innerHTML = "Sukses! Mengalihkan...";
+                        setTimeout(() => {
+                            gateOverlay.classList.add('hidden'); // Hilangkan gerbang
+                            appShell.classList.add('visible'); // Munculkan app
+                            
+                            // Jalankan inisialisasi App setelah login
+                            init(); 
+                        }, 1000);
+                    } else {
+                        // GAGAL (Bukan Owner)
+                        throw new Error(`Akses Ditolak: ${userAddress} bukan pemilik.`);
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                    errorMsg.style.display = 'block';
+                    errorMsg.innerText = error.message || "User menolak koneksi.";
+                    btn.innerHTML = "Coba Lagi";
+                    btn.disabled = false;
+                }
+            } else {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = 'MetaMask tidak terdeteksi. Silakan install <a href="https://metamask.io/" target="_blank" style="color:white;text-decoration:underline;">di sini</a>.';
+                btn.innerHTML = "Install MetaMask";
+                btn.disabled = false;
+            }
+        }
+    </script>
+
+    <script>
         const GITHUB_USERNAME = "muqorrobinize";
         const GITHUB_REPO = "beenonexam";
         
@@ -447,6 +560,8 @@
         };
 
         // --- 2. LOAD DATA ---
+        // Catatan: init() sekarang dipanggil setelah login wallet sukses (di script atas)
+        // Hapus pemanggilan init() otomatis di bagian bawah script ini.
         async function init() {
             grid.innerHTML = Array(6).fill('<div class="cute-card" style="height:200px;"></div>').join('');
             
@@ -593,8 +708,8 @@
             });
         });
 
-        // Run
-        init();
+        // HAPUS PEMANGGILAN INIT() DI SINI, KARENA SUDAH DIPANGGIL OLEH connectWallet()
+        // init(); 
     </script>
 </body>
 </html>
