@@ -3,56 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Been On Exam 1.4 - Secured</title>
+    <title>Been On Exam 1.8 - Backend Secured</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Luckiest+Guy&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* === WEB3 GATEKEEPER STYLES (NEW) === */
-        #gatekeeper-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0f172a; /* Dark Blue Slate */
-            z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: white; font-family: 'Poppins', sans-serif;
-            transition: opacity 0.5s ease;
-        }
-        
-        #gatekeeper-overlay.hidden {
-            opacity: 0; pointer-events: none;
-        }
-
-        .gate-box {
-            background: rgba(30, 41, 59, 0.9);
-            border: 1px solid #334155;
-            padding: 40px; border-radius: 20px;
-            text-align: center; max-width: 400px; width: 90%;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-        }
-
-        .gate-icon { font-size: 3rem; margin-bottom: 20px; display: inline-block; }
-        
-        .connect-btn {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            border: none; color: white; padding: 12px 24px;
-            border-radius: 12px; font-weight: 600; font-size: 1rem;
-            cursor: pointer; transition: 0.2s; margin-top: 20px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%;
-        }
-        .connect-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4); }
-        .connect-btn:disabled { opacity: 0.7; cursor: wait; }
-
-        .error-msg {
-            color: #ef4444; font-size: 0.9rem; margin-top: 15px; 
-            background: rgba(239, 68, 68, 0.1); padding: 10px; rounded: 8px;
-            display: none; border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        /* === TEMA: MOBILE PRINCESS COQUETTE (EXISTING) === */
+        /* === TEMA: MOBILE PRINCESS COQUETTE (ROOT) === */
         :root {
             /* Palette Feminim */
             --bg-body: #FFF0F5;          /* Lavender Blush */
@@ -74,7 +32,109 @@
             --sidebar-collapsed: 80px;
         }
 
-        /* === RESET & BASE === */
+        /* === WEB3 GATEKEEPER STYLES (COQUETTE THEME) === */
+        #gatekeeper-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            /* Pink Gradient Background */
+            background: linear-gradient(135deg, #FFF0F5 0%, #FFE4E1 100%);
+            /* Polkadot Pattern */
+            background-image: radial-gradient(#FFB7C5 2px, transparent 2px);
+            background-size: 30px 30px;
+            z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-main); font-family: 'Quicksand', sans-serif;
+            transition: opacity 0.5s ease;
+        }
+        
+        #gatekeeper-overlay.hidden {
+            opacity: 0; pointer-events: none;
+        }
+
+        .gate-box {
+            background: rgba(255, 255, 255, 0.9);
+            border: 4px solid var(--primary-soft); /* Soft Pink Border */
+            padding: 40px; border-radius: 40px; /* Super Rounded */
+            text-align: center; max-width: 450px; width: 90%;
+            box-shadow: 0 15px 50px rgba(255, 105, 180, 0.25); /* Pink Shadow */
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: visible;
+        }
+
+        /* Pita Dekorasi di atas Box */
+        .gate-deco {
+            position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: white;
+            padding: 8px 25px; border-radius: 20px; font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 2;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce { 
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .gate-title {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 2.5rem; margin-bottom: 5px; margin-top: 10px;
+            color: var(--primary);
+            text-shadow: 3px 3px 0px #FFE4E1;
+            text-transform: uppercase;
+        }
+
+        .gate-desc {
+            color: var(--text-muted); font-weight: 600; margin-bottom: 25px;
+            line-height: 1.5; font-size: 0.95rem;
+        }
+        
+        .wallet-grid {
+            display: grid; grid-template-columns: 1fr; gap: 15px;
+            margin-top: 10px;
+        }
+
+        .connect-btn {
+            border: none; padding: 15px 20px;
+            border-radius: 25px; /* Pill Shape */
+            font-weight: 700; font-size: 1rem; font-family: 'Quicksand', sans-serif;
+            cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; position: relative; overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* EVM Style (Pink Cute) */
+        .connect-btn.evm {
+            background: #FFF; border: 2px solid var(--primary); color: var(--primary);
+        }
+        .connect-btn.evm:hover { 
+            background: var(--primary); color: white; 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(255, 105, 180, 0.3);
+        }
+        .connect-btn.evm svg { color: inherit; } 
+
+        /* Solana Style (Purple Pastel) */
+        .connect-btn.solana {
+            background: #FFF; border: 2px solid #AB9FF2; color: #AB9FF2;
+        }
+        .connect-btn.solana:hover { 
+            background: #AB9FF2; color: white; 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(171, 159, 242, 0.3);
+        }
+        .connect-btn.solana svg { color: inherit; } 
+
+        .connect-btn:disabled { opacity: 0.5; cursor: wait; transform: none; }
+
+        .error-msg {
+            color: #D81B60; font-size: 0.9rem; margin-top: 20px; font-weight: 600;
+            background: #FFF0F5; padding: 12px; border-radius: 15px;
+            display: none; border: 2px dashed #FFB7C5; text-align: center;
+        }
+
+        /* === RESET & BASE (EXISTING) === */
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
         
         body { 
@@ -371,17 +431,32 @@
 </head>
 <body>
 
-    <!-- === GATEKEEPER OVERLAY (NEW) === -->
+    <!-- === GATEKEEPER OVERLAY (COQUETTE THEME) === -->
     <div id="gatekeeper-overlay">
         <div class="gate-box">
-            <div class="gate-icon">🔒</div>
-            <h2 style="margin-bottom: 10px;">Akses Terbatas</h2>
-            <p style="font-size: 0.9rem; color: #94a3b8;">Halaman ini berisi materi rahasia (Project Bab 4 & Skripsi). Harap login menggunakan Wallet Owner.</p>
+            <div class="gate-deco">🎀</div>
+            <h2 class="gate-title">WHO DIS?</h2>
+            <p class="gate-desc">
+                Yo, verify yourself real quick. We strictly reading public addresses, nothing else. <br>
+                <span style="font-size: 0.9em;">(Use a dummy wallet if you wanna stay lowkey)</span>
+                <br><br>
+                Not whitelisted? Slide a DM to <a href="https://instagram.com/mqrbxn" target="_blank" style="color: var(--primary-dark); text-decoration: underline;">@mqrbxn</a>
+            </p>
             
-            <button class="connect-btn" onclick="connectWallet()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M16 8v.01"/><path d="M12 8v.01"/><path d="M8 8v.01"/><path d="M16 12v.01"/><path d="M12 12v.01"/><path d="M8 12v.01"/><path d="M16 16v.01"/><path d="M12 16v.01"/><path d="M8 16v.01"/></svg>
-                Login dengan MetaMask
-            </button>
+            <div class="wallet-grid">
+                <!-- EVM Button -->
+                <button class="connect-btn evm" onclick="connectEVM()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12l-9-9-9 9 9 9 9-9z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2l9 9-9 9-9-9 9-9z"/></svg>
+                    MetaMask / EVM
+                </button>
+                
+                <!-- Solana Button -->
+                <button class="connect-btn solana" onclick="connectSolana()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 12h8m-8-4h8m-8 8h8" stroke="currentColor" stroke-width="2"/></svg>
+                    Phantom (Solana)
+                </button>
+            </div>
+
             <div id="wallet-error" class="error-msg"></div>
         </div>
     </div>
@@ -482,54 +557,86 @@
     </div>
 
     <script>
-        // === KONFIGURASI WEB3 ===
-        // GANTI INI DENGAN ALAMAT WALLET METAMASK KAMU!
-        const OWNER_WALLET = "0x918dfeea08756ccb0bd045108883d8f89013f215".toLowerCase(); 
-
         const gateOverlay = document.getElementById('gatekeeper-overlay');
         const appShell = document.querySelector('.app-shell');
         const errorMsg = document.getElementById('wallet-error');
 
-        async function connectWallet() {
-            errorMsg.style.display = 'none';
-            const btn = document.querySelector('.connect-btn');
-            btn.innerHTML = "Menghubungkan...";
-            btn.disabled = true;
+        function grantAccess() {
+            gateOverlay.classList.add('hidden');
+            appShell.classList.add('visible');
+            init(); // Jalankan App
+        }
 
+        function showError(msg) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerText = msg;
+            // Shake effect for fun
+            const box = document.querySelector('.gate-box');
+            box.style.animation = 'none';
+            box.offsetHeight; /* trigger reflow */
+            box.style.animation = 'bounce 0.5s';
+        }
+        
+        // FUNGSI PENGGANTI (Memanggil Backend Vercel)
+        async function checkWalletAuth(userAddress) {
+            try {
+                // Panggil API Backend (File: api/check-auth.js)
+                const response = await fetch('/api/check-auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: userAddress })
+                });
+                
+                const data = await response.json();
+
+                if (response.ok && data.access) {
+                    grantAccess();
+                } else {
+                    showError(data.error || "Access Denied. You are not on the list.");
+                }
+            } catch (err) {
+                console.error(err);
+                showError("Server Error: Gagal menghubungi backend.");
+            }
+        }
+
+        // --- 1. CONNECT EVM (MetaMask, Trust, Rabby) ---
+        async function connectEVM() {
+            errorMsg.style.display = 'none';
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    // Minta user login metamask
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0].toLowerCase();
                     
-                    // Cek Whitelist
-                    if (userAddress === OWNER_WALLET) {
-                        // SUKSES
-                        btn.innerHTML = "Sukses! Mengalihkan...";
-                        setTimeout(() => {
-                            gateOverlay.classList.add('hidden'); // Hilangkan gerbang
-                            appShell.classList.add('visible'); // Munculkan app
-                            
-                            // Jalankan inisialisasi App setelah login
-                            init(); 
-                        }, 1000);
-                    } else {
-                        // GAGAL (Bukan Owner)
-                        throw new Error(`Akses Ditolak: ${userAddress} bukan pemilik.`);
-                    }
+                    // PANGGIL BACKEND
+                    await checkWalletAuth(userAddress);
 
                 } catch (error) {
-                    console.error(error);
-                    errorMsg.style.display = 'block';
-                    errorMsg.innerText = error.message || "User menolak koneksi.";
-                    btn.innerHTML = "Coba Lagi";
-                    btn.disabled = false;
+                    showError(error.message || "Gagal connect ke EVM wallet.");
                 }
             } else {
-                errorMsg.style.display = 'block';
-                errorMsg.innerHTML = 'MetaMask tidak terdeteksi. Silakan install <a href="https://metamask.io/" target="_blank" style="color:white;text-decoration:underline;">di sini</a>.';
-                btn.innerHTML = "Install MetaMask";
-                btn.disabled = false;
+                showError("Tidak ada wallet EVM (MetaMask/Trust) terdeteksi.");
+            }
+        }
+
+        // --- 2. CONNECT SOLANA (Phantom) ---
+        async function connectSolana() {
+            errorMsg.style.display = 'none';
+            const provider = window.solana;
+            
+            if (provider && provider.isPhantom) {
+                try {
+                    const resp = await provider.connect();
+                    const userAddress = resp.publicKey.toString();
+
+                    // PANGGIL BACKEND
+                    await checkWalletAuth(userAddress);
+
+                } catch (err) {
+                    showError(err.message || "User menolak koneksi Phantom.");
+                }
+            } else {
+                showError("Phantom Wallet tidak terdeteksi. Silakan install Phantom.");
             }
         }
     </script>
@@ -560,8 +667,7 @@
         };
 
         // --- 2. LOAD DATA ---
-        // Catatan: init() sekarang dipanggil setelah login wallet sukses (di script atas)
-        // Hapus pemanggilan init() otomatis di bagian bawah script ini.
+        // Init dipanggil dari grantAccess()
         async function init() {
             grid.innerHTML = Array(6).fill('<div class="cute-card" style="height:200px;"></div>').join('');
             
@@ -707,10 +813,6 @@
                 this.classList.add('active');
             });
         });
-
-        // HAPUS PEMANGGILAN INIT() DI SINI, KARENA SUDAH DIPANGGIL OLEH connectWallet()
-        // init(); 
     </script>
 </body>
 </html>
-
