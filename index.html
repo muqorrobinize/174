@@ -3,48 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Been On Exam 1.9 - Secure Private</title>
+    <title>Been On Exam 2.0 - Retro Calc</title>
+    <!-- Retro Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Luckiest+Guy&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
     
     <style>
-        /* === TEMA: MOBILE PRINCESS COQUETTE (ROOT) === */
+        /* === TEMA: RETRO CALCULATOR === */
         :root {
-            /* Palette Feminim */
-            --bg-body: #FFF0F5;          /* Lavender Blush */
-            --bg-sidebar: rgba(255, 255, 255, 0.85);
-            --bg-glass: rgba(255, 255, 255, 0.9);
+            /* Calculator Chassis */
+            --bg-body: #2c2c2c;          /* Dark Desk Background */
+            --calc-body: #e0d7c6;        /* Classic Beige Plastic */
+            --calc-shadow: #b0a896;      
             
-            /* The Pinks */
-            --primary: #FF69B4;          /* Hot Pink */
-            --primary-soft: #FFB7C5;     /* Cherry Blossom */
-            --primary-dark: #D81B60;     /* Deep Pink for Text */
-            --accent-glow: rgba(255, 105, 180, 0.4);
+            /* Screen (LCD) */
+            --screen-bg: #9ea73c;        /* Olive Green LCD */
+            --screen-text: #2b2b2b;      /* LCD Segment Color */
+            --screen-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
+
+            /* Accents */
+            --accent-orange: #ff9f43;    /* 'C' Button Color */
+            --accent-dark: #57606f;      /* Function Keys */
             
             /* Text */
-            --text-main: #5D4037;        /* Soft Brown (Lebih lembut dari hitam) */
-            --text-muted: #9E8888;
+            --font-display: 'VT323', monospace;
+            --font-body: 'Share Tech Mono', monospace;
             
             /* Dimensions */
-            --sidebar-width: 260px;
-            --sidebar-collapsed: 80px;
+            --sidebar-width: 220px;
+            --sidebar-collapsed: 70px;
         }
 
-        /* === WEB3 GATEKEEPER STYLES (COQUETTE THEME) === */
+        /* === RESET & BASE === */
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: var(--font-body);
+            background-color: var(--bg-body);
+            color: #333;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(30deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333),
+                linear-gradient(150deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333),
+                linear-gradient(30deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333),
+                linear-gradient(150deg, #333 12%, transparent 12.5%, transparent 87%, #333 87.5%, #333),
+                radial-gradient(#3a3a3a 20%, transparent 20%);
+            background-size: 80px 140px;
+            background-color: #252525;
+            min-height: 100vh;
+            display: flex; /* Centering for desktop look */
+            justify-content: center;
+        }
+
+        /* === GATEKEEPER OVERLAY (RETRO TERMINAL STYLE) === */
         #gatekeeper-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* Pink Gradient Background */
-            background: linear-gradient(135deg, #FFF0F5 0%, #FFE4E1 100%);
-            /* Polkadot Pattern */
-            background-image: radial-gradient(#FFB7C5 2px, transparent 2px);
-            background-size: 30px 30px;
+            background: #111;
             z-index: 9999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-main); font-family: 'Quicksand', sans-serif;
+            font-family: var(--font-body);
             transition: opacity 0.5s ease;
-            overflow-y: auto;
             padding: 20px;
         }
         
@@ -52,395 +71,326 @@
             opacity: 0; pointer-events: none;
         }
 
-        .gate-box {
-            background: rgba(255, 255, 255, 0.9);
-            border: 4px solid var(--primary-soft);
-            padding: 40px; border-radius: 40px;
-            text-align: center; max-width: 450px; width: 100%;
-            box-shadow: 0 15px 50px rgba(255, 105, 180, 0.25);
-            backdrop-filter: blur(10px);
+        /* CRT Screen Effect Container */
+        .crt-monitor {
+            background: #000;
+            border: 20px solid #333;
+            border-radius: 20px;
+            padding: 5px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            max-width: 500px; width: 100%;
             position: relative;
-            overflow: visible;
         }
 
-        .gate-deco {
-            position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
-            background: var(--primary); color: white;
-            padding: 8px 25px; border-radius: 20px; font-size: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 2;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce { 
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-5px); }
+        .gate-box {
+            background: #0f380f; /* Gameboy Green Dark */
+            color: #9bbc0f;      /* Gameboy Green Light */
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+            /* Scanlines */
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
         }
 
         .gate-title {
-            font-family: 'Luckiest Guy', cursive;
-            font-size: 2.5rem; margin-bottom: 5px; margin-top: 10px;
-            color: var(--primary);
-            text-shadow: 3px 3px 0px #FFE4E1;
+            font-family: var(--font-display);
+            font-size: 3rem; margin-bottom: 10px;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px #0f380f;
+            animation: blink 2s infinite;
         }
 
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
         .gate-desc {
-            color: var(--text-muted); font-weight: 600; margin-bottom: 25px;
-            line-height: 1.5; font-size: 0.95rem;
+            font-size: 1rem; margin-bottom: 30px; opacity: 0.8;
         }
         
         .wallet-grid {
-            display: grid; grid-template-columns: 1fr; gap: 15px;
-            margin-top: 10px;
+            display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 10px;
         }
 
         .connect-btn {
-            border: none; padding: 15px 20px;
-            border-radius: 25px;
-            font-weight: 700; font-size: 1rem; font-family: 'Quicksand', sans-serif;
-            cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            width: 100%; position: relative; overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 2px solid #9bbc0f; background: transparent;
+            color: #9bbc0f; padding: 15px;
+            font-family: var(--font-body); font-weight: bold;
+            cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            text-transform: uppercase;
         }
+        .connect-btn:hover { background: #9bbc0f; color: #0f380f; }
+        .connect-btn svg { width: 20px; height: 20px; }
 
-        .connect-btn.evm {
-            background: #FFF; border: 2px solid var(--primary); color: var(--primary);
-        }
-        .connect-btn.evm:hover { 
-            background: var(--primary); color: white; 
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 10px 20px rgba(255, 105, 180, 0.3);
-        }
-        .connect-btn.evm svg { color: inherit; } 
-
-        .connect-btn.solana {
-            background: #FFF; border: 2px solid #AB9FF2; color: #AB9FF2;
-        }
-        .connect-btn.solana:hover { 
-            background: #AB9FF2; color: white; 
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 10px 20px rgba(171, 159, 242, 0.3);
-        }
-        .connect-btn.solana svg { color: inherit; } 
-
-        .connect-btn:disabled { opacity: 0.5; cursor: wait; transform: none; }
-
-        /* MANUAL LOGIN STYLES */
+        /* Manual Input Retro Style */
         .manual-section {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 2px dashed #FFB7C5;
-            width: 100%;
+            margin-top: 25px; padding-top: 20px;
+            border-top: 1px dashed #9bbc0f;
         }
         .input-manual {
-            width: 100%;
-            padding: 15px;
-            border-radius: 15px;
-            border: 2px solid #FFB7C5;
-            background: #FFF;
-            font-family: 'Quicksand', sans-serif;
-            color: #5D4037;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            text-align: center;
-            transition: 0.3s;
+            width: 100%; padding: 12px;
+            background: #000; border: 1px solid #9bbc0f;
+            color: #9bbc0f; font-family: var(--font-body);
+            margin-bottom: 10px; text-align: center;
         }
-        .input-manual:focus { 
-            border-color: #FF69B4; 
-            box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.1);
-        }
-        .input-manual::placeholder { color: #ccb0b0; }
-        
+        .input-manual:focus { box-shadow: 0 0 10px #9bbc0f; }
         .btn-manual-submit {
-            background: #FFB7C5; color: white; border: none;
-            padding: 12px 20px; border-radius: 15px;
-            font-weight: 700; width: 100%; cursor: pointer;
-            transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; background: #9bbc0f; color: #0f380f;
+            border: none; padding: 12px; font-weight: bold; cursor: pointer;
+            font-family: var(--font-body);
         }
-        .btn-manual-submit:hover { background: #FF69B4; transform: scale(1.02); }
 
-        /* LINK PANDUAN */
         .help-link {
-            display: inline-block;
-            margin-top: 20px; font-size: 0.8rem; color: var(--text-muted);
-            text-decoration: none; border-bottom: 1px dashed var(--primary);
-            transition: 0.2s;
+            display: inline-block; margin-top: 20px;
+            color: #9bbc0f; text-decoration: underline; font-size: 0.8rem;
         }
-        .help-link:hover { color: var(--primary); border-bottom-style: solid; }
 
         .error-msg {
-            color: #D81B60; font-size: 0.9rem; margin-top: 20px; font-weight: 600;
-            background: #FFF0F5; padding: 12px; border-radius: 15px;
-            display: none; border: 2px dashed #FFB7C5; text-align: center;
+            color: #ff5f5f; border: 1px solid #ff5f5f;
+            margin-top: 20px; padding: 10px; font-size: 0.8rem;
+            display: none; background: rgba(0,0,0,0.5);
         }
 
-        /* === RESET & BASE === */
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: 'Quicksand', sans-serif; 
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            overflow-x: hidden;
-            background-image: radial-gradient(#FFC0CB 2px, transparent 2px);
-            background-size: 30px 30px;
-            padding-bottom: 100px;
+        /* === CALCULATOR CHASSIS (MAIN LAYOUT) === */
+        .app-shell { 
+            display: flex; flex-direction: column;
+            width: 100%; max-width: 1200px;
+            min-height: 100vh;
+            background-color: var(--calc-body);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5), inset 0 0 100px rgba(0,0,0,0.05);
+            opacity: 0; transition: opacity 1s ease;
+            position: relative;
         }
-
-        /* === LAYOUT STRUCTURE === */
-        .app-shell { display: flex; min-height: 100vh; opacity: 0; transition: opacity 1s ease; }
         .app-shell.visible { opacity: 1; }
 
-        /* === SIDEBAR (DESKTOP) === */
-        .sidebar {
-            width: var(--sidebar-collapsed);
-            background: var(--bg-sidebar);
-            height: 100vh;
-            position: fixed;
-            left: 0; top: 0;
-            border-right: 2px dashed var(--primary-soft);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 20px 10px;
-            z-index: 100;
-            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            backdrop-filter: blur(15px);
-            overflow: hidden;
-        }
-
-        .sidebar.expanded { width: var(--sidebar-width); align-items: flex-start; padding: 20px 25px; }
-
-        .brand-box { 
-            display: flex; align-items: center; gap: 15px; margin-bottom: 40px; height: 50px; 
-            white-space: nowrap; overflow: hidden;
-        }
-        .brand-icon {
-            font-family: 'Luckiest Guy'; font-size: 2rem; color: var(--primary);
-            background: #FFF; width: 50px; height: 50px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 15px var(--accent-glow); border: 2px solid var(--primary-soft);
-            flex-shrink: 0;
-        }
-        .brand-text {
-            font-family: 'Luckiest Guy'; font-size: 1.5rem; color: var(--primary);
-            opacity: 0; transition: 0.2s; pointer-events: none;
-        }
-        .sidebar.expanded .brand-text { opacity: 1; pointer-events: auto; }
-
-        .nav-list { list-style: none; width: 100%; display: flex; flex-direction: column; gap: 15px; }
-        .nav-btn {
-            display: flex; align-items: center; gap: 15px;
-            padding: 12px; width: 100%;
-            border-radius: 25px;
-            color: var(--text-muted); text-decoration: none; font-weight: 700;
-            transition: 0.3s;
-            justify-content: center;
-        }
-        .sidebar.expanded .nav-btn { justify-content: flex-start; padding: 12px 20px; }
-        
-        .nav-btn svg { width: 26px; height: 26px; flex-shrink: 0; }
-        .nav-btn span { display: none; white-space: nowrap; }
-        .sidebar.expanded .nav-btn span { display: block; }
-
-        .nav-btn:hover, .nav-btn.active { 
-            background: #FFE4E1; color: var(--primary); 
-            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.25); 
-            transform: scale(1.05);
-        }
-
-        .toggle-sidebar-btn {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--primary); color: white; border: none;
-            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-            box-shadow: 0 4px 10px var(--accent-glow);
-            display: flex; align-items: center; justify-content: center;
-            transition: 0.3s;
-        }
-        .sidebar.expanded .toggle-sidebar-btn { left: auto; right: 20px; transform: none; }
-        .toggle-sidebar-btn:hover { background: var(--primary-dark); transform: scale(1.1); }
-
-        /* === BOTTOM NAVIGATION (MOBILE) === */
-        .bottom-nav {
-            display: none;
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 400px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 50px;
+        /* DECORATIVE TOP STRIP (Like old Casio branding area) */
+        .calc-head {
+            background: #222; color: #ddd;
             padding: 10px 20px;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 10px 40px rgba(255, 105, 180, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            z-index: 900;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 4px solid #111;
         }
-        
-        .b-nav-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-muted); text-decoration: none;
-            width: 50px; height: 50px; border-radius: 50%;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .brand-logo {
+            font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 2px;
+            font-style: italic; font-weight: bold;
         }
-        .b-nav-item svg { width: 24px; height: 24px; stroke-width: 2.5px; }
-        .b-nav-item.active {
-            background: var(--primary); color: #fff;
-            transform: translateY(-10px);
-            box-shadow: 0 5px 15px var(--accent-glow);
+        .solar-panel {
+            width: 100px; height: 30px;
+            background: #443322;
+            border: 2px solid #554433;
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 19px, #665544 20px);
+            border-radius: 4px;
         }
-        
-        /* === MAIN CONTENT === */
-        .main-view {
-            flex-grow: 1;
-            margin-left: var(--sidebar-collapsed);
-            transition: margin-left 0.4s;
-            width: calc(100% - var(--sidebar-collapsed));
-        }
-        .sidebar.expanded + .main-view { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); }
 
-        .marquee-strip {
-            background: linear-gradient(90deg, #FF69B4, #FFB7C5); color: white;
-            padding: 8px 0; font-weight: 700; font-size: 0.8rem;
-            position: sticky; top: 0; z-index: 90;
-            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.2);
+        /* MAIN DISPLAY AREA (Where content lives) */
+        .calc-display-container {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex; flex-direction: column;
         }
-        .marquee-track { display: inline-block; animation: scroll 40s linear infinite; white-space: nowrap; }
+
+        /* The Green LCD Screen */
+        .lcd-screen {
+            background-color: var(--screen-bg);
+            color: var(--screen-text);
+            font-family: var(--font-body);
+            border: 4px solid #999;
+            border-radius: 10px;
+            box-shadow: var(--screen-shadow);
+            padding: 2px; /* Inner bezel */
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden; /* For Marquee */
+        }
+        
+        .lcd-inner {
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 15px;
+            min-height: 400px;
+        }
+
+        /* Marquee on LCD */
+        .marquee-strip {
+            background: rgba(0,0,0,0.1);
+            color: var(--screen-text);
+            padding: 5px 0; font-family: var(--font-display); font-size: 1.2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.2);
+            margin: -15px -15px 15px -15px; /* Flush to edges */
+        }
+        .marquee-track { display: inline-block; animation: scroll 30s linear infinite; white-space: nowrap; }
         .marquee-track span { padding-right: 50px; }
-        .marquee-track a { color: #FFF; text-decoration: underline; font-weight: 800; }
+        .marquee-track a { color: inherit; text-decoration: underline; font-weight: bold; }
         @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        .content-padding { padding: 40px; max-width: 1400px; margin: 0 auto; }
-
-        .hero-banner {
-            text-align: center; margin-bottom: 40px;
-            background: #fff; border-radius: 40px; padding: 40px 20px;
-            box-shadow: 0 15px 40px rgba(255, 182, 193, 0.3);
-            border: 4px solid #FFF0F5;
-            position: relative; overflow: visible;
+        /* SEARCH BAR (Looks like the main number display) */
+        .search-area {
+            margin-bottom: 25px; position: relative;
         }
-        .ribbon-deco {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            background: var(--primary); color: white;
-            padding: 5px 20px; border-radius: 20px; font-size: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 2;
-        }
-
-        .main-title { 
-            font-family: 'Luckiest Guy'; font-size: 3.5rem; color: var(--primary); 
-            text-shadow: 4px 4px 0px #FFC0CB; margin-bottom: 10px; line-height: 1;
-            margin-top: 20px;
-        }
-        .sub-header { 
-            font-family: 'Quicksand'; font-weight: 700; font-size: 1rem; 
-            color: var(--text-main); background: #FFF0F5; display: inline-block;
-            padding: 8px 25px; border-radius: 50px; margin-bottom: 25px;
-            border: 1px dashed var(--primary);
-        }
-        .sub-header a { color: var(--primary); text-decoration: none; border-bottom: 2px solid var(--primary-soft); }
-
-        .stats-bubbles { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
-        .bubble {
-            background: #fff; border: 2px solid #FFE4E1; padding: 10px 20px;
-            border-radius: 20px; color: var(--text-main); font-weight: 700; font-size: 0.9rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px;
-        }
-        .bubble strong { color: var(--primary); font-size: 1.1rem; }
-
-        .search-pill { position: relative; max-width: 500px; margin: 0 auto; }
         .search-input {
-            width: 100%; padding: 18px 55px 18px 25px; border-radius: 50px;
-            border: 2px solid #FFB7C5; background: #FFF;
-            font-family: 'Quicksand'; font-size: 1rem; color: var(--text-main);
-            transition: 0.3s;
+            width: 100%;
+            background: #8e9636; /* Slightly darker green */
+            border: 2px solid #777;
+            padding: 15px;
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: #000;
+            text-align: right;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
         }
-        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 5px rgba(255, 105, 180, 0.15); }
-        .search-btn {
-            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-            background: var(--primary); color: white; width: 42px; height: 42px;
-            border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
+        .search-input::placeholder { color: rgba(0,0,0,0.3); font-size: 1.5rem; text-align: left;}
+
+        /* STATS (Small indicators on screen) */
+        .lcd-stats {
+            font-size: 0.8rem; text-transform: uppercase;
+            display: flex; gap: 15px; margin-bottom: 15px;
+            opacity: 0.7;
         }
 
+        /* === GRID BUTTONS === */
         .grid-container {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px;
-            animation: fadeIn 0.5s ease;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;
+            padding-bottom: 100px; /* Space for mobile nav */
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .cute-card {
-            background: #fff; border-radius: 30px; padding: 25px;
-            border: 1px solid #FFF0F5; text-decoration: none; color: inherit;
-            box-shadow: 0 10px 25px rgba(255, 182, 193, 0.25);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center;
+        /* The Card is now a Calculator Button */
+        .calc-btn-card {
+            background: #f0f0f0;
+            border-radius: 8px;
+            padding: 15px;
+            color: #333;
+            text-decoration: none;
+            position: relative;
+            /* 3D Button Effect */
+            box-shadow: 
+                0 4px 0 #bbb, 
+                0 5px 5px rgba(0,0,0,0.2);
+            transition: all 0.1s;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            border: 1px solid #fff;
         }
-        .cute-card:hover { transform: translateY(-8px) scale(1.02); border-color: var(--primary); }
-
-        .icon-circle {
-            width: 70px; height: 70px; background: #FFF0F5; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--primary); margin-bottom: 15px; font-size: 2rem;
-            transition: 0.3s; box-shadow: inset 0 0 20px rgba(255,255,255,0.5);
-            border: 1px dashed var(--primary-soft);
+        
+        .calc-btn-card:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #bbb, inset 0 2px 5px rgba(0,0,0,0.1);
         }
-        .cute-card:hover .icon-circle { background: var(--primary); color: #fff; transform: rotate(15deg); border-style: solid; }
 
-        .card-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 5px; color: var(--text-main); }
-        .card-count { font-size: 0.8rem; color: var(--primary); background: #FFE4E1; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-top: auto; font-weight: 600;}
+        /* Secret Folder Style (Orange Button) */
+        .calc-btn-card.secret {
+            background: var(--accent-orange);
+            color: #fff;
+            box-shadow: 0 4px 0 #cc7a29, 0 5px 5px rgba(0,0,0,0.2);
+            border-color: #ffb066;
+        }
+        .calc-btn-card.secret:active { box-shadow: 0 0 0 #cc7a29, inset 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* List View Override */
+        .btn-icon {
+            font-size: 2rem; margin-bottom: 10px;
+            font-family: var(--font-display);
+        }
+        .btn-title {
+            font-weight: bold; font-size: 1rem; line-height: 1.2;
+            text-transform: uppercase;
+        }
+        .btn-count {
+            font-size: 0.7rem; margin-top: auto; opacity: 0.6;
+        }
+
+        /* List View */
         .grid-container.list-view { grid-template-columns: 1fr; }
-        .grid-container.list-view .cute-card { flex-direction: row; text-align: left; padding: 15px 25px; }
-        .grid-container.list-view .icon-circle { width: 50px; height: 50px; margin-bottom: 0; margin-right: 20px; font-size: 1.5rem; }
-        .grid-container.list-view .card-count { margin-top: 0; margin-left: auto; }
+        .grid-container.list-view .calc-btn-card { flex-direction: row; text-align: left; align-items: center; gap: 15px; }
+        .grid-container.list-view .btn-icon { margin-bottom: 0; }
+        .grid-container.list-view .btn-count { margin-top: 0; margin-left: auto; }
 
+        /* FOLDER VIEW HEADER */
         .folder-header {
-            position: sticky; top: 0; z-index: 80;
-            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
-            padding: 15px 20px; margin: -20px -20px 20px -20px; border-radius: 0 0 30px 30px;
             display: flex; align-items: center; gap: 15px;
-            border-bottom: 3px solid #FFF0F5;
-            animation: slideDown 0.3s ease;
+            margin-bottom: 20px; padding-bottom: 10px;
+            border-bottom: 2px dashed rgba(0,0,0,0.2);
         }
-        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
-
-        .back-btn-big {
-            background: var(--primary); color: white;
-            border: none; padding: 12px 25px; border-radius: 30px;
-            font-weight: 700; font-family: 'Quicksand'; cursor: pointer;
-            display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
-            transition: 0.2s;
+        .back-btn {
+            background: var(--accent-dark); color: white;
+            border: none; padding: 5px 15px;
+            box-shadow: 0 3px 0 #333;
+            border-radius: 4px; cursor: pointer;
+            font-family: var(--font-body);
         }
-        .back-btn-big:hover { transform: scale(1.05); background: var(--primary-dark); }
-        .folder-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
+        .back-btn:active { transform: translateY(3px); box-shadow: none; }
 
+        /* === NAVIGATION (SIDEBAR DESKTOP) === */
+        /* Looks like function keys on the side */
+        .sidebar {
+            position: absolute; right: -80px; top: 100px; /* Floating on desktop */
+            display: none; /* Default hidden */
+        }
+        @media (min-width: 769px) {
+            .sidebar { display: flex; flex-direction: column; gap: 15px; }
+            .side-key {
+                width: 60px; height: 50px;
+                background: #333; color: white;
+                display: flex; align-items: center; justify-content: center;
+                border-radius: 5px 0 0 5px;
+                box-shadow: -3px 3px 5px rgba(0,0,0,0.3);
+                cursor: pointer; text-decoration: none;
+                font-size: 0.8rem; text-align: center;
+            }
+            .side-key:hover { background: #444; width: 70px; }
+        }
+
+        /* === BOTTOM NAV (MOBILE) === */
+        /* Looks like bottom calculator buttons */
+        .bottom-control-panel {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: #d6cdbc;
+            padding: 15px 20px;
+            border-top: 4px solid #bbb;
+            display: flex; justify-content: space-around;
+            z-index: 900;
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.1);
+        }
+        
+        .control-btn {
+            background: #57606f; color: white;
+            border: none; border-radius: 6px;
+            width: 60px; height: 40px;
+            box-shadow: 0 4px 0 #2f3640;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.1s;
+        }
+        .control-btn svg { width: 20px; height: 20px; }
+        .control-btn.active { background: var(--accent-orange); box-shadow: 0 4px 0 #cc7a29; }
+        .control-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        @media (min-width: 769px) {
+            .bottom-control-panel { display: none; } /* Hide on desktop, use sidebar */
+        }
+
+        /* === MUSIC PLAYER (Physical Switch Style) === */
         #music-pill {
             position: fixed; bottom: 90px; right: 20px; z-index: 200;
-            background: #fff; padding: 8px 15px 8px 8px; border-radius: 50px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 2px solid var(--primary-soft);
+            background: #222; padding: 10px; border-radius: 50px;
+            border: 2px solid #555;
             display: flex; align-items: center; gap: 10px;
             transform: translateY(150%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
         }
         #music-pill.visible { transform: translateY(0); }
         
-        .play-toggle {
+        .music-toggle {
             width: 40px; height: 40px; border-radius: 50%; border: none;
-            background: var(--primary); color: white; cursor: pointer;
+            background: var(--screen-bg); color: #000; cursor: pointer;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 10px rgba(255, 105, 180, 0.3);
         }
-        .track-info { max-width: 120px; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); font-weight: 600; }
+        .music-text { color: #9bbc0f; font-family: var(--font-display); font-size: 1.2rem; margin-right: 10px; }
 
         @media (max-width: 768px) {
-            .sidebar { display: none !important; }
-            .main-view { margin-left: 0 !important; width: 100% !important; }
-            .content-padding { padding: 20px 15px 100px 15px; }
-            .bottom-nav { display: flex; }
-            .main-title { font-size: 2.5rem; }
-            .hero-banner { padding: 30px 15px; border-radius: 30px; }
-            #music-pill { bottom: 100px; right: 50%; transform: translateX(50%) translateY(150%); }
+            .app-shell { margin: 0; box-shadow: none; min-height: 100vh; }
+            .calc-head { border-radius: 0; }
+            .lcd-screen { border-radius: 0; border-left: none; border-right: none; }
+            #music-pill { bottom: 80px; right: 50%; transform: translateX(50%) translateY(150%); }
             #music-pill.visible { transform: translateX(50%) translateY(0); }
         }
 
@@ -448,141 +398,110 @@
 </head>
 <body>
 
-    <!-- === GATEKEEPER OVERLAY (COQUETTE THEME) === -->
+    <!-- === GATEKEEPER OVERLAY (RETRO TERMINAL) === -->
     <div id="gatekeeper-overlay">
-        <div class="gate-box">
-            <div class="gate-deco">🎀</div>
-            <h2 class="gate-title">WHO DIS?</h2>
-            <p class="gate-desc">
-                Yo, verify yourself real quick. We strictly reading public addresses, nothing else. <br>
-                <span style="font-size: 0.9em;">(Use a dummy wallet if you wanna stay lowkey)</span>
-                <br><br>
-                Not whitelisted? Slide a DM to <a href="https://instagram.com/mqrbxn" target="_blank" style="color: var(--primary-dark); text-decoration: underline;">@mqrbxn</a>
-            </p>
-            
-            <div class="wallet-grid">
-                <!-- EVM Button -->
-                <button class="connect-btn evm" onclick="connectEVM()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12l-9-9-9 9 9 9 9-9z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2l9 9-9 9-9-9 9-9z"/></svg>
-                    MetaMask / EVM
-                </button>
+        <div class="crt-monitor">
+            <div class="gate-box">
+                <h2 class="gate-title">SYSTEM LOCKED</h2>
+                <p class="gate-desc">
+                    [SECURE ACCESS PROTOCOL]<br>
+                    PLEASE VERIFY IDENTITY.<br>
+                    <span style="font-size:0.8em; color:#000;">(Dummy wallet recommended)</span>
+                </p>
                 
-                <!-- Solana Button -->
-                <button class="connect-btn solana" onclick="connectSolana()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 12h8m-8-4h8m-8 8h8" stroke="currentColor" stroke-width="2"/></svg>
-                    Phantom (Solana)
-                </button>
+                <div class="wallet-grid">
+                    <button class="connect-btn" onclick="connectEVM()">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12l-9-9-9 9 9 9 9-9z"/></svg> 
+                        EVM
+                    </button>
+                    <button class="connect-btn" onclick="connectSolana()">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                        SOL
+                    </button>
+                </div>
+
+                <div class="manual-section">
+                    <input type="text" id="manual-address" class="input-manual" placeholder="INPUT_ADDRESS_HERE_">
+                    <button class="btn-manual-submit" onclick="connectManual()">[ EXECUTE VERIFICATION ]</button>
+                </div>
+
+                <a href="https://beenonexamaccess.vercel.app/" class="help-link">>> ACCESS_MANUAL.TXT (HELP)</a>
+                <div id="wallet-error" class="error-msg"></div>
             </div>
-
-            <!-- MANUAL LOGIN -->
-            <div class="manual-section">
-                <p style="font-size: 0.8rem; margin-bottom: 8px; color: var(--text-muted); font-weight: 600;">No extension? Paste address here:</p>
-                <input type="text" id="manual-address" class="input-manual" placeholder="Paste Public Address (0x... / Sol...)">
-                <button class="btn-manual-submit" onclick="connectManual()">
-                    VERIFY ME <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </button>
-            </div>
-
-            <!-- BUTTON BANTUAN -->
-            <a href="https://beenonexamaccess.vercel.app/" class="help-link">Bingung? Baca Panduan / Access 101 📖</a>
-
-            <div id="wallet-error" class="error-msg"></div>
         </div>
     </div>
 
-    <!-- === MAIN APP (INITIALLY HIDDEN) === -->
+    <!-- === CALCULATOR APP === -->
     <div class="app-shell">
         
-        <!-- SIDEBAR (DESKTOP ONLY) -->
-        <nav class="sidebar" id="sidebar">
-            <div class="brand-box">
-                <div class="brand-icon">B</div>
-                <div class="brand-text">BEEN EXAM</div>
-            </div>
+        <!-- Top Branding Strip -->
+        <div class="calc-head">
+            <div class="brand-logo">BEEN-EXAM 2000</div>
+            <div class="solar-panel"></div>
+        </div>
 
-            <div class="nav-list">
-                <a href="#" class="nav-btn active" onclick="location.reload()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                    <span>Beranda</span>
-                </a>
-                <a href="#" class="nav-btn" onclick="toggleMusicWidget()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-2v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-2" /></svg>
-                    <span>Musik</span>
-                </a>
-                <a href="#" class="nav-btn" onclick="toggleView()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    <span>List / Grid</span>
-                </a>
-            </div>
+        <!-- Desktop Sidebar Keys -->
+        <nav class="sidebar">
+            <a href="#" class="side-key" onclick="location.reload()" title="Reset/Home">AC/ON</a>
+            <a href="#" class="side-key" onclick="toggleMusicWidget()" title="Music">♪</a>
+            <a href="#" class="side-key" onclick="toggleView()" title="Layout">MODE</a>
+        </nav>
 
-            <button class="toggle-sidebar-btn" id="sidebar-toggle">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+        <div class="calc-display-container">
+            <!-- Green LCD Screen -->
+            <div class="lcd-screen">
+                <div class="lcd-inner">
+                    <!-- Marquee -->
+                    <div class="marquee-strip">
+                        <div class="marquee-track">
+                            <span>
+                                Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam.
+                            </span>
+                            <span>
+                                Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam.
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Search / Number Display -->
+                    <div class="search-area">
+                        <input type="text" class="search-input" id="search-input" placeholder="88888888" onclick="this.placeholder=''">
+                    </div>
+
+                    <div class="lcd-stats" id="stats-area">
+                        <span>MEM: LOAD...</span>
+                    </div>
+
+                    <!-- Content Grid (Buttons) -->
+                    <div id="grid-wrapper" class="grid-container">
+                        <!-- JS fills this -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Bottom Keys -->
+        <div class="bottom-control-panel">
+            <button class="control-btn active" onclick="location.reload()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
             </button>
-        </nav>
+            <button class="control-btn" onclick="toggleMusicWidget()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13M9 22c-2.5 0-4-1.5-4-3s1.5-3 4-3 4 1.5 4 3-1.5 3-4 3zm12-3c-2.5 0-4-1.5-4-3s1.5-3 4-3 4 1.5 4 3-1.5 3-4 3z" /></svg>
+            </button>
+            <button class="control-btn" onclick="toggleView()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </button>
+        </div>
 
-        <!-- BOTTOM NAVIGATION (MOBILE ONLY) -->
-        <nav class="bottom-nav">
-            <a href="#" class="b-nav-item active" onclick="location.reload()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-            </a>
-            <a href="#" class="b-nav-item" onclick="toggleMusicWidget()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-2v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-2" /></svg>
-            </a>
-            <a href="#" class="b-nav-item" onclick="toggleView()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </a>
-        </nav>
-
-        <!-- MAIN VIEW -->
-        <main class="main-view">
-            <!-- Marquee Running Text -->
-            <div class="marquee-strip">
-                <div class="marquee-track">
-                    <span>
-                        Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam.
-                    </span>
-                    <span>
-                        Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam.
-                    </span>
-                </div>
-            </div>
-
-            <div class="content-padding">
-                
-                <!-- Hero Section -->
-                <div class="hero-banner" id="hero-section">
-                    <div class="ribbon-deco">🎀</div>
-                    <h1 class="main-title">BEEN ON EXAM</h1>
-                    <div class="sub-header">B$4BE!N x <a href="https://github.com/ghaffarsyafiq-arch" target="_blank">Sir Yaeon</a></div>
-                    
-                    <div class="stats-bubbles" id="stats-area">
-                        <div class="bubble">Loading...</div>
-                    </div>
-
-                    <div class="search-pill">
-                        <input type="text" class="search-input" id="search-input" placeholder="Cari materi kuis">
-                        <button class="search-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Content Grid -->
-                <div id="grid-wrapper" class="grid-container">
-                    <!-- JS fills this -->
-                </div>
-
-            </div>
-        </main>
     </div>
 
     <!-- Music Player Widget -->
     <div id="music-pill">
-        <button class="play-toggle" id="music-btn">
+        <div class="music-text" id="track-name">NO TAPE</div>
+        <button class="music-toggle" id="music-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </button>
-        <div class="track-info" id="track-name">No Music</div>
-        <button onclick="toggleMusicWidget()" style="background:none; border:none; color:#aaa; cursor:pointer;">&times;</button>
+        <button onclick="toggleMusicWidget()" style="background:none; border:none; color:#555; cursor:pointer; margin-left:5px;">x</button>
     </div>
 
     <script>
@@ -593,23 +512,16 @@
         function grantAccess() {
             gateOverlay.classList.add('hidden');
             appShell.classList.add('visible');
-            init(); // Jalankan App
+            init(); 
         }
 
         function showError(msg) {
             errorMsg.style.display = 'block';
-            errorMsg.innerText = msg;
-            // Shake effect for fun
-            const box = document.querySelector('.gate-box');
-            box.style.animation = 'none';
-            box.offsetHeight; /* trigger reflow */
-            box.style.animation = 'bounce 0.5s';
+            errorMsg.innerText = "ERROR: " + msg;
         }
         
-        // FUNGSI PENGGANTI (Memanggil Backend Vercel)
         async function checkWalletAuth(userAddress) {
             try {
-                // Panggil API Backend (File: api/check-auth.js)
                 const response = await fetch('/api/check-auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -621,98 +533,69 @@
                 if (response.ok && data.access) {
                     grantAccess();
                 } else {
-                    showError(data.error || "Access Denied. You are not on the list.");
+                    showError(data.error || "ACCESS DENIED. ID NOT FOUND.");
                 }
             } catch (err) {
                 console.error(err);
-                showError("Server Error: Gagal menghubungi backend.");
+                showError("SERVER CONNECTION FAILED.");
             }
         }
 
-        // --- 1. CONNECT EVM (MetaMask, Trust, Rabby) ---
         async function connectEVM() {
             errorMsg.style.display = 'none';
             if (typeof window.ethereum !== 'undefined') {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0].toLowerCase();
-                    
-                    // PANGGIL BACKEND
                     await checkWalletAuth(userAddress);
-
                 } catch (error) {
-                    showError(error.message || "Gagal connect ke EVM wallet.");
+                    showError(error.message || "EVM CONNECTION FAILED.");
                 }
             } else {
-                showError("Tidak ada wallet EVM (MetaMask/Trust) terdeteksi.");
+                showError("NO EVM WALLET DETECTED.");
             }
         }
 
-        // --- 2. CONNECT SOLANA (Phantom) ---
         async function connectSolana() {
             errorMsg.style.display = 'none';
             const provider = window.solana;
-            
             if (provider && provider.isPhantom) {
                 try {
                     const resp = await provider.connect();
                     const userAddress = resp.publicKey.toString();
-
-                    // PANGGIL BACKEND
                     await checkWalletAuth(userAddress);
-
                 } catch (err) {
-                    showError(err.message || "User menolak koneksi Phantom.");
+                    showError(err.message || "USER REJECTED CONNECTION.");
                 }
             } else {
-                showError("Phantom Wallet tidak terdeteksi. Silakan install Phantom.");
+                showError("PHANTOM NOT INSTALLED.");
             }
         }
 
-        // --- 3. CONNECT MANUAL (NEW) ---
         async function connectManual() {
             errorMsg.style.display = 'none';
             const input = document.getElementById('manual-address');
             const address = input.value.trim();
-            
             if(!address) {
-                showError("Yo, paste the address first!");
+                showError("INPUT ADDRESS REQUIRED.");
                 return;
             }
-            
-            // Langsung kirim ke backend
             await checkWalletAuth(address);
         }
     </script>
 
     <script>
-        const GITHUB_USERNAME = "muqorrobinize";
-        const GITHUB_REPO = "beenonexam";
-        
-        // DOM
-        const sidebar = document.getElementById('sidebar');
+        const sidebar = document.querySelector('.sidebar'); // For desktop toggle if needed
         const grid = document.getElementById('grid-wrapper');
-        const hero = document.getElementById('hero-section');
         const searchInput = document.getElementById('search-input');
         
         let quizzes = {};
         let musicList = [];
         let audio = new Audio();
         
-        // --- 1. SIDEBAR LOGIC (DESKTOP) ---
-        document.getElementById('sidebar-toggle').onclick = () => {
-            sidebar.classList.toggle('expanded');
-            const svg = document.querySelector('#sidebar-toggle svg');
-            if(sidebar.classList.contains('expanded')) {
-                svg.innerHTML = '<path d="M11 19l-7-7 7-7M19 19l-7-7 7-7"/>'; // Left arrows
-            } else {
-                svg.innerHTML = '<path d="M13 5l7 7-7 7M5 5l7 7-7 7"/>'; // Right arrows
-            }
-        };
-
         // --- 2. LOAD DATA ---
         async function init() {
-            grid.innerHTML = Array(6).fill('<div class="cute-card" style="height:200px;"></div>').join('');
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center;">LOADING MEMORY...</div>';
             
             try {
                 const cached = localStorage.getItem('v6_cache');
@@ -720,12 +603,9 @@
                 if(cached && (Date.now() - JSON.parse(cached).ts < 600000)) {
                     files = JSON.parse(cached).data;
                 } else {
-                    // Fetch ke Backend
                     const res = await fetch('/api/content?folder=kuis'); 
-                    
                     if (!res.ok) {
-                        // Coba ambil pesan error dari backend jika ada
-                        let errorDetail = "Server Error";
+                        let errorDetail = "COMM ERROR";
                         try {
                             const errJson = await res.json();
                             errorDetail = errJson.error || res.statusText;
@@ -734,12 +614,10 @@
                         }
                         throw new Error(errorDetail);
                     }
-                    
                     files = await res.json();
                     localStorage.setItem('v6_cache', JSON.stringify({data:files, ts:Date.now()}));
                 }
 
-                // Render Content...
                 quizzes = files.filter(f=>f.name.endsWith('.html')).reduce((acc, f) => {
                     const parts = f.name.split('_');
                     if(parts.length < 2) return acc;
@@ -756,12 +634,10 @@
 
             } catch(e) {
                 console.error(e);
-                // Tampilkan pesan error spesifik di layar biar gampang debug
                 grid.innerHTML = `
-                    <div style="text-align:center; width:100%; color:#D81B60; background:#FFF0F5; padding:20px; border-radius:15px; border:2px dashed #FFB7C5;">
-                        <strong>Gagal memuat data 😭</strong><br>
-                        <small>${e.message}</small><br><br>
-                        <span style="font-size:0.8rem; color:#999;">(Pastikan Token GitHub sudah diset di Vercel & Nama Repo benar)</span>
+                    <div style="grid-column:1/-1; text-align:center; color:#550000;">
+                        <strong>DATA CORRUPT</strong><br>
+                        <small>${e.message}</small>
                     </div>`;
             }
         }
@@ -770,14 +646,14 @@
             const cats = Object.keys(quizzes);
             const total = Object.values(quizzes).reduce((a,b)=>a+b.length,0);
             document.getElementById('stats-area').innerHTML = `
-                <div class="bubble"><strong>${cats.length}</strong> Kategori</div>
-                <div class="bubble"><strong>${total}</strong> Kuis</div>
+                <span>CATS: ${cats.length}</span>
+                <span>FILES: ${total}</span>
+                <span>BAT: 99%</span>
             `;
         }
 
         function renderHome(filter="") {
             grid.innerHTML = "";
-            hero.style.display = "block"; 
             
             Object.keys(quizzes).sort().forEach(cat => {
                 if(filter && !cat.toLowerCase().includes(filter.toLowerCase())) return;
@@ -786,79 +662,65 @@
                 const name = cat.replace(/secret/i,'').trim();
                 const count = quizzes[cat].length;
                 
-                // Cute Icons
-                const icons = ['🌸', '💖', '🍭', '✨', '🎀', '🦄'];
+                // Retro Icons
+                const icons = ['+', '-', '×', '÷', '%', '√'];
                 const icon = icons[name.length % icons.length]; 
 
                 const card = document.createElement('a');
-                card.className = `cute-card ${isSecret ? 'secret' : ''}`;
+                card.className = `calc-btn-card ${isSecret ? 'secret' : ''}`;
                 card.href = "#";
-                card.onclick = (e) => { e.preventDefault(); isSecret ? alert('Secret!') : openFolder(cat); };
+                card.onclick = (e) => { e.preventDefault(); isSecret ? alert('ACCESS DENIED: ENCRYPTED') : openFolder(cat); };
                 
                 card.innerHTML = `
-                    <div class="icon-circle">${isSecret ? '🔒' : icon}</div>
-                    <div class="card-title">${name}</div>
-                    <div class="card-count">${count} items</div>
+                    <div class="btn-icon">${isSecret ? 'LOCK' : icon}</div>
+                    <div class="btn-title">${name}</div>
+                    <div class="btn-count">[${count}]</div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // --- 3. INTUITIVE FOLDER VIEW ---
         function openFolder(cat) {
             window.scrollTo({top:0});
-            hero.style.display = "none"; 
-
             const name = cat.replace(/secret/i,'').trim();
             grid.innerHTML = "";
 
             const header = document.createElement('div');
             header.className = 'folder-header';
             header.innerHTML = `
-                <button class="back-btn-big" onclick="renderHome()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M15 19l-7-7 7-7"/></svg>
-                    KEMBALI
+                <button class="back-btn" onclick="renderHome()">
+                    < BACK
                 </button>
-                <div class="folder-title">Folder: ${name}</div>
+                <div style="font-weight:bold; margin-left:10px;">DIR: ${name}</div>
             `;
             grid.appendChild(header);
 
             quizzes[cat].forEach(q => {
                 const card = document.createElement('a');
-                card.className = "cute-card";
+                card.className = "calc-btn-card";
                 card.href = `kuis/${q.file}`;
                 card.style.flexDirection = "row";
                 card.style.textAlign = "left";
                 card.innerHTML = `
-                    <div class="icon-circle" style="width:50px; height:50px; font-size:1.2rem; margin:0 15px 0 0; background:#E0F2F1; color:#00695C;">📝</div>
+                    <div style="font-family:var(--font-display); font-size:1.5rem; margin-right:10px;">></div>
                     <div style="flex-grow:1;">
-                        <div class="card-title" style="margin:0;">${q.name}</div>
+                        <div class="btn-title">${q.name}</div>
                     </div>
-                    <div style="color:var(--primary); font-weight:bold;">GO &rarr;</div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // --- UTILS ---
         function toggleView() { grid.classList.toggle('list-view'); }
         searchInput.oninput = (e) => renderHome(e.target.value);
 
-        // Music
         async function loadMusic() {
             try {
-                // === UPDATE 2: Fetch Music via Proxy ===
-                // Dulu: Langsung ke GitHub (Gagal kalau private)
-                // Sekarang: Lewat backend (/api/content?folder=music)
                 const res = await fetch('/api/content?folder=music');
-                
-                if (!res.ok) return; // Silent fail kalau error
-                
+                if (!res.ok) return; 
                 const files = await res.json();
                 musicList = files.filter(f=>f.name.endsWith('.mp3')).map(f=>f.download_url);
-            } catch(e){
-                console.log("Music fetch error:", e);
-            }
+            } catch(e){ console.log("Audio Err:", e); }
         }
         
         let playing = false;
@@ -868,17 +730,18 @@
                 if(!audio.src) audio.src = musicList[0];
                 audio.play();
                 playing = true;
-                document.getElementById('track-name').innerText = "Playing...";
-                document.getElementById('music-btn').innerHTML = '❚❚';
+                document.getElementById('track-name').innerText = "TAPE RUNNING...";
+                document.getElementById('music-btn').innerHTML = '||';
             } else {
                 audio.pause();
                 playing = false;
-                document.getElementById('music-btn').innerHTML = '▶';
+                document.getElementById('track-name').innerText = "PAUSED";
+                document.getElementById('music-btn').innerHTML = '►';
             }
         };
 
-        // Update Bottom Nav Active State
-        const bNavs = document.querySelectorAll('.b-nav-item');
+        // Bottom Nav Active State
+        const bNavs = document.querySelectorAll('.control-btn');
         bNavs.forEach(btn => {
             btn.addEventListener('click', function() {
                 bNavs.forEach(b => b.classList.remove('active'));
