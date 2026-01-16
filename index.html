@@ -1,424 +1,266 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stark Exam Mark-85</title>
-    <!-- Fonts: Luckiest Guy (Brand), Orbitron (HUD), Share Tech Mono (Data) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Been On Exam - The Alchemist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        void: '#050505',
+                        surface: '#0a0a0a',
+                        border: '#27272a',
+                        accent: '#10b981', /* Emerald */
+                        accentdim: '#064e3b',
+                        mist: '#a1a1aa',
+                        text: '#e4e4e7',
+                        error: '#ef4444'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'scroll': 'scroll 30s linear infinite',
+                    },
+                    keyframes: {
+                        scroll: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* === TEMA: IRON MAN RETRO CALCULATOR (MARK-85) === */
-        :root {
-            /* Iron Man Palette */
-            --stark-red: #800000;       /* Deep Hot Rod Red */
-            --stark-red-light: #c41e3a; /* Highlight Red */
-            --stark-gold: #ffcc00;      /* Armor Gold */
-            --stark-gold-dim: #b8860b;  /* Darker Gold */
-            --arc-cyan: #00f3ff;        /* Arc Reactor Blue */
-            
-            /* Interface */
-            --bg-world: #1a0505;        /* Dark Redish Black Environment */
-            --screen-bg: #051015;       /* Dark Glass Screen */
-            --screen-text: #00f3ff;     /* Hologram Text */
-            
-            /* Fonts */
-            --font-brand: 'Luckiest Guy', cursive;
-            --font-hud: 'Orbitron', sans-serif;
-            --font-data: 'Share Tech Mono', monospace;
-            
-            /* Effects */
-            --armor-shine: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%);
-            --arc-glow: 0 0 15px rgba(0, 243, 255, 0.5);
-            --gold-shine: linear-gradient(to bottom, #ffeebb 0%, #ffcc00 50%, #b8860b 100%);
-        }
-
-        /* === RESET & BASE === */
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #050505; color: #e4e4e7; }
         
-        body { 
-            font-family: var(--font-data);
-            background-color: var(--bg-world);
-            color: var(--screen-text);
-            overflow-x: hidden;
-            /* Hex Pattern Background */
-            background-image: 
-                radial-gradient(circle at 50% 50%, #300000 0%, #000000 100%);
-            min-height: 100vh;
-            display: flex; justify-content: center; align-items: center; /* Center the calculator */
-            padding: 20px;
-        }
-
-        /* === SCROLLBAR === */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--stark-gold); border-radius: 3px; }
-
-        /* === GATEKEEPER (HUD LOCK SCREEN) === */
-        #gatekeeper-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 0, 0, 0.95);
-            z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease;
-            backdrop-filter: blur(10px);
-        }
+        /* Glass Effect */
+        .glass { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(39, 39, 42, 0.5); }
         
-        #gatekeeper-overlay.hidden { opacity: 0; pointer-events: none; }
-
-        .gate-box {
-            background: rgba(20, 0, 0, 0.8);
-            border: 2px solid var(--stark-red-light);
-            border-radius: 20px;
-            padding: 40px; 
-            max-width: 450px; width: 90%;
-            box-shadow: 0 0 50px rgba(196, 30, 58, 0.3);
-            text-align: center;
-            position: relative;
-        }
-        /* Top & Bottom Gold Bars */
-        .gate-box::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:60%; height:4px; background: var(--stark-gold); border-radius:0 0 10px 10px; box-shadow: 0 0 10px var(--stark-gold); }
-        .gate-box::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:60%; height:4px; background: var(--stark-gold); border-radius:10px 10px 0 0; box-shadow: 0 0 10px var(--stark-gold); }
-
-        .gate-title {
-            font-family: var(--font-brand);
-            font-size: 2.5rem; margin-bottom: 10px;
-            color: var(--stark-gold);
-            text-shadow: 2px 2px 0px #000;
-            letter-spacing: 1px;
-        }
-
-        .gate-desc {
-            font-family: var(--font-hud); color: var(--arc-cyan); font-size: 0.9rem; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px;
-        }
+        /* Card Hover */
+        .interactive-card { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .interactive-card:hover { transform: translateY(-4px); border-color: #10b981; box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.15); }
         
-        .wallet-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 10px; }
+        /* Input Focus */
+        .input-focus:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 1px #10b981; }
 
-        .connect-btn {
-            background: linear-gradient(to bottom, #2a0a0a, #1a0000);
-            border: 1px solid var(--stark-gold);
-            color: var(--stark-gold); padding: 15px;
-            font-family: var(--font-hud); font-weight: bold;
-            cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            text-transform: uppercase; border-radius: 5px;
-        }
-        .connect-btn:hover { 
-            background: var(--stark-gold); color: #000; 
-            box-shadow: 0 0 20px var(--stark-gold);
-        }
-        .connect-btn svg { width: 20px; height: 20px; }
+        /* Hide Scrollbar but keep functionality */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Manual Input */
-        .manual-section { margin-top: 25px; padding-top: 20px; border-top: 1px dashed var(--stark-red-light); }
-        .input-manual {
-            width: 100%; padding: 12px;
-            background: #000; border: 1px solid var(--arc-cyan);
-            color: var(--arc-cyan); font-family: var(--font-data);
-            margin-bottom: 10px; text-align: center; border-radius: 5px;
-        }
-        .input-manual:focus { box-shadow: 0 0 15px var(--arc-cyan); }
-        .btn-manual-submit {
-            width: 100%; background: var(--stark-red); 
-            color: white; border: none;
-            padding: 12px; font-weight: bold; cursor: pointer;
-            font-family: var(--font-hud); border-radius: 5px;
-            transition: 0.3s;
-        }
-        .btn-manual-submit:hover { background: var(--stark-red-light); box-shadow: 0 0 15px var(--stark-red-light); }
-
-        .help-link { display: inline-block; margin-top: 20px; color: var(--arc-cyan); text-decoration: none; font-size: 0.8rem; border-bottom: 1px dashed var(--arc-cyan); }
-        .error-msg { color: #ff3333; margin-top: 20px; font-size: 0.9rem; display: none; }
-
-        /* === CALCULATOR BODY (THE SUIT) === */
-        .app-shell { 
-            display: flex; flex-direction: column;
-            width: 100%; max-width: 900px;
-            background: linear-gradient(145deg, var(--stark-red), #4a0000);
-            border-radius: 30px;
-            border: 4px solid #aa0000;
-            box-shadow: 
-                inset 2px 2px 10px rgba(255,255,255,0.2), 
-                inset -2px -2px 10px rgba(0,0,0,0.5),
-                0 20px 50px rgba(0,0,0,0.8);
-            position: relative;
-            padding: 30px;
-            opacity: 0; transition: opacity 1s ease;
-        }
-        .app-shell.visible { opacity: 1; }
-
-        /* Decorative Screws */
-        .screw {
-            position: absolute; width: 12px; height: 12px;
-            background: #cdcdcd; border-radius: 50%;
-            box-shadow: inset 1px 1px 2px #000, 1px 1px 0 rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .screw::after { content: '+'; font-family: monospace; font-size: 16px; color: #555; font-weight: bold; }
-        .tr { top: 15px; right: 15px; } .tl { top: 15px; left: 15px; }
-        .br { bottom: 15px; right: 15px; } .bl { bottom: 15px; left: 15px; }
-
-        /* BRANDING PLATE */
-        .brand-plate {
-            text-align: center; margin-bottom: 20px;
-            border: 2px solid var(--stark-gold-dim);
-            background: linear-gradient(to right, #4a0000, var(--stark-red), #4a0000);
-            padding: 5px; border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-        }
-        .brand-text {
-            font-family: var(--font-brand); font-size: 2.2rem;
-            color: var(--stark-gold);
-            text-shadow: 2px 2px 0px #3a0000;
-            letter-spacing: 2px; line-height: 1;
-        }
-        .brand-sub { font-family: var(--font-hud); font-size: 0.7rem; color: #fff; letter-spacing: 4px; opacity: 0.8; }
-
-        /* LCD SCREEN (ARC REACTOR INTERFACE) */
-        .lcd-screen {
-            background-color: var(--screen-bg);
-            border-radius: 15px;
-            border: 4px solid #222;
-            box-shadow: inset 0 0 20px #000, 0 0 10px rgba(0,0,0,0.5);
-            padding: 20px;
-            min-height: 500px;
-            position: relative;
-            overflow: hidden;
-            display: flex; flex-direction: column;
-        }
-        /* Grid overlay on screen */
-        .lcd-screen::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(var(--arc-cyan) 1px, transparent 1px), linear-gradient(90deg, var(--arc-cyan) 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: 0.05; pointer-events: none;
-        }
-
-        /* SCREEN HEADER */
-        .screen-header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
-            padding-bottom: 10px; margin-bottom: 15px;
-        }
-        .system-status { font-size: 0.8rem; color: var(--arc-cyan); animation: blink 2s infinite; }
-        @keyframes blink { 50% { opacity: 0.5; } }
-
-        /* MARQUEE */
-        .marquee-strip {
-            background: rgba(0, 243, 255, 0.1);
-            color: var(--screen-text);
-            padding: 5px 0; margin-bottom: 15px; border-radius: 4px;
-            font-size: 0.9rem; overflow: hidden;
-        }
-        .marquee-track { display: inline-block; animation: scroll 30s linear infinite; white-space: nowrap; }
-        .marquee-track span { padding-right: 50px; }
-        .marquee-track a { color: var(--stark-gold); text-decoration: none; border-bottom: 1px dashed var(--stark-gold); }
-        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        /* SEARCH INPUT (DIGITAL STYLE) */
-        .search-area { position: relative; margin-bottom: 20px; }
-        .search-input {
-            width: 100%; background: rgba(0,0,0,0.5);
-            border: 1px solid var(--arc-cyan);
-            color: var(--arc-cyan); font-family: var(--font-hud); font-size: 1.5rem;
-            padding: 10px 15px; text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
-        }
-        .search-input::placeholder { color: rgba(0, 243, 255, 0.3); }
-
-        /* GRID CONTENT (HOLOGRAPHIC CARDS) */
-        .grid-container {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px;
-            overflow-y: auto; padding-right: 5px;
-            flex-grow: 1; /* Fill remaining space */
-        }
-
-        .folder-card {
-            background: rgba(0, 243, 255, 0.05);
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            padding: 15px; text-decoration: none; color: var(--screen-text);
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-            transition: 0.3s; position: relative;
-        }
-        .folder-card:hover {
-            background: rgba(0, 243, 255, 0.15);
-            border-color: var(--arc-cyan);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        .card-icon { font-size: 2rem; margin-bottom: 10px; color: var(--stark-gold); }
-        .folder-card.secret .card-icon { color: var(--stark-red-light); }
-        .card-title { font-family: var(--font-hud); font-size: 0.9rem; line-height: 1.2; }
-        .card-count { font-size: 0.7rem; opacity: 0.7; margin-top: 5px; }
-
-        /* LIST VIEW */
-        .grid-container.list-view { grid-template-columns: 1fr; }
-        .grid-container.list-view .folder-card { flex-direction: row; text-align: left; gap: 15px; padding: 10px 20px; }
-        .grid-container.list-view .card-icon { margin-bottom: 0; font-size: 1.5rem; }
-        .grid-container.list-view .card-count { margin-top: 0; margin-left: auto; }
-
-        /* FUNCTION KEYS (PHYSICAL BUTTONS BELOW SCREEN) */
-        .keyboard-deck {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .mech-btn {
-            background: var(--gold-shine);
-            border: none;
-            border-bottom: 4px solid #b8860b; /* 3D depth */
-            border-radius: 8px;
-            height: 50px;
-            color: #4a0000;
-            font-family: var(--font-hud); font-weight: bold; font-size: 0.9rem;
-            cursor: pointer; transition: 0.1s;
-            display: flex; align-items: center; justify-content: center;
-            text-transform: uppercase;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-        }
-        .mech-btn:active { transform: translateY(4px); border-bottom: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
-        
-        .mech-btn.red { 
-            background: linear-gradient(to bottom, #ff4444 0%, #cc0000 100%);
-            border-bottom-color: #800000; color: white;
-        }
-        .mech-btn.silver {
-            background: linear-gradient(to bottom, #eee 0%, #ccc 100%);
-            border-bottom-color: #999; color: #333;
-        }
-
-        /* MUSIC WIDGET (HUD) */
-        #music-pill {
-            position: absolute; bottom: 25px; right: 25px; z-index: 50;
-            display: flex; align-items: center; gap: 10px;
-            background: rgba(0,0,0,0.8); border: 1px solid var(--stark-gold);
-            padding: 5px 15px; border-radius: 20px;
-            transform: translateY(150%); transition: 0.4s;
-        }
-        #music-pill.visible { transform: translateY(0); }
-        .music-reactor {
-            width: 20px; height: 20px; background: var(--arc-cyan); border-radius: 50%;
-            box-shadow: 0 0 10px var(--arc-cyan); animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 50% { opacity: 0.5; } }
-
-        /* RESPONSIVE */
-        @media (max-width: 600px) {
-            .app-shell { border-radius: 0; height: 100vh; max-width: 100%; border: none; padding: 15px; }
-            .screw { display: none; }
-            .lcd-screen { min-height: 0; flex-grow: 1; }
-            .keyboard-deck { gap: 10px; }
-            .mech-btn { height: 45px; font-size: 0.8rem; }
-        }
-
-        /* FOLDER NAV */
-        .folder-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--arc-cyan); padding-bottom: 10px; }
-        .back-btn-hud { background: transparent; border: 1px solid var(--arc-cyan); color: var(--arc-cyan); padding: 5px 15px; font-family: var(--font-hud); cursor: pointer; }
-        .back-btn-hud:hover { background: var(--arc-cyan); color: #000; }
-
+        /* Loader */
+        .loader { width: 48px; height: 48px; border: 3px solid #27272a; border-radius: 50%; display: inline-block; position: relative; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        .loader::after { content: ''; box-sizing: border-box; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; border: 3px solid; border-color: #10b981 transparent; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body class="antialiased min-h-screen flex flex-col font-sans selection:bg-accent selection:text-black overflow-x-hidden">
 
-    <!-- === GATEKEEPER (SECURITY TERMINAL) === -->
-    <div id="gatekeeper-overlay">
-        <div class="gate-box">
-            <h2 class="gate-title">STARK INDUSTRIES</h2>
-            <p class="gate-desc">MARK-85 SECURE SERVER</p>
-            
-            <div class="wallet-grid">
-                <button class="connect-btn" onclick="connectEVM()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12l-9-9-9 9 9 9 9-9z"/></svg> 
-                    JARVIS (EVM)
-                </button>
-                <button class="connect-btn" onclick="connectSolana()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-                    FRIDAY (SOL)
-                </button>
+    <!-- === GATEKEEPER OVERLAY === -->
+    <div id="gatekeeper-overlay" class="fixed inset-0 z-[100] bg-void flex flex-col items-center justify-center p-6 transition-opacity duration-500">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/5 via-void to-void pointer-events-none"></div>
+        
+        <div class="w-full max-w-md space-y-8 relative z-10">
+            <div class="text-center space-y-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-accent/20 bg-accent/5 text-[10px] uppercase tracking-widest text-accent font-mono mb-4">
+                    <span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+                    Secure Access Protocol
+                </div>
+                <h1 class="text-4xl font-bold tracking-tight text-white font-mono">IDENTITAS DIPERLUKAN</h1>
+                <p class="text-mist text-sm leading-relaxed">
+                    Sistem ini dilindungi. Masukkan kunci digital (Wallet Address) Anda untuk mengakses arsip ujian.
+                </p>
             </div>
 
-            <div class="manual-section">
-                <input type="text" id="manual-address" class="input-manual" placeholder="OVERRIDE CODE (ADDRESS)">
-                <button class="btn-manual-submit" onclick="connectManual()">INITIATE PROTOCOL</button>
-            </div>
+            <!-- Login Methods -->
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="connectEVM()" class="group relative flex items-center justify-center gap-3 p-4 rounded bg-surface border border-border hover:border-accent transition-all">
+                        <svg class="w-5 h-5 text-mist group-hover:text-accent transition-colors" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12l-9-9-9 9 9 9 9-9z"/></svg>
+                        <span class="text-xs font-bold tracking-wider text-mist group-hover:text-white">EVM / METAMASK</span>
+                    </button>
+                    <button onclick="connectSolana()" class="group relative flex items-center justify-center gap-3 p-4 rounded bg-surface border border-border hover:border-accent transition-all">
+                        <svg class="w-5 h-5 text-mist group-hover:text-accent transition-colors" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                        <span class="text-xs font-bold tracking-wider text-mist group-hover:text-white">SOL / PHANTOM</span>
+                    </button>
+                </div>
 
-            <a href="https://beenonexamaccess.vercel.app/" class="help-link">ACCESS_DENIED? VIEW MANUAL</a>
-            <div id="wallet-error" class="error-msg"></div>
-        </div>
-    </div>
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-border"></span></div>
+                    <div class="relative flex justify-center text-xs uppercase"><span class="bg-void px-2 text-mist font-mono">Atau Manual</span></div>
+                </div>
 
-    <!-- === CALCULATOR APP (MARK-85) === -->
-    <div class="app-shell">
-        <div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div>
-
-        <!-- Branding -->
-        <div class="brand-plate">
-            <div class="brand-text">BEEN ON EXAM</div>
-            <div class="brand-sub">STARK INDUSTRIES EDUCATIONAL DIVISION</div>
-        </div>
-
-        <!-- LCD Screen -->
-        <div class="lcd-screen">
-            <div class="screen-header">
-                <span class="system-status">● ONLINE</span>
-                <span id="stats-area" style="font-size:0.8rem;">LOADING...</span>
-            </div>
-
-            <div class="marquee-strip">
-                <div class="marquee-track">
-                    <span>
-                        Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam.
-                    </span>
-                    <span>
-                        Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam.
-                    </span>
+                <div class="flex gap-2">
+                    <input type="text" id="manual-address" placeholder="Tempel Address (0x... / Sol...)" class="flex-1 bg-surface border border-border px-4 py-3 text-sm text-white rounded input-focus transition-all font-mono placeholder-mist/50">
+                    <button onclick="connectManual()" class="bg-white text-black px-6 py-3 font-bold text-sm hover:bg-mist transition-all rounded">
+                        VERIFIKASI
+                    </button>
                 </div>
             </div>
 
-            <div class="search-area">
-                <input type="text" class="search-input" id="search-input" placeholder="SEARCH DATABASE_">
+            <div class="text-center pt-8">
+                <a href="https://beenonexamaccess.vercel.app/" target="_blank" class="text-xs text-mist hover:text-accent underline underline-offset-4 transition-colors font-mono">
+                    BINGUNG? BACA PANDUAN AKSES →
+                </a>
             </div>
 
-            <!-- Content Grid -->
-            <div id="grid-wrapper" class="grid-container">
-                <!-- JS fills this -->
+            <!-- Error Toast -->
+            <div id="wallet-error" class="hidden p-4 rounded border border-error/20 bg-error/5 text-error text-xs font-mono text-center">
+                Error message here
             </div>
+        </div>
+    </div>
 
-            <!-- Music Overlay in Screen -->
-            <div id="music-pill">
-                <div class="music-reactor"></div>
-                <span id="track-name" style="font-size:0.8rem;">AUDIO OFF</span>
-                <button onclick="toggleMusicWidget()" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold;">X</button>
+    <!-- === MAIN APP (INITIALLY HIDDEN) === -->
+    <div id="app-shell" class="opacity-0 transition-opacity duration-1000 flex flex-col min-h-screen">
+        
+        <!-- Navbar Desktop -->
+        <nav class="fixed top-0 w-full z-40 glass">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="font-bold tracking-tight text-lg text-white flex items-center gap-2 font-mono">
+                        <span class="text-accent">BEEN</span>_EXAM
+                    </div>
+                    <!-- Marquee Container (Inside Nav for Desktop) -->
+                    <div class="hidden md:flex items-center h-8 overflow-hidden w-[400px] lg:w-[600px] border-l border-border pl-4 ml-4">
+                        <div class="whitespace-nowrap animate-scroll text-[10px] font-mono text-mist">
+                            Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="text-accent hover:underline">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp; Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hidden md:flex items-center gap-6">
+                    <button onclick="location.reload()" class="text-xs font-bold text-mist hover:text-white transition-colors uppercase tracking-widest">Dashboard</button>
+                    <button onclick="toggleView()" class="text-xs font-bold text-mist hover:text-white transition-colors uppercase tracking-widest">Layout</button>
+                    <button onclick="toggleMusicWidget()" class="text-xs font-bold text-accent border border-accent/20 bg-accent/5 px-4 py-2 rounded-full hover:bg-accent hover:text-black transition-all uppercase tracking-widest">
+                        Music
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Marquee Mobile (Below Nav) -->
+        <div class="md:hidden mt-16 bg-surface border-b border-border py-2 overflow-hidden relative">
+            <div class="whitespace-nowrap animate-scroll text-[10px] font-mono text-mist px-4">
+                Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="text-accent underline">Saweria (click link)</a>. Don't be a ghost. Keep this joint alive. &nbsp;&nbsp; /// &nbsp;&nbsp; Yo, for real, you think this magic just happens?
             </div>
         </div>
 
-        <!-- Physical Buttons (Keyboard Deck) -->
-        <div class="keyboard-deck">
-            <button class="mech-btn red" onclick="location.reload()">RESET</button>
-            <button class="mech-btn silver" onclick="toggleView()">VIEW</button>
-            <button class="mech-btn silver" onclick="toggleMusicWidget()">MUSIC</button>
-            <button class="mech-btn" style="background:#111; color:white; border-bottom-color:#000;" disabled>STARK</button>
+        <!-- Main Content -->
+        <main class="flex-grow pt-24 md:pt-32 pb-32 px-6">
+            <div class="max-w-5xl mx-auto space-y-12">
+
+                <!-- Hero Section -->
+                <header class="space-y-6">
+                    <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-white">
+                        Arsip <span class="text-accent">Pengetahuan</span><br>
+                        Digital.
+                    </h1>
+                    <div class="flex flex-col md:flex-row gap-6 justify-between items-end">
+                        <p class="text-mist max-w-lg leading-relaxed text-sm md:text-base">
+                            Akses materi ujian, kuis, dan dokumentasi rahasia. Terenkripsi dan hanya tersedia untuk entitas terverifikasi.
+                        </p>
+                        
+                        <!-- Search -->
+                        <div class="w-full md:w-auto relative group">
+                            <input type="text" id="search-input" placeholder="Cari Kode Materi..." class="w-full md:w-80 bg-void border border-border px-4 py-3 pl-10 text-sm text-white rounded input-focus transition-all font-mono">
+                            <svg class="w-4 h-4 text-mist absolute left-3 top-3.5 group-focus-within:text-accent transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </div>
+                    </div>
+                </header>
+
+                <hr class="border-border">
+
+                <!-- Stats -->
+                <div id="stats-area" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- JS Injected Stats -->
+                    <div class="bg-surface border border-border p-4 rounded flex items-center justify-center gap-2 text-mist">
+                        <span class="loader w-4 h-4 border-2"></span> <span class="text-xs font-mono">LOADING DATA...</span>
+                    </div>
+                </div>
+
+                <!-- Grid Content -->
+                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- JS Injected Cards -->
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Mobile Bottom Dock -->
+        <div class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 glass px-6 py-3 rounded-full flex items-center gap-8 shadow-2xl shadow-black">
+            <button onclick="location.reload()" class="text-mist hover:text-accent transition-colors flex flex-col items-center gap-1">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+            </button>
+            <button onclick="toggleMusicWidget()" class="bg-accent text-black w-10 h-10 rounded-full flex items-center justify-center -mt-8 border-4 border-void shadow-lg shadow-accent/20">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-2v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-2" /></svg>
+            </button>
+            <button onclick="toggleView()" class="text-mist hover:text-accent transition-colors flex flex-col items-center gap-1">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
         </div>
+
+        <!-- Music Widget (Floating) -->
+        <div id="music-pill" class="fixed bottom-24 md:bottom-10 right-6 z-50 glass rounded-full pl-2 pr-4 py-2 flex items-center gap-3 translate-y-32 transition-transform duration-500 shadow-xl shadow-accent/5 border-accent/20">
+            <button id="music-btn" class="w-8 h-8 rounded-full bg-accent text-black flex items-center justify-center hover:scale-105 transition-transform">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="flex flex-col">
+                <span class="text-[10px] text-mist font-mono uppercase tracking-widest">Now Playing</span>
+                <span id="track-name" class="text-xs font-bold text-white max-w-[100px] truncate">No Track</span>
+            </div>
+            <button onclick="toggleMusicWidget()" class="ml-2 text-mist hover:text-white">&times;</button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="border-t border-border bg-void py-8 mt-auto">
+            <div class="max-w-7xl mx-auto px-6 text-center md:text-left md:flex justify-between items-center text-xs text-gray-600 font-mono">
+                <div>&copy; 2025 BEEN ON EXAM. ALL RIGHTS RESERVED.</div>
+                <div class="mt-2 md:mt-0">SYSTEM BY <span class="text-gray-400">SIR YAEON</span> x <span class="text-gray-400">B$4BE!N</span></div>
+            </div>
+        </footer>
 
     </div>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // === LOGIC SYSTEM ===
+        // === STATE & DOM ===
+        const appShell = document.getElementById('app-shell');
         const gateOverlay = document.getElementById('gatekeeper-overlay');
-        const appShell = document.querySelector('.app-shell');
         const errorMsg = document.getElementById('wallet-error');
+        const grid = document.getElementById('grid-wrapper');
+        const searchInput = document.getElementById('search-input');
+        
+        let quizzes = {};
+        let musicList = [];
+        let audio = new Audio();
+        let isListView = false;
 
+        // === AUTH LOGIC ===
         function grantAccess() {
-            gateOverlay.classList.add('hidden');
-            appShell.classList.add('visible');
+            gateOverlay.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                gateOverlay.style.display = 'none';
+                appShell.classList.remove('opacity-0');
+            }, 500);
             init(); 
         }
 
         function showError(msg) {
-            errorMsg.style.display = 'block';
-            errorMsg.innerText = "ERROR: " + msg;
+            errorMsg.classList.remove('hidden');
+            errorMsg.innerText = "ACCESS DENIED: " + msg;
+            // Shake effect
+            errorMsg.classList.add('animate-pulse');
+            setTimeout(() => errorMsg.classList.remove('animate-pulse'), 500);
         }
         
         async function checkWalletAuth(userAddress) {
@@ -430,8 +272,8 @@
                 });
                 const data = await response.json();
                 if (response.ok && data.access) { grantAccess(); } 
-                else { showError(data.error || "UNAUTHORIZED PERSONNEL"); }
-            } catch (err) { showError("SERVER DISCONNECTED"); }
+                else { showError(data.error || "ID Tidak Terdaftar di Database."); }
+            } catch (err) { showError("Gagal Menghubungi Server."); }
         }
 
         async function connectEVM() {
@@ -439,8 +281,8 @@
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     await checkWalletAuth(accounts[0].toLowerCase());
-                } catch { showError("EVM CONNECTION FAILED"); }
-            } else { showError("JARVIS (METAMASK) NOT FOUND"); }
+                } catch { showError("Koneksi EVM Dibatalkan."); }
+            } else { showError("MetaMask Tidak Terdeteksi."); }
         }
 
         async function connectSolana() {
@@ -449,29 +291,18 @@
                 try {
                     const resp = await provider.connect();
                     await checkWalletAuth(resp.publicKey.toString());
-                } catch { showError("USER REJECTED PROTOCOL"); }
-            } else { showError("FRIDAY (PHANTOM) NOT FOUND"); }
+                } catch { showError("Koneksi Phantom Dibatalkan."); }
+            } else { showError("Phantom Wallet Tidak Terdeteksi."); }
         }
 
         async function connectManual() {
             const val = document.getElementById('manual-address').value.trim();
-            if(!val) return showError("INPUT REQUIRED");
+            if(!val) return showError("Address Kosong.");
             await checkWalletAuth(val);
         }
-    </script>
 
-    <script>
         // === CONTENT LOGIC ===
-        const grid = document.getElementById('grid-wrapper');
-        const searchInput = document.getElementById('search-input');
-        
-        let quizzes = {};
-        let musicList = [];
-        let audio = new Audio();
-        
         async function init() {
-            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--arc-cyan); margin-top:50px;">INITIALIZING MARK-85 DATABASE...</div>';
-            
             try {
                 const cached = localStorage.getItem('v6_cache');
                 let files;
@@ -479,7 +310,7 @@
                     files = JSON.parse(cached).data;
                 } else {
                     const res = await fetch('/api/content?folder=kuis'); 
-                    if (!res.ok) throw new Error("COMM LINK FAILURE");
+                    if (!res.ok) throw new Error("Gagal mengambil data konten.");
                     files = await res.json();
                     localStorage.setItem('v6_cache', JSON.stringify({data:files, ts:Date.now()}));
                 }
@@ -499,70 +330,137 @@
                 loadMusic();
 
             } catch(e) {
-                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:red;">SYSTEM FAIL: ${e.message}</div>`;
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20 border border-error/20 bg-error/5 rounded-lg">
+                        <p class="text-error font-mono font-bold mb-2">SYSTEM ERROR</p>
+                        <p class="text-mist text-sm">${e.message}</p>
+                    </div>`;
             }
         }
 
         function renderStats() {
             const cats = Object.keys(quizzes);
             const total = Object.values(quizzes).reduce((a,b)=>a+b.length,0);
-            document.getElementById('stats-area').innerText = `CATS: ${cats.length} | FILES: ${total} | PWR: 400%`;
+            
+            const statItem = (label, val) => `
+                <div class="bg-surface border border-border p-4 rounded text-center">
+                    <div class="text-2xl font-bold text-white mb-1">${val}</div>
+                    <div class="text-[10px] font-mono text-mist uppercase tracking-widest">${label}</div>
+                </div>
+            `;
+            
+            document.getElementById('stats-area').innerHTML = 
+                statItem('Kategori', cats.length) + 
+                statItem('Total Modul', total) +
+                statItem('Status', '<span class="text-accent">ACTIVE</span>');
         }
 
         function renderHome(filter="") {
             grid.innerHTML = "";
+            grid.className = isListView 
+                ? "grid grid-cols-1 gap-4" 
+                : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+            
             Object.keys(quizzes).sort().forEach(cat => {
                 if(filter && !cat.toLowerCase().includes(filter.toLowerCase())) return;
+
                 const isSecret = /secret/i.test(cat);
                 const name = cat.replace(/secret/i,'').trim();
                 const count = quizzes[cat].length;
-                const icons = ['⚛', '⎔', '⌬', '◈'];
-                const icon = icons[name.length % icons.length]; 
-
-                const card = document.createElement('a');
-                card.className = `folder-card ${isSecret ? 'secret' : ''}`;
-                card.href = "#";
-                card.onclick = (e) => { e.preventDefault(); isSecret ? alert('CLASSIFIED INFO') : openFolder(cat); };
                 
-                card.innerHTML = `
-                    <div class="card-icon">${isSecret ? '🔒' : icon}</div>
-                    <div class="card-title">${name}</div>
-                    <div class="card-count">[${count}]</div>
-                `;
+                // Icons (Using simple text/emoji or SVGs for clean look)
+                const card = document.createElement('div');
+                
+                // Styling based on View
+                if (isListView) {
+                    card.className = `group bg-surface border border-border hover:border-accent p-4 rounded flex items-center justify-between cursor-pointer transition-all ${isSecret ? 'border-amber-500/30' : ''}`;
+                    card.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-void border border-border rounded flex items-center justify-center text-lg">
+                                ${isSecret ? '🔒' : '📂'}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white group-hover:text-accent transition-colors">${name}</h3>
+                                <p class="text-xs text-mist font-mono">${count} File</p>
+                            </div>
+                        </div>
+                        <span class="text-mist group-hover:translate-x-1 transition-transform">→</span>
+                    `;
+                } else {
+                    card.className = `group interactive-card bg-surface border border-border p-6 rounded-xl cursor-pointer relative overflow-hidden ${isSecret ? 'border-amber-500/30' : ''}`;
+                    card.innerHTML = `
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <span class="text-6xl font-serif select-none">${name.charAt(0)}</span>
+                        </div>
+                        <div class="w-12 h-12 bg-void border border-border rounded-lg flex items-center justify-center text-xl mb-4 text-accent group-hover:scale-110 transition-transform">
+                            ${isSecret ? '🔒' : '⚡'}
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-accent transition-colors">${name}</h3>
+                        <div class="flex items-center gap-2 text-xs text-mist font-mono">
+                            <span class="bg-void px-2 py-1 rounded border border-border">${count} ITEMS</span>
+                            ${isSecret ? '<span class="text-amber-500">RESTRICTED</span>' : ''}
+                        </div>
+                    `;
+                }
+
+                card.onclick = (e) => { 
+                    e.preventDefault(); 
+                    if (isSecret) alert('AKSES DITOLAK: KONTEN TERENKRIPSI.'); 
+                    else openFolder(cat); 
+                };
+                
                 grid.appendChild(card);
             });
         }
 
         function openFolder(cat) {
-            window.scrollTo({top:0});
+            window.scrollTo({top:0, behavior:'smooth'});
             const name = cat.replace(/secret/i,'').trim();
-            grid.innerHTML = "";
-
-            const header = document.createElement('div');
-            header.className = 'folder-header';
-            header.innerHTML = `
-                <button class="back-btn-hud" onclick="renderHome()">< BACK</button>
-                <div style="font-family:var(--font-hud); color:var(--arc-cyan);">DIR: ${name}</div>
+            
+            // Header Folder
+            grid.innerHTML = `
+                <div class="col-span-full flex items-center justify-between mb-4 pb-4 border-b border-border">
+                    <button onclick="renderHome()" class="flex items-center gap-2 text-sm font-bold text-mist hover:text-white transition-colors">
+                        <span>← KEMBALI</span>
+                    </button>
+                    <div class="font-mono text-accent text-sm uppercase tracking-widest">DIR: ${name}</div>
+                </div>
             `;
-            grid.appendChild(header);
+            
+            // Reset grid layout for items
+            grid.className = "grid grid-cols-1 gap-3";
 
             quizzes[cat].forEach(q => {
-                const card = document.createElement('a');
-                card.className = "folder-card";
-                card.href = `kuis/${q.file}`;
-                card.style.flexDirection = "row";
-                card.style.textAlign = "left";
-                card.innerHTML = `
-                    <div style="font-size:1.5rem; margin-right:10px; color:var(--stark-gold);">📄</div>
-                    <div style="flex-grow:1; font-family:var(--font-data); font-size:0.9rem;">${q.name}</div>
+                const item = document.createElement('a');
+                item.href = `kuis/${q.file}`;
+                item.className = "group bg-surface border border-border p-4 rounded flex items-center gap-4 hover:border-accent hover:bg-accent/5 transition-all";
+                item.innerHTML = `
+                    <div class="text-mist group-hover:text-accent transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    </div>
+                    <div class="flex-grow">
+                        <div class="text-sm font-medium text-gray-300 group-hover:text-white">${q.name}</div>
+                    </div>
+                    <div class="text-xs font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">BUKA</div>
                 `;
-                grid.appendChild(card);
+                grid.appendChild(item);
             });
         }
 
-        function toggleView() { grid.classList.toggle('list-view'); }
-        searchInput.oninput = (e) => renderHome(e.target.value);
+        // --- UTILS ---
+        function toggleView() { 
+            isListView = !isListView; 
+            const searchVal = searchInput.value;
+            renderHome(searchVal); 
+        }
+        
+        searchInput.oninput = (e) => {
+            // Jika sedang di dalam folder, search tidak jalan (simple implementation)
+            // Idealnya kita track state 'currentView'
+            renderHome(e.target.value);
+        };
 
+        // --- MUSIC ---
         async function loadMusic() {
             try {
                 const res = await fetch('/api/content?folder=music');
@@ -573,24 +471,30 @@
         }
         
         let playing = false;
-        function toggleMusicWidget() { document.getElementById('music-pill').classList.toggle('visible'); }
+        const musicPill = document.getElementById('music-pill');
+        const musicBtn = document.getElementById('music-btn');
+        const trackName = document.getElementById('track-name');
+
+        function toggleMusicWidget() { 
+            musicPill.classList.toggle('translate-y-32'); 
+        }
         
-        // Add music toggle logic to the physical button too if needed, here just basic pill toggle
-        // For actual play/pause, let's reuse the function
-        const playMusic = () => {
+        musicBtn.onclick = () => {
             if(!playing && musicList.length) {
                 if(!audio.src) audio.src = musicList[0];
                 audio.play();
                 playing = true;
-                document.getElementById('track-name').innerText = "STREAMING...";
+                trackName.innerText = "Playing Stream...";
+                musicBtn.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>';
+                musicBtn.classList.add('animate-pulse');
             } else {
                 audio.pause();
                 playing = false;
-                document.getElementById('track-name').innerText = "PAUSED";
+                trackName.innerText = "Stream Paused";
+                musicBtn.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+                musicBtn.classList.remove('animate-pulse');
             }
         };
-        // Bind pill click (reactor)
-        document.querySelector('.music-reactor').onclick = playMusic;
 
     </script>
 </body>
