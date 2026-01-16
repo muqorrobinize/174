@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Been On Exam 1.9 - Manual Login</title>
+    <title>Been On Exam 1.9 - Secure Private</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Luckiest+Guy&display=swap" rel="stylesheet">
@@ -44,7 +44,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: var(--text-main); font-family: 'Quicksand', sans-serif;
             transition: opacity 0.5s ease;
-            overflow-y: auto; /* Allow scroll on small screens if content is tall */
+            overflow-y: auto;
             padding: 20px;
         }
         
@@ -54,16 +54,15 @@
 
         .gate-box {
             background: rgba(255, 255, 255, 0.9);
-            border: 4px solid var(--primary-soft); /* Soft Pink Border */
-            padding: 40px; border-radius: 40px; /* Super Rounded */
+            border: 4px solid var(--primary-soft);
+            padding: 40px; border-radius: 40px;
             text-align: center; max-width: 450px; width: 100%;
-            box-shadow: 0 15px 50px rgba(255, 105, 180, 0.25); /* Pink Shadow */
+            box-shadow: 0 15px 50px rgba(255, 105, 180, 0.25);
             backdrop-filter: blur(10px);
             position: relative;
             overflow: visible;
         }
 
-        /* Pita Dekorasi di atas Box */
         .gate-deco {
             position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
             background: var(--primary); color: white;
@@ -98,7 +97,7 @@
 
         .connect-btn {
             border: none; padding: 15px 20px;
-            border-radius: 25px; /* Pill Shape */
+            border-radius: 25px;
             font-weight: 700; font-size: 1rem; font-family: 'Quicksand', sans-serif;
             cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -106,7 +105,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
-        /* EVM Style (Pink Cute) */
         .connect-btn.evm {
             background: #FFF; border: 2px solid var(--primary); color: var(--primary);
         }
@@ -117,7 +115,6 @@
         }
         .connect-btn.evm svg { color: inherit; } 
 
-        /* Solana Style (Purple Pastel) */
         .connect-btn.solana {
             background: #FFF; border: 2px solid #AB9FF2; color: #AB9FF2;
         }
@@ -130,7 +127,7 @@
 
         .connect-btn:disabled { opacity: 0.5; cursor: wait; transform: none; }
 
-        /* MANUAL LOGIN STYLES (NEW) */
+        /* MANUAL LOGIN STYLES */
         .manual-section {
             margin-top: 25px;
             padding-top: 20px;
@@ -179,26 +176,24 @@
             display: none; border: 2px dashed #FFB7C5; text-align: center;
         }
 
-        /* === RESET & BASE (EXISTING) === */
+        /* === RESET & BASE === */
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            font-family: 'Quicksand', sans-serif; /* Font bulat lucu */
+            font-family: 'Quicksand', sans-serif; 
             background-color: var(--bg-body);
             color: var(--text-main);
             overflow-x: hidden;
-            /* Pattern Pita Kecil (CSS Pattern) */
             background-image: radial-gradient(#FFC0CB 2px, transparent 2px);
             background-size: 30px 30px;
-            padding-bottom: 100px; /* Space untuk bottom nav di HP */
+            padding-bottom: 100px;
         }
 
         /* === LAYOUT STRUCTURE === */
-        /* Initially hidden until unlocked */
         .app-shell { display: flex; min-height: 100vh; opacity: 0; transition: opacity 1s ease; }
         .app-shell.visible { opacity: 1; }
 
-        /* === SIDEBAR (DESKTOP ONLY) === */
+        /* === SIDEBAR (DESKTOP) === */
         .sidebar {
             width: var(--sidebar-collapsed);
             background: var(--bg-sidebar);
@@ -216,7 +211,6 @@
 
         .sidebar.expanded { width: var(--sidebar-width); align-items: flex-start; padding: 20px 25px; }
 
-        /* Brand */
         .brand-box { 
             display: flex; align-items: center; gap: 15px; margin-bottom: 40px; height: 50px; 
             white-space: nowrap; overflow: hidden;
@@ -234,7 +228,6 @@
         }
         .sidebar.expanded .brand-text { opacity: 1; pointer-events: auto; }
 
-        /* Nav Items (Desktop) */
         .nav-list { list-style: none; width: 100%; display: flex; flex-direction: column; gap: 15px; }
         .nav-btn {
             display: flex; align-items: center; gap: 15px;
@@ -256,7 +249,6 @@
             transform: scale(1.05);
         }
 
-        /* Toggle Btn */
         .toggle-sidebar-btn {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: var(--primary); color: white; border: none;
@@ -268,9 +260,9 @@
         .sidebar.expanded .toggle-sidebar-btn { left: auto; right: 20px; transform: none; }
         .toggle-sidebar-btn:hover { background: var(--primary-dark); transform: scale(1.1); }
 
-        /* === BOTTOM NAVIGATION (MOBILE ONLY) === */
+        /* === BOTTOM NAVIGATION (MOBILE) === */
         .bottom-nav {
-            display: none; /* Hidden on Desktop */
+            display: none;
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 400px;
             background: rgba(255, 255, 255, 0.95);
@@ -306,7 +298,6 @@
         }
         .sidebar.expanded + .main-view { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); }
 
-        /* Marquee */
         .marquee-strip {
             background: linear-gradient(90deg, #FF69B4, #FFB7C5); color: white;
             padding: 8px 0; font-weight: 700; font-size: 0.8rem;
@@ -318,7 +309,6 @@
         .marquee-track a { color: #FFF; text-decoration: underline; font-weight: 800; }
         @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* Hero Header */
         .content-padding { padding: 40px; max-width: 1400px; margin: 0 auto; }
 
         .hero-banner {
@@ -328,7 +318,6 @@
             border: 4px solid #FFF0F5;
             position: relative; overflow: visible;
         }
-        /* Ribbon Decoration (CSS Only) */
         .ribbon-deco {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
             background: var(--primary); color: white;
@@ -350,7 +339,6 @@
         }
         .sub-header a { color: var(--primary); text-decoration: none; border-bottom: 2px solid var(--primary-soft); }
 
-        /* Stats Bubbles */
         .stats-bubbles { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
         .bubble {
             background: #fff; border: 2px solid #FFE4E1; padding: 10px 20px;
@@ -359,10 +347,7 @@
         }
         .bubble strong { color: var(--primary); font-size: 1.1rem; }
 
-        /* Search Bar */
-        .search-pill {
-            position: relative; max-width: 500px; margin: 0 auto;
-        }
+        .search-pill { position: relative; max-width: 500px; margin: 0 auto; }
         .search-input {
             width: 100%; padding: 18px 55px 18px 25px; border-radius: 50px;
             border: 2px solid #FFB7C5; background: #FFF;
@@ -377,7 +362,6 @@
             box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
         }
 
-        /* === GRID SYSTEM === */
         .grid-container {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px;
             animation: fadeIn 0.5s ease;
@@ -411,7 +395,6 @@
         .grid-container.list-view .icon-circle { width: 50px; height: 50px; margin-bottom: 0; margin-right: 20px; font-size: 1.5rem; }
         .grid-container.list-view .card-count { margin-top: 0; margin-left: auto; }
 
-        /* === INTUITIVE FOLDER VIEW (Sticky Header) === */
         .folder-header {
             position: sticky; top: 0; z-index: 80;
             background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
@@ -433,9 +416,8 @@
         .back-btn-big:hover { transform: scale(1.05); background: var(--primary-dark); }
         .folder-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
 
-        /* === MUSIC PLAYER (Compact) === */
         #music-pill {
-            position: fixed; bottom: 90px; right: 20px; z-index: 200; /* Bottom 90px to avoid nav */
+            position: fixed; bottom: 90px; right: 20px; z-index: 200;
             background: #fff; padding: 8px 15px 8px 8px; border-radius: 50px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 2px solid var(--primary-soft);
             display: flex; align-items: center; gap: 10px;
@@ -451,23 +433,13 @@
         }
         .track-info { max-width: 120px; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); font-weight: 600; }
 
-        /* === MOBILE RESPONSIVE (THE BIG CHANGE) === */
         @media (max-width: 768px) {
-            /* HIDE DESKTOP SIDEBAR */
             .sidebar { display: none !important; }
-            
-            /* ADJUST MAIN VIEW */
             .main-view { margin-left: 0 !important; width: 100% !important; }
-            .content-padding { padding: 20px 15px 100px 15px; } /* Bottom padding for nav */
-            
-            /* SHOW BOTTOM NAV */
+            .content-padding { padding: 20px 15px 100px 15px; }
             .bottom-nav { display: flex; }
-            
-            /* Adjust Typography */
             .main-title { font-size: 2.5rem; }
             .hero-banner { padding: 30px 15px; border-radius: 30px; }
-            
-            /* Adjust Music Player Position for Mobile */
             #music-pill { bottom: 100px; right: 50%; transform: translateX(50%) translateY(150%); }
             #music-pill.visible { transform: translateX(50%) translateY(0); }
         }
@@ -502,7 +474,7 @@
                 </button>
             </div>
 
-            <!-- MANUAL LOGIN (NEW) -->
+            <!-- MANUAL LOGIN -->
             <div class="manual-section">
                 <p style="font-size: 0.8rem; margin-bottom: 8px; color: var(--text-muted); font-weight: 600;">No extension? Paste address here:</p>
                 <input type="text" id="manual-address" class="input-manual" placeholder="Paste Public Address (0x... / Sol...)">
@@ -750,8 +722,12 @@
                 if(cached && (Date.now() - JSON.parse(cached).ts < 600000)) {
                     files = JSON.parse(cached).data;
                 } else {
-                    const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/kuis`);
+                    // Fetch via Vercel Backend Proxy (api/content.js)
+                    const res = await fetch('/api/content'); 
+                    
+                    if (!res.ok) throw new Error("Gagal mengambil data dari server");
                     files = await res.json();
+                    
                     localStorage.setItem('v6_cache', JSON.stringify({data:files, ts:Date.now()}));
                 }
 
@@ -855,6 +831,8 @@
         // Music
         async function loadMusic() {
             try {
+                // Fetch via GitHub API (Jika repo private, ini juga perlu proxy backend seperti api/content.js)
+                // Untuk sementara kita biarkan, jika music error karena private, user cuma gak dengar musik.
                 const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/music`);
                 const files = await res.json();
                 musicList = files.filter(f=>f.name.endsWith('.mp3')).map(f=>f.download_url);
