@@ -711,27 +711,35 @@
         };
 
         // --- 2. LOAD DATA ---
-        // Init dipanggil dari grantAccess()
         async function init() {
             grid.innerHTML = Array(6).fill('<div class="cute-card" style="height:200px;"></div>').join('');
             
             try {
-                // Fetch Logic
                 const cached = localStorage.getItem('v6_cache');
                 let files;
                 if(cached && (Date.now() - JSON.parse(cached).ts < 600000)) {
                     files = JSON.parse(cached).data;
                 } else {
-                    // === UPDATE 1: Fetch Kuis via Proxy ===
-                    // Tambahkan parameter ?folder=kuis
+                    // Fetch ke Backend
                     const res = await fetch('/api/content?folder=kuis'); 
                     
-                    if (!res.ok) throw new Error("Gagal mengambil data kuis");
-                    files = await res.json();
+                    if (!res.ok) {
+                        // Coba ambil pesan error dari backend jika ada
+                        let errorDetail = "Server Error";
+                        try {
+                            const errJson = await res.json();
+                            errorDetail = errJson.error || res.statusText;
+                        } catch(e) {
+                            errorDetail = res.status + " " + res.statusText;
+                        }
+                        throw new Error(errorDetail);
+                    }
                     
+                    files = await res.json();
                     localStorage.setItem('v6_cache', JSON.stringify({data:files, ts:Date.now()}));
                 }
 
+                // Render Content...
                 quizzes = files.filter(f=>f.name.endsWith('.html')).reduce((acc, f) => {
                     const parts = f.name.split('_');
                     if(parts.length < 2) return acc;
@@ -747,7 +755,14 @@
                 loadMusic();
 
             } catch(e) {
-                grid.innerHTML = `<div style="text-align:center; width:100%; color:#aaa;">Gagal memuat data.</div>`;
+                console.error(e);
+                // Tampilkan pesan error spesifik di layar biar gampang debug
+                grid.innerHTML = `
+                    <div style="text-align:center; width:100%; color:#D81B60; background:#FFF0F5; padding:20px; border-radius:15px; border:2px dashed #FFB7C5;">
+                        <strong>Gagal memuat data 😭</strong><br>
+                        <small>${e.message}</small><br><br>
+                        <span style="font-size:0.8rem; color:#999;">(Pastikan Token GitHub sudah diset di Vercel & Nama Repo benar)</span>
+                    </div>`;
             }
         }
 
