@@ -4,7 +4,7 @@ export const whitelist = [
     "YourSolanaAddressHere",
 
     // --- KELAS A ---
-    "0x1234567890abcdef1234567890abcdef12345678",
+    "0x6ea0e8a1b1ae143a9809e0cc776b1333f64ace84",
     "0xabcdef1234567890abcdef1234567890abcdef12",
     "SolanaAddressMember1........................",
     
