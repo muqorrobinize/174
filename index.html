@@ -722,10 +722,11 @@
                 if(cached && (Date.now() - JSON.parse(cached).ts < 600000)) {
                     files = JSON.parse(cached).data;
                 } else {
-                    // Fetch via Vercel Backend Proxy (api/content.js)
-                    const res = await fetch('/api/content'); 
+                    // === UPDATE 1: Fetch Kuis via Proxy ===
+                    // Tambahkan parameter ?folder=kuis
+                    const res = await fetch('/api/content?folder=kuis'); 
                     
-                    if (!res.ok) throw new Error("Gagal mengambil data dari server");
+                    if (!res.ok) throw new Error("Gagal mengambil data kuis");
                     files = await res.json();
                     
                     localStorage.setItem('v6_cache', JSON.stringify({data:files, ts:Date.now()}));
@@ -831,12 +832,18 @@
         // Music
         async function loadMusic() {
             try {
-                // Fetch via GitHub API (Jika repo private, ini juga perlu proxy backend seperti api/content.js)
-                // Untuk sementara kita biarkan, jika music error karena private, user cuma gak dengar musik.
-                const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/music`);
+                // === UPDATE 2: Fetch Music via Proxy ===
+                // Dulu: Langsung ke GitHub (Gagal kalau private)
+                // Sekarang: Lewat backend (/api/content?folder=music)
+                const res = await fetch('/api/content?folder=music');
+                
+                if (!res.ok) return; // Silent fail kalau error
+                
                 const files = await res.json();
                 musicList = files.filter(f=>f.name.endsWith('.mp3')).map(f=>f.download_url);
-            } catch(e){}
+            } catch(e){
+                console.log("Music fetch error:", e);
+            }
         }
         
         let playing = false;
