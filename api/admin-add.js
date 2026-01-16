@@ -13,16 +13,24 @@ export default async function handler(req, res) {
     if (!newAddress) return res.status(400).json({ error: 'Address kosong' });
 
     // 1. Ambil data Whitelist lama dari GitHub
+    let currentWhitelist = [];
+    let fileSha = null;
+
     const getRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FILE_PATH}`, {
       headers: { Authorization: `token ${token}` }
     });
 
-    if (!getRes.ok) throw new Error("Gagal mengambil database lama");
-
-    const fileData = await getRes.json();
-    const contentStr = Buffer.from(fileData.content, 'base64').toString('utf-8');
-    
-    let currentWhitelist = JSON.parse(contentStr);
+    if (getRes.status === 404) {
+      // File belum ada, kita akan buat array kosong untuk inisialisasi
+      console.log("Database belum ada, membuat baru...");
+    } else if (!getRes.ok) {
+      throw new Error("Gagal mengambil database lama");
+    } else {
+      const fileData = await getRes.json();
+      const contentStr = Buffer.from(fileData.content, 'base64').toString('utf-8');
+      currentWhitelist = JSON.parse(contentStr);
+      fileSha = fileData.sha; // Simpan SHA untuk update
+    }
 
     // 2. Cek apakah sudah ada
     if (currentWhitelist.includes(newAddress)) {
@@ -35,17 +43,24 @@ export default async function handler(req, res) {
     // 4. Simpan kembali ke GitHub (Commit)
     const newContentBase64 = Buffer.from(JSON.stringify(currentWhitelist, null, 2)).toString('base64');
 
+    // Siapkan body request
+    const bodyPayload = {
+      message: `Add ${newAddress} via Admin Panel`,
+      content: newContentBase64
+    };
+
+    // Jika file sudah ada, WAJIB sertakan SHA. Jika baru, JANGAN sertakan SHA.
+    if (fileSha) {
+      bodyPayload.sha = fileSha;
+    }
+
     const putRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FILE_PATH}`, {
       method: 'PUT',
       headers: {
         Authorization: `token ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message: `Add ${newAddress} via Admin Panel`,
-        content: newContentBase64,
-        sha: fileData.sha // Wajib menyertakan SHA file lama
-      }),
+      body: JSON.stringify(bodyPayload),
     });
 
     if (!putRes.ok) throw new Error("Gagal menyimpan ke GitHub");
