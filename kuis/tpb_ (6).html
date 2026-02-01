@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Kompetensi & Kepribadian Seru (Paket C - Expert)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #1a0b2e; /* Darker Purple for Hard Mode */
+            color: white;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Animated Background */
+        .bg-shapes {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        .shape:nth-child(1) { width: 300px; height: 300px; background: #ff0055; top: -50px; left: -50px; animation-duration: 25s; }
+        .shape:nth-child(2) { width: 200px; height: 200px; background: #00e5ff; bottom: 10%; right: -50px; animation-duration: 30s; }
+        .shape:nth-child(3) { width: 150px; height: 150px; background: #ff9900; top: 40%; left: 20%; animation-duration: 20s; }
+        .shape:nth-child(4) { width: 400px; height: 400px; background: #7b00ff; bottom: -100px; left: 30%; animation-duration: 35s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(100px, 100px) rotate(360deg); }
+        }
+
+        /* Quiz Card Styling */
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 4px solid rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .option-card:active {
+            transform: translateY(4px);
+            border-bottom-width: 0px;
+        }
+        .option-card:hover {
+            filter: brightness(110%);
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* Modal */
+        .modal {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .correct-anim { background-color: #00C985 !important; border-color: #008f5d !important; }
+        .wrong-anim { background-color: #FF4444 !important; border-color: #b32626 !important; }
+
+        /* Scrollbar for review */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2D033B; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body>
+
+    <!-- Background Animation -->
+    <div class="bg-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div id="app" class="max-w-4xl mx-auto min-h-screen flex flex-col p-4 relative">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center py-4 z-10">
+            <div class="flex items-center gap-2">
+                <div class="bg-white/10 p-2 rounded-lg">
+                    <i class="fas fa-brain text-red-500 text-xl"></i>
+                </div>
+                <h1 class="font-bold text-xl tracking-wide hidden sm:block text-red-100">QUIZ PAKET C (EXPERT)</h1>
+            </div>
+            
+            <!-- Timer & Pause -->
+            <div id="game-controls" class="hidden flex items-center gap-4">
+                <div class="bg-black/30 px-4 py-1 rounded-full flex items-center gap-2 border border-white/10">
+                    <i class="fas fa-clock text-blue-400"></i>
+                    <span id="timer-display" class="font-mono font-bold">50:00</span>
+                </div>
+                <button onclick="togglePause()" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-pause text-white"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow flex flex-col justify-center items-center relative w-full">
+            
+            <!-- SCREENS -->
+
+            <!-- 1. Start Screen -->
+            <div id="start-screen" class="text-center w-full max-w-lg animate-pop">
+                <div class="mb-6 relative inline-block">
+                    <i class="fas fa-fire text-6xl text-red-500 animate-pulse"></i>
+                    <div class="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full">HARD</div>
+                </div>
+                <h2 class="text-4xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-purple-500">MODE SULIT</h2>
+                <p class="text-gray-300 mb-8 text-lg">50 Soal Analisis Kompleks • Pengecoh Tinggi</p>
+                
+                <div id="resume-btn-container" class="hidden mb-4">
+                    <button onclick="resumeGame()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(29,78,216)] transition transform active:scale-95 text-xl">
+                        <i class="fas fa-play mr-2"></i> LANJUTKAN SESI
+                    </button>
+                    <p class="text-sm text-gray-400 mt-2">Data tersimpan di perangkat</p>
+                </div>
+
+                <button onclick="startNewGame()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(185,28,28)] transition transform active:scale-95 text-xl">
+                    <i class="fas fa-dungeon mr-2"></i> MULAI TANTANGAN
+                </button>
+            </div>
+
+            <!-- 2. Question Screen -->
+            <div id="question-screen" class="hidden w-full h-full flex flex-col">
+                <!-- Progress Header -->
+                <div class="w-full mb-6">
+                    <div class="flex justify-between text-sm font-bold mb-1 opacity-80">
+                        <span>Soal <span id="q-current">1</span>/<span id="q-total">50</span></span>
+                        <span>Score: <span id="score-display">0</span></span>
+                    </div>
+                    <div class="progress-bar-container h-3 w-full">
+                        <div id="progress-fill" class="h-full bg-gradient-to-r from-red-500 to-purple-600 progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="bg-white text-gray-900 rounded-2xl p-6 md:p-8 shadow-2xl mb-6 relative animate-pop min-h-[200px] flex items-center justify-center text-center">
+                    <span id="q-category" class="absolute top-0 left-0 bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-br-xl rounded-tl-xl uppercase tracking-wider">Kategori</span>
+                    
+                    <div class="w-full">
+                        <h3 id="question-text" class="text-lg md:text-xl font-bold leading-relaxed text-justify">
+                            Loading question...
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Options Grid -->
+                <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    <!-- Options injected via JS -->
+                </div>
+            </div>
+
+            <!-- 3. Result Screen -->
+            <div id="result-screen" class="hidden text-center w-full max-w-2xl animate-pop">
+                <div class="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
+                    <h2 class="text-3xl font-bold mb-2">Analisis Selesai</h2>
+                    <div class="text-6xl font-black text-red-400 mb-4 drop-shadow-md" id="final-score">0</div>
+                    <p class="text-xl mb-8 font-light italic" id="final-msg">"Ketahanan mentalmu diuji."</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-green-500/20 p-4 rounded-xl border border-green-500/30">
+                            <div class="text-2xl font-bold text-green-400" id="stat-correct">0</div>
+                            <div class="text-xs uppercase tracking-wider opacity-70">Akurat</div>
+                        </div>
+                        <div class="bg-red-500/20 p-4 rounded-xl border border-red-500/30">
+                            <div class="text-2xl font-bold text-red-400" id="stat-wrong">0</div>
+                            <div class="text-xs uppercase tracking-wider opacity-70">Meleset</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        <button onclick="toggleReview()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(88,28,135)] transition">
+                            <i class="fas fa-microscope mr-2"></i> Bedah Jawaban
+                        </button>
+                        <button onclick="location.reload()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(55,65,81)] transition">
+                            <i class="fas fa-redo mr-2"></i> Ulangi Tantangan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Review Section (Hidden by default) -->
+            <div id="review-section" class="hidden w-full mt-8 bg-white/95 text-gray-900 rounded-xl p-6 max-h-[60vh] overflow-y-auto shadow-2xl">
+                <h3 class="text-2xl font-bold mb-4 border-b border-gray-300 pb-2 text-purple-900">Kunci Jawaban & Logika</h3>
+                <div id="review-list" class="space-y-6">
+                    <!-- Review items injected here -->
+                </div>
+                <button onclick="toggleReview()" class="mt-4 w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-bold shadow-lg">Tutup Review</button>
+            </div>
+
+        </main>
+
+        <!-- Pause Modal -->
+        <div id="pause-modal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center">
+            <div class="bg-white text-gray-900 p-8 rounded-2xl text-center max-w-sm mx-4 shadow-2xl animate-pop border-2 border-red-500">
+                <i class="fas fa-pause-circle text-6xl text-red-500 mb-4"></i>
+                <h2 class="text-2xl font-bold mb-2">Tantangan Dijeda</h2>
+                <p class="text-gray-600 mb-6">Waktu akan dilanjutkan saat Anda kembali.</p>
+                <button onclick="togglePause()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
+                    Lanjutkan
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA SOAL PAKET C (EXPERT LEVEL - REVISI 2.0) ---
+        // Prinsip Revisi:
+        // 1. Jawaban benar tidak lagi paling panjang (random length).
+        // 2. Jawaban pengecoh (distractor) dibuat sangat masuk akal/ambigu.
+        // 3. Posisi jawaban benar (A,B,C,D) diacak total.
+        
+        const questionDatabase = [
+            // --- KEPRIBADIAN & SITUASIONAL (Dilema Etika, Kepemimpinan, Emotional Intelligence) ---
+            {
+                id: 1, type: "personality", category: "Dilema Etis",
+                q: "Anda memimpin tim yang sedang mengejar target tahunan. Salah satu anggota tim terbaik Anda mengakui secara pribadi bahwa dia memanipulasi sedikit data laporan bulan lalu agar tim mendapat bonus. Dia berjanji tidak mengulanginya. Jika Anda melapor, satu tim batal dapat bonus dan dia dipecat. Sikap Anda?",
+                options: ["Diam saja demi kesejahteraan seluruh tim dan masa depan karir anggota tersebut.", "Memintanya memperbaiki data diam-diam tanpa melapor agar bonus tetap cair.", "Melaporkan tindakan tersebut ke manajemen risiko meski konsekuensinya berat bagi tim.", "Memberinya peringatan keras dan meminta dia merevisi data resmi, siapapun yang rugi."],
+                ans: 3, note: "Pilihan D menyeimbangkan integritas (revisi data resmi) dan tanggung jawab kepemimpinan (peringatan keras) tanpa langsung 'membunuh' karir (eskalasi langsung) atau berkolusi (diam)."
+            },
+            {
+                id: 2, type: "personality", category: "Adaptabilitas",
+                q: "Perusahaan mendadak merombak struktur organisasi. Anda dipindahkan ke divisi yang Anda benci dan tidak sesuai keahlian. Rekan lain mulai resign massal. Respon paling strategis?",
+                options: ["Segera mengajukan resign karena bekerja tanpa passion itu menyiksa.", "Menerima dengan pasrah sambil menunggu manajemen memindahkan Anda kembali.", "Mengajukan negosiasi ulang ke HR untuk pindah divisi, jika gagal baru resign.", "Mencoba menjalani peran baru selama 3 bulan sebagai tantangan belajar skill baru."],
+                ans: 3, note: "Growth Mindset. Pilihan C terlihat baik tapi defensif. Pilihan D menunjukkan ketahanan (resiliensi) dan kemauan belajar (adaptability) sebelum menyerah."
+            },
+            {
+                id: 3, type: "personality", category: "Manajemen Konflik",
+                q: "Dalam rapat, atasan Anda mempermalukan rekan kerja Anda dengan kritik yang sangat personal dan kasar. Semua orang terdiam ketakutan. Apa yang Anda lakukan saat itu?",
+                options: ["Langsung memotong ucapan atasan dan membelanya di depan umum.", "Diam saja karena itu bukan urusan Anda dan takut menjadi sasaran berikutnya.", "Mengalihkan topik pembicaraan secara halus ke agenda rapat berikutnya untuk meredakan tensi.", "Menemui atasan setelah rapat untuk menyampaikan ketidaknyamanan Anda."],
+                ans: 2, note: "Intervensi langsung (A) bisa memperburuk situasi (insubordinasi). Mengalihkan topik (C) adalah taktik 'de-eskalasi' situasional paling cerdas saat itu."
+            },
+            {
+                id: 4, type: "personality", category: "Integritas",
+                q: "Anda menemukan celah sistem di aplikasi toko online yang memungkinkan Anda membeli barang mahal dengan harga Rp 1. Teman-teman Anda ramai-ramai memanfaatkannya. Sikap Anda?",
+                options: ["Ikut membeli satu barang saja untuk keperluan mendesak, toh perusahaan besar sudah kaya.", "Tidak ikut membeli, tapi membiarkan teman-teman karena itu rejeki mereka.", "Melaporkan bug tersebut ke customer service dan menahan diri untuk tidak transaksi.", "Membeli banyak barang untuk kemudian dijual lagi dan hasilnya disumbangkan."],
+                ans: 2, note: "Integritas adalah melakukan hal benar saat tidak ada yang melihat. Opsi C adalah satu-satunya tindakan beretika penuh."
+            },
+            {
+                id: 5, type: "personality", category: "Prioritas Kerja",
+                q: "Anda sedang mengerjakan tugas 'Deep Work' yang butuh konsentrasi tinggi. Tiba-tiba rekan kerja yang 'banyak bicara' datang ke meja Anda untuk curhat masalah pribadi yang sepele.",
+                options: ["Mendengarkannya sampai selesai agar tidak dianggap sombong.", "Mengusirnya dengan kasar karena mengganggu produktivitas.", "Memasang headphone dan pura-pura tidak melihat kedatangannya.", "Menyampaikan dengan sopan bahwa Anda sedang fokus dan menawarkan waktu lain."],
+                ans: 3, note: "Komunikasi asertif (D) menghargai orang lain tanpa mengorbankan batas (boundary) profesional diri sendiri."
+            },
+            {
+                id: 6, type: "personality", category: "Kepemimpinan",
+                q: "Anak buah Anda melakukan kesalahan fatal yang merugikan klien. Klien marah besar kepada Anda sebagai penanggung jawab. Bagaimana Anda merespon klien?",
+                options: ["Menjelaskan bahwa itu kesalahan staf baru dan berjanji akan menghukumnya.", "Meminta maaf dan mengatakan bahwa Anda tidak tahu menahu soal teknis tersebut.", "Mengambil tanggung jawab penuh, meminta maaf, dan fokus pada solusi perbaikan.", "Membawa anak buah tersebut ke hadapan klien agar dia minta maaf sendiri."],
+                ans: 2, note: "Pemimpin sejati 'Take the blame, give the credit'. Jangan melempar tim ke bawah bus (A/D)."
+            },
+            {
+                id: 7, type: "personality", category: "Self-Development",
+                q: "Anda mendapat kritik pedas di media sosial terkait karya yang Anda banggakan. Kritik tersebut kasar tapi memiliki poin kebenaran.",
+                options: ["Memblokir akun tersebut demi kesehatan mental.", "Membalas komentar dengan data untuk membuktikan dia salah.", "Mengabaikan nadanya, mengambil poin evaluasinya, dan memperbaiki karya.", "Berhenti berkarya sementara waktu untuk menenangkan diri."],
+                ans: 2, note: "Memisahkan 'pesan' dari 'pembawa pesan' adalah tanda kedewasaan emosional tinggi."
+            },
+
+            // --- LOGIKA & ANALISIS KRITIS (Ambigu & Multi-step) ---
+            { id: 8, type: "logic", category: "Silogisme",
+              q: "Semua Koruptor adalah Penjahat. Beberapa Penjahat adalah Orang Kaya. Maka...",
+              options: ["Semua Koruptor adalah Orang Kaya.", "Beberapa Koruptor adalah Orang Kaya.", "Tidak ada Koruptor yang Orang Kaya.", "Tidak dapat ditarik kesimpulan pasti."],
+              ans: 3, note: "Himpunan 'Koruptor' ada di dalam 'Penjahat'. 'Orang Kaya' beririsan dengan 'Penjahat'. Belum tentu irisan 'Orang Kaya' menyentuh lingkaran 'Koruptor'. Bisa saja terpisah."
+            },
+            { id: 9, type: "logic", category: "Analisis Data",
+              q: "Kota A lebih macet dari Kota B. Kota C lebih lancar dari Kota B. Kota D lebih macet dari Kota A. Urutan dari yang paling lancar?",
+              options: ["C - B - A - D", "D - A - B - C", "C - B - D - A", "B - C - A - D"],
+              ans: 0, note: "D > A > B > C (Macet -> Lancar). Maka urutan dari Lancar: C, B, A, D."
+            },
+            { id: 10, type: "logic", category: "Sebab-Akibat",
+              q: "Pernyataan: 'Hanya jika hujan deras, maka jalanan banjir'. Fakta: 'Jalanan banjir'. Kesimpulan?",
+              options: ["Pasti hujan deras.", "Mungkin hujan deras.", "Saluran air mampet.", "Tidak hujan deras."],
+              ans: 0, note: "Logika 'Hanya jika P maka Q'. Jika Q terjadi, maka syarat mutlak P harus terjadi. (Beda dengan 'Jika P maka Q')."
+            },
+            { id: 11, type: "logic", category: "Pola Bilangan",
+              q: "2, 3, 5, 9, 17, 33, ... Angka selanjutnya?",
+              options: ["65", "64", "49", "50"],
+              ans: 0, note: "Pola: (n * 2) - 1. Atau beda bertingkat 2^n. 33*2 - 1 = 65."
+            },
+            { id: 12, type: "logic", category: "Analogi",
+              q: "SKRIPSI : GELAR = ... : ...",
+              options: ["LATIHAN : PRESTASI", "GAJI : KERJA", "TIKET : KONSER", "BURUH : UPAH"],
+              ans: 2, note: "Hubungan 'Syarat Mutlak'. Skripsi adalah syarat masuk untuk dapat Gelar (umumnya). Tiket syarat masuk Konser. Latihan tidak menjamin prestasi."
+            },
+            { id: 13, type: "logic", category: "Logika Posisi",
+              q: "Di meja bundar, A duduk berseberangan dengan B. C duduk di antara A dan D. E duduk di sebelah kanan B. Siapa yang duduk di sebelah kiri B?",
+              options: ["A", "D", "C", "E"],
+              ans: 1, note: "Visualisasikan lingkaran. Jika A seberang B. E kanan B. Maka sisa ruang (kiri B) diisi D, karena C diapit A dan D."
+            },
+            { id: 14, type: "logic", category: "Negasi Ganda",
+              q: "Tidak benar bahwa sebagian siswa tidak lulus ujian.",
+              options: ["Beberapa siswa lulus ujian.", "Semua siswa lulus ujian.", "Tidak ada siswa yang lulus.", "Sebagian siswa lulus ujian."],
+              ans: 1, note: "Negasi 'Sebagian tidak' (Eksistensial Negatif) adalah 'Semua ya' (Universal Positif)."
+            },
+
+            // --- NUMERIK & KUANTITATIF (Jebakan Hitungan) ---
+            { id: 15, type: "numeric", category: "Aritmatika",
+              q: "Sebuah HP didiskon 50% lalu didiskon lagi 50%. Berapa total diskon sebenarnya dari harga awal?",
+              options: ["100% (Gratis)", "75%", "50%", "25%"],
+              ans: 1, note: "Harga 100 -> diskon 50% jadi 50. Diskon lagi 50% dari 50 jadi 25. Total penurunan 100 ke 25 adalah 75%."
+            },
+            { id: 16, type: "numeric", category: "Kecepatan",
+              q: "Budi berlari dengan kecepatan 10 km/jam. 15 menit kemudian, Ali mengejar dengan motor 40 km/jam. Berapa lama Ali butuh waktu untuk menyusul Budi?",
+              options: ["5 menit", "10 menit", "15 menit", "20 menit"],
+              ans: 0, note: "Jarak Budi = 10km/jam * 0.25jam = 2.5km. Beda kecepatan = 30km/jam. Waktu = 2.5/30 jam = 1/12 jam = 5 menit."
+            },
+            { id: 17, type: "numeric", category: "Aljabar",
+              q: "Umur Ibu 3 kali umur Anak. 10 tahun lalu, umur Ibu 5 kali umur Anak. Berapa umur Ibu sekarang?",
+              options: ["50 tahun", "60 tahun", "45 tahun", "55 tahun"],
+              ans: 1, note: "I = 3A. (I-10) = 5(A-10). Substitusi: 3A-10 = 5A-50 -> 2A=40 -> A=20. I=60."
+            },
+            { id: 18, type: "numeric", category: "Pecahan",
+              q: "Manakah yang nilainya paling besar?",
+              options: ["4/7", "5/9", "6/11", "0.55"],
+              ans: 0, note: "4/7 ≈ 0.571; 5/9 ≈ 0.555; 6/11 ≈ 0.545. Paling besar 4/7."
+            },
+            { id: 19, type: "numeric", category: "Statistika",
+              q: "Rata-rata 4 bilangan adalah 15. Jika satu bilangan dihapus, rata-ratanya menjadi 18. Bilangan manakah yang dihapus?",
+              options: ["6", "15", "9", "3"],
+              ans: 0, note: "Total awal = 4*15=60. Total baru = 3*18=54. Bilangan hilang = 60-54=6."
+            },
+            { id: 20, type: "numeric", category: "Geometri",
+              q: "Sebuah kubus volumenya 64 cm³. Jika sisinya diperbesar 2 kali lipat, berapa volume barunya?",
+              options: ["128 cm³", "256 cm³", "512 cm³", "600 cm³"],
+              ans: 2, note: "Volume skala kubik. Jika sisi x2, volume x(2³) = x8. 64 * 8 = 512."
+            },
+
+            // --- GENERAL KNOWLEDGE & CRITICAL THINKING ---
+            { id: 21, type: "general", category: "Sains",
+              q: "Mengapa air laut terasa asin?",
+              options: ["Karena kencing ikan dan hewan laut.", "Karena dasar laut mengandung banyak garam dapur.", "Akumulasi mineral dari daratan yang terbawa sungai selama jutaan tahun.", "Karena penguapan air laut menyisakan zat kapur."],
+              ans: 2, note: "Siklus hidrologi melarutkan mineral batuan darat dan membawanya ke laut."
+            },
+            { id: 22, type: "general", category: "Ekonomi",
+              q: "Apa arti istilah 'Inflasi' yang sebenarnya?",
+              options: ["Kenaikan harga barang secara umum dan terus menerus.", "Kondisi di mana negara mencetak uang terlalu banyak.", "Mahalnya harga barang impor.", "Menurunnya daya beli masyarakat miskin."],
+              ans: 0, note: "Definisi teknis: Kenaikan harga umum (general price level) secara berkelanjutan."
+            },
+            { id: 23, type: "general", category: "Logika Medis",
+              q: "Antibiotik tidak efektif untuk menyembuhkan penyakit flu. Mengapa?",
+              options: ["Karena dosis flu butuh antibiotik sangat tinggi.", "Karena flu disebabkan oleh virus, bukan bakteri.", "Karena tubuh sudah kebal antibiotik.", "Karena flu penyakit ringan yang sembuh sendiri."],
+              ans: 1, note: "Antibiotik membunuh bakteri (biotik). Virus bukan sel hidup yang bisa dibunuh antibiotik."
+            },
+
+            // --- CAMPURAN LANJUTAN (24-50) ---
+            { id: 24, type: "personality", category: "Inisiatif",
+              q: "Anda melihat senior kesulitan menggunakan software baru, tapi dia gengsi bertanya. Proyek jadi terhambat.",
+              options: ["Melaporkan ke atasan agar dia diberi pelatihan.", "Pura-pura bertanya padanya tentang fitur software itu, lalu 'tidak sengaja' menunjukkan cara benarnya.", "Mengerjakan bagian dia agar cepat selesai.", "Menertawakannya dalam hati."],
+              ans: 1, note: "Taktik 'Face Saving' (menjaga harga diri orang lain) sambil memberi solusi."
+            },
+            { id: 25, type: "logic", category: "Pola Huruf",
+              q: "A, Z, B, Y, C, ... Huruf selanjutnya?",
+              options: ["D", "X", "W", "E"],
+              ans: 1, note: "Pola selang-seling: A-B-C (maju), Z-Y-X (mundur). Setelah C adalah urutan mundur Z-Y-X."
+            },
+            { id: 26, type: "numeric", category: "Himpunan",
+              q: "Di kelas ada 30 anak. 15 suka bakso, 20 suka mie ayam. 5 tidak suka keduanya. Berapa yang suka keduanya?",
+              options: ["5", "10", "15", "0"],
+              ans: 1, note: "Total = (A + B - Irisan) + Luar. 30 = (15 + 20 - x) + 5. 30 = 40 - x. x = 10."
+            },
+            { id: 27, type: "general", category: "Sejarah",
+              q: "Perang Dingin (Cold War) adalah konflik ideologi antara...",
+              options: ["Amerika Serikat vs Jerman", "Blok Barat (Kapitalis) vs Blok Timur (Komunis)", "Eropa vs Asia", "Rusia vs Ukraina"],
+              ans: 1, note: "AS & Sekutu vs Uni Soviet & Sekutu."
+            },
+            { id: 28, type: "logic", category: "Deduksi",
+              q: "Jika X adalah bilangan genap dan Y adalah bilangan ganjil, maka X + Y pasti...",
+              options: ["Bilangan Genap", "Bilangan Ganjil", "Bisa keduanya", "Bilangan Prima"],
+              ans: 1, note: "Genap + Ganjil selalu Ganjil. (Misal: 2+3=5)."
+            },
+            { id: 29, type: "personality", category: "Feedback",
+              q: "Klien meminta revisi yang menurut Anda justru membuat desain jadi jelek dan tidak fungsional.",
+              options: ["Menuruti saja karena 'pembeli adalah raja'.", "Menolak mentah-mentah demi idealisme karya.", "Memberikan dua opsi: sesuai permintaan klien dan versi rekomendasi Anda beserta alasan logisnya.", "Mengerjakan setengah hati."],
+              ans: 2, note: "Memberi edukasi dan opsi adalah ciri profesional, bukan sekadar tukang gambar atau seniman egois."
+            },
+            { id: 30, type: "numeric", category: "Waktu",
+              q: "Jam dinding berbunyi 3 kali pada pukul 3. Butuh waktu 6 detik untuk menyelesaikan bunyi tersebut. Berapa detik waktu yang dibutuhkan untuk berbunyi pada pukul 6?",
+              options: ["12 detik", "15 detik", "10 detik", "9 detik"],
+              ans: 1, note: "Jebakan interval. 3 bunyi = 2 jeda = 6 detik -> 1 jeda = 3 detik. Pukul 6 = 6 bunyi = 5 jeda. 5 * 3 = 15 detik."
+            },
+            { id: 31, type: "general", category: "Teknologi",
+              q: "Apa fungsi utama VPN (Virtual Private Network)?",
+              options: ["Mempercepat koneksi internet 2x lipat.", "Membuka situs yang diblokir pemerintah.", "Mengenkripsi data internet agar aman dan menyembunyikan lokasi pengguna.", "Menghapus virus dari komputer."],
+              ans: 2, note: "Buka blokir hanyalah efek samping. Fungsi utamanya adalah privasi dan keamanan (enkripsi)."
+            },
+            { id: 32, type: "logic", category: "Sandi",
+              q: "KUCING = 6, HARIMAU = 7, GAJAH = 5. Maka AYAM = ...",
+              options: ["3", "4", "5", "6"],
+              ans: 1, note: "Jumlah huruf pembentuk kata. AYAM = 4 huruf."
+            },
+            { id: 33, type: "personality", category: "Kegagalan",
+              q: "Proyek besar yang Anda pimpin gagal total. Tim Anda saling menyalahkan.",
+              options: ["Ikut menyalahkan anggota yang paling malas.", "Mengundurkan diri sebagai ketua.", "Mengadakan rapat evaluasi tanpa menyalahkan (blameless), fokus pada 'apa yang salah' bukan 'siapa yang salah'.", "Meminta manajemen membubarkan tim."],
+              ans: 2, note: "Blameless post-mortem culture."
+            },
+            { id: 34, type: "numeric", category: "Logika Pasar",
+              q: "Harga saham turun 50%. Agar kembali ke harga semula (Break Even), saham harus naik berapa persen dari harga sekarang?",
+              options: ["50%", "75%", "100%", "200%"],
+              ans: 2, note: "100 turun ke 50. Dari 50 mau ke 100 butuh tambah 50. 50 dari 50 adalah 100%."
+            },
+            { id: 35, type: "logic", category: "Visual",
+              q: "Manakah yang tidak sekelompok? [Bola, Kelereng, Piringan Hitam, Globe]",
+              options: ["Bola", "Kelereng", "Piringan Hitam", "Globe"],
+              ans: 2, note: "Bola, Kelereng, Globe adalah bentuk 3D (Bola). Piringan hitam adalah 2D (Lingkaran pipih)."
+            },
+            { id: 36, type: "general", category: "Astronomi",
+              q: "Penyebab utama terjadinya pergantian musim di Bumi adalah...",
+              options: ["Jarak Bumi ke Matahari yang berubah-ubah (Elliptical).", "Kemiringan sumbu rotasi Bumi (Axial Tilt).", "Aktivitas sunspot matahari.", "Perputaran Bumi pada porosnya."],
+              ans: 1, note: "Banyak yang salah kira jarak. Padahal saat musim dingin di utara, bumi justru paling dekat matahari (perihelion)."
+            },
+            { id: 37, type: "personality", category: "Networking",
+              q: "Di acara networking, Anda tidak kenal siapapun. Strategi terbaik?",
+              options: ["Duduk main HP menunggu acara selesai.", "Menempel terus pada satu orang yang baru dikenal.", "Bergabung ke kelompok yang jumlahnya ganjil/terbuka, senyum, dan mendengarkan dulu sebelum bicara.", "Langsung membagikan kartu nama ke semua orang tanpa basa-basi."],
+              ans: 2, note: "Etika sosial: Masuk ke grup terbuka lebih mudah, mendengarkan membangun rapport."
+            },
+            { id: 38, type: "logic", category: "Arah",
+              q: "Anda menghadap Utara. Balik kanan, lalu putar kiri 90 derajat, lalu balik kanan lagi. Menghadap mana Anda sekarang?",
+              options: ["Utara", "Timur", "Barat", "Selatan"],
+              ans: 2, note: "Utara -> (Balik Kanan) Selatan -> (Kiri 90) Timur -> (Balik Kanan) Barat."
+            },
+            { id: 39, type: "numeric", category: "Deret",
+              q: "80, 10, 70, 15, 60, ...",
+              options: ["20", "25", "50", "55"],
+              ans: 0, note: "Dua larik selang-seling. 80, 70, 60 (turun 10). 10, 15, ... (naik 5). Jadi 20."
+            },
+            { id: 40, type: "personality", category: "Batas Diri",
+              q: "Atasan sering menghubungi soal pekerjaan di jam 11 malam saat weekend.",
+              options: ["Selalu membalas cepat agar dinilai loyal.", "Mematikan HP total tiap weekend.", "Membalas besok paginya (jam kerja) secara konsisten, kecuali darurat besar.", "Marah-marah di status WhatsApp."],
+              ans: 2, note: "Membangun 'pattern' profesional. Jika dibalas terus, atasan akan menganggap itu wajar."
+            },
+            { id: 41, type: "general", category: "Hukum",
+              q: "Praduga Tak Bersalah artinya...",
+              options: ["Terdakwa pasti tidak bersalah.", "Terdakwa bebas dari hukum.", "Seseorang dianggap tidak bersalah sampai dibuktikan sebaliknya oleh pengadilan.", "Polisi tidak boleh menangkap orang."],
+              ans: 2, note: "Asas hukum fundamental."
+            },
+            { id: 42, type: "logic", category: "Paradoks",
+              q: "Pernyataan: 'Saya sedang berbohong'. Apakah pernyataan ini benar atau salah?",
+              options: ["Benar", "Salah", "Paradoks (Tidak bisa ditentukan)", "Keduanya"],
+              ans: 2, note: "Liar's Paradox. Jika benar dia bohong, maka dia jujur (salah). Jika salah dia bohong, maka dia jujur (benar)."
+            },
+            { id: 43, type: "numeric", category: "Probabilitas",
+              q: "Peluang muncul angka ganjil pada pelemparan satu dadu adalah...",
+              options: ["1/6", "1/3", "1/2", "2/3"],
+              ans: 2, note: "Angka ganjil: 1, 3, 5 (3 angka). Total: 6. 3/6 = 1/2."
+            },
+            { id: 44, type: "personality", category: "Negosiasi",
+              q: "Membeli barang bekas, penjual memberi harga tinggi. Trik negosiasi terbaik?",
+              options: ["Menghina barangnya agar harga turun.", "Menawar sadis setengah harga langsung.", "Menyebutkan harga pasar riset Anda dan menawar sedikit di bawah budget maksimal Anda.", "Memelas minta dikasihani."],
+              ans: 2, note: "Negosiasi berbasis data (objektif) lebih dihargai daripada manipulasi emosi."
+            },
+            { id: 45, type: "logic", category: "Deduksi",
+              q: "Semua dokter punya tulisan jelek. Budi tulisannya bagus.",
+              options: ["Budi pasti bukan dokter.", "Budi mungkin dokter.", "Budi dokter palsu.", "Tidak ada kesimpulan."],
+              ans: 0, note: "Modus Tollens. Jika P -> Q. Dan ~Q. Maka ~P. Jika Dokter -> Jelek. Budi Tidak Jelek -> Budi Bukan Dokter."
+            },
+            { id: 46, type: "numeric", category: "Satuan",
+              q: "1 Gros + 2 Lusin = ... buah",
+              options: ["144", "168", "156", "100"],
+              ans: 1, note: "1 Gros = 144. 2 Lusin = 24. 144 + 24 = 168."
+            },
+            { id: 47, type: "general", category: "Biologi",
+              q: "Vaksin bekerja dengan cara...",
+              options: ["Membunuh virus di dalam tubuh.", "Memicu tubuh membentuk antibodi/kekebalan spesifik.", "Memperbaiki sel yang rusak.", "Mendinginkan suhu tubuh."],
+              ans: 1, note: "Vaksin adalah simulasi perang agar tubuh siap saat perang asli."
+            },
+            { id: 48, type: "personality", category: "Sosial Media",
+              q: "Melihat komentar hate speech di akun publik yang memancing emosi.",
+              options: ["Ikut memaki biar puas.", "Menasehati pelaku panjang lebar.", "Report/Block dan abaikan (Don't feed the troll).", "Screenshot dan viralkan."],
+              ans: 2, note: "Efisiensi energi mental. Berdebat dengan troll tidak pernah menang."
+            },
+            { id: 49, type: "logic", category: "Spasial",
+              q: "Kertas dilipat dua, lalu dilubangi di tengah. Saat dibuka, lubangnya ada di...",
+              options: ["Tepi kertas", "Tengah kertas (1 lubang)", "Dua lubang simetris", "Pojok kertas"],
+              ans: 2, note: "Tergantung lipatannya, tapi asumsi lipat setangkup -> lubang tembus 2 lapisan -> 2 lubang simetris."
+            },
+            { id: 50, type: "personality", category: "Refleksi",
+              q: "Jika hasil tes ini buruk, apa yang Anda katakan pada diri sendiri?",
+              options: ["Saya memang bodoh.", "Soalnya yang salah dan tidak valid.", "Saya belum menguasai pola ini, saya akan belajar lagi.", "Nasib saya sial."],
+              ans: 2, note: "Self-Compassion & Growth Mindset."
+            }
+        ];
+
+        // --- GAME VARIABLES ---
+        let currentQIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        let timerInterval;
+        let totalTime = 50 * 60; // 50 menit
+        let isPaused = false;
+        
+        // --- DOM ELEMENTS ---
+        const startScreen = document.getElementById('start-screen');
+        const questionScreen = document.getElementById('question-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const pauseModal = document.getElementById('pause-modal');
+        
+        const qText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const qCurrentDisplay = document.getElementById('q-current');
+        const scoreDisplay = document.getElementById('score-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const progressBar = document.getElementById('progress-fill');
+        const qCategory = document.getElementById('q-category');
+
+        // --- CORE FUNCTIONS ---
+
+        function init() {
+            // Check LocalStorage key khusus Paket C
+            const savedData = localStorage.getItem('quiz_save_paket_c_v2');
+            if (savedData) {
+                document.getElementById('resume-btn-container').classList.remove('hidden');
+            }
+        }
+
+        function startNewGame() {
+            localStorage.removeItem('quiz_save_paket_c_v2');
+            currentQIndex = 0;
+            score = 0;
+            userAnswers = [];
+            totalTime = 50 * 60;
+            
+            startGameUI();
+        }
+
+        function resumeGame() {
+            const savedData = JSON.parse(localStorage.getItem('quiz_save_paket_c_v2'));
+            if (savedData) {
+                currentQIndex = savedData.index;
+                score = savedData.score;
+                userAnswers = savedData.answers;
+                totalTime = savedData.time;
+                startGameUI();
+            } else {
+                startNewGame();
+            }
+        }
+
+        function startGameUI() {
+            startScreen.classList.add('hidden');
+            questionScreen.classList.remove('hidden');
+            questionScreen.classList.add('flex');
+            document.getElementById('game-controls').classList.remove('hidden');
+            document.getElementById('game-controls').classList.add('flex');
+            
+            renderQuestion();
+            startTimer();
+        }
+
+        function renderQuestion() {
+            const q = questionDatabase[currentQIndex];
+            
+            // Update UI Texts
+            qCurrentDisplay.innerText = currentQIndex + 1;
+            document.getElementById('q-total').innerText = questionDatabase.length;
+            scoreDisplay.innerText = score;
+            qCategory.innerText = q.category || "Umum";
+            qText.innerText = q.q;
+
+            // Update Progress Bar
+            const pct = ((currentQIndex) / questionDatabase.length) * 100;
+            progressBar.style.width = `${pct}%`;
+
+            // Clear options
+            optionsGrid.innerHTML = '';
+
+            // Generate Option Colors (Lebih muted/serius untuk expert mode)
+            const colors = [
+                'bg-slate-700 border-slate-900', 
+                'bg-slate-700 border-slate-900', 
+                'bg-slate-700 border-slate-900', 
+                'bg-slate-700 border-slate-900'
+            ];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-card text-white text-md md:text-lg font-semibold py-4 px-6 rounded-xl shadow-lg text-left relative overflow-hidden group ${colors[idx % 4]} hover:bg-slate-600`;
+                btn.innerHTML = `
+                    <div class="relative z-10 flex items-start gap-3">
+                        <span class="bg-black/30 w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full text-sm font-bold border border-white/20">${String.fromCharCode(65 + idx)}</span>
+                        <span class="leading-snug">${opt}</span>
+                    </div>
+                    <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition"></div>
+                `;
+                btn.onclick = () => handleAnswer(idx);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex) {
+            const q = questionDatabase[currentQIndex];
+            const isCorrect = selectedIndex === q.ans;
+            
+            userAnswers.push({
+                qId: q.id,
+                qText: q.q,
+                yourAns: q.options[selectedIndex],
+                correctAns: q.options[q.ans],
+                isCorrect: isCorrect,
+                note: q.note || "Analisis logika mendalam diperlukan."
+            });
+
+            const buttons = optionsGrid.children;
+            if(isCorrect) {
+                buttons[selectedIndex].classList.add('correct-anim');
+                score += 200; // Poin lebih besar untuk Hard Mode
+            } else {
+                buttons[selectedIndex].classList.add('wrong-anim');
+            }
+
+            // Disable buttons
+            for(let btn of buttons) btn.disabled = true;
+
+            setTimeout(() => {
+                currentQIndex++;
+                saveProgress();
+                
+                if (currentQIndex < questionDatabase.length) {
+                    renderQuestion();
+                } else {
+                    endGame();
+                }
+            }, 1000); // Waktu jeda sedikit lebih lama untuk melihat feedback
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    totalTime--;
+                    updateTimerDisplay();
+                    
+                    if (totalTime <= 0) {
+                        endGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(totalTime / 60);
+            const s = totalTime % 60;
+            timerDisplay.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            if(totalTime < 300) {
+                timerDisplay.classList.remove('text-blue-400');
+                timerDisplay.classList.add('text-red-500', 'animate-pulse');
+            }
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                pauseModal.classList.remove('hidden');
+                saveProgress();
+            } else {
+                pauseModal.classList.add('hidden');
+            }
+        }
+
+        function saveProgress() {
+            const state = {
+                index: currentQIndex,
+                score: score,
+                answers: userAnswers,
+                time: totalTime
+            };
+            localStorage.setItem('quiz_save_paket_c_v2', JSON.stringify(state));
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            localStorage.removeItem('quiz_save_paket_c_v2');
+            
+            questionScreen.classList.add('hidden');
+            document.getElementById('game-controls').classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = score;
+            const correctCount = userAnswers.filter(a => a.isCorrect).length;
+            document.getElementById('stat-correct').innerText = correctCount;
+            document.getElementById('stat-wrong').innerText = 50 - correctCount;
+
+            const msgEl = document.getElementById('final-msg');
+            if (correctCount > 45) msgEl.innerText = "GRAND MASTER! Logika dan mentalmu tak tergoyahkan.";
+            else if (correctCount > 35) msgEl.innerText = "EXPERT! Kemampuan analisis yang sangat tajam.";
+            else if (correctCount > 20) msgEl.innerText = "INTERMEDIATE. Cukup baik, tapi waspadai detail kecil.";
+            else msgEl.innerText = "NOVICE. Jangan menyerah, latih terus logikamu.";
+
+            generateReview();
+        }
+
+        function generateReview() {
+            const list = document.getElementById('review-list');
+            list.innerHTML = '';
+
+            userAnswers.forEach((ans, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-4 rounded-lg border-l-4 ${ans.isCorrect ? 'bg-green-100 border-green-600' : 'bg-red-100 border-red-600'} text-gray-800`;
+                
+                item.innerHTML = `
+                    <div class="mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider ${ans.isCorrect ? 'text-green-800' : 'text-red-800'}">Soal ${idx+1}</span>
+                        <p class="font-bold text-lg leading-snug mt-1">${ans.qText}</p>
+                    </div>
+                    <div class="text-sm bg-white/50 p-3 rounded-md">
+                        <p class="mb-1">
+                            <span class="font-semibold">Jawabanmu:</span> 
+                            <span class="${ans.isCorrect ? 'text-green-700 font-bold' : 'text-red-600 font-bold'}">${ans.yourAns}</span>
+                            ${ans.isCorrect ? '<i class="fas fa-check-circle text-green-600 ml-1"></i>' : '<i class="fas fa-times-circle text-red-600 ml-1"></i>'}
+                        </p>
+                        ${!ans.isCorrect ? `<p class="mb-2"><span class="font-semibold text-gray-700">Kunci Jawaban:</span> <span class="text-green-700 font-bold">${ans.correctAns}</span></p>` : ''}
+                        <div class="mt-3 pt-2 border-t border-gray-300">
+                            <p class="text-gray-600 text-xs font-bold uppercase">Penjelasan:</p>
+                            <p class="text-gray-800 italic">"${ans.note}"</p>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function toggleReview() {
+            const section = document.getElementById('review-section');
+            section.classList.toggle('hidden');
+        }
+
+        init();
+    </script>
+</body>
+</html>

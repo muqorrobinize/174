@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Paket E: TPB & Psikogram</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #4c1d95; /* Violet-900 */
+            color: white;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Background Shapes */
+        .bg-pattern {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -2;
+        }
+        
+        .blob {
+            position: absolute;
+            filter: blur(50px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 10s infinite alternate;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 400px; height: 400px; background: #db2777; border-radius: 50%; }
+        .blob-2 { bottom: -10%; right: -10%; width: 300px; height: 300px; background: #2563eb; border-radius: 40% 60% 70% 30%; }
+        .blob-3 { top: 40%; left: 30%; width: 200px; height: 200px; background: #eab308; border-radius: 50%; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(20px, 40px) scale(1.1); }
+        }
+
+        /* Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: #1f2937;
+        }
+
+        /* Options Buttons (Quizizz Style) */
+        .option-btn {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 6px solid rgba(0,0,0,0.2);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            color: white;
+            font-weight: 700;
+            text-shadow: 0 2px 0 rgba(0,0,0,0.1);
+        }
+        .option-btn:active {
+            transform: translateY(4px);
+            border-bottom-width: 2px;
+        }
+        .option-btn:hover { filter: brightness(110%); }
+
+        /* Colors for Options */
+        .opt-0 { background-color: #0ea5e9; border-color: #0369a1; } /* Sky Blue */
+        .opt-1 { background-color: #10b981; border-color: #047857; } /* Emerald */
+        .opt-2 { background-color: #f59e0b; border-color: #b45309; } /* Amber */
+        .opt-3 { background-color: #ef4444; border-color: #b91c1c; } /* Red */
+
+        /* Visual Container */
+        .visual-box {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed #cbd5e1;
+        }
+        .visual-box svg { max-height: 200px; width: auto; }
+
+        /* Progress Bar */
+        .progress-track {
+            background: rgba(255,255,255,0.2);
+            height: 12px;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #facc15;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        /* Animations */
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* Chart Customization */
+        canvas { max-height: 300px; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-pattern"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="max-w-5xl mx-auto min-h-screen flex flex-col p-4 relative">
+        
+        <!-- HEADER -->
+        <header class="flex justify-between items-center py-4 z-10">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-2 rounded-xl backdrop-blur-md border border-white/30">
+                    <i class="fas fa-shapes text-yellow-300 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-xl tracking-wide uppercase drop-shadow-md">PAKET E</h1>
+                    <p class="text-xs text-purple-200 font-bold">Simulasi TPB & Psikogram</p>
+                </div>
+            </div>
+            
+            <div class="bg-black/20 px-4 py-2 rounded-full border border-white/10 font-mono font-bold flex items-center gap-2 text-yellow-300">
+                <i class="fas fa-clock"></i>
+                <span id="timer-display">60:00</span>
+            </div>
+        </header>
+
+        <!-- MAIN AREA -->
+        <main class="flex-grow flex flex-col justify-center items-center w-full relative">
+
+            <!-- 1. START SCREEN -->
+            <div id="start-screen" class="glass-card p-10 text-center max-w-lg w-full animate-pop">
+                <div class="mb-6 inline-block p-5 bg-purple-100 rounded-full">
+                    <i class="fas fa-brain text-6xl text-purple-600"></i>
+                </div>
+                <h2 class="text-4xl font-black mb-2 text-purple-900">TES POTENSI BELAJAR</h2>
+                <p class="text-gray-600 mb-8 text-lg">
+                    Uji kemampuan Kognitif (IQ) dan Analisis Kepribadianmu dalam satu paket seru!
+                </p>
+                
+                <div class="grid grid-cols-2 gap-4 mb-8 text-left">
+                    <div class="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500">
+                        <div class="font-bold text-blue-800">Kognitif</div>
+                        <div class="text-sm text-blue-600">Logika, Spasial, Numerik</div>
+                    </div>
+                    <div class="bg-pink-50 p-4 rounded-xl border-l-4 border-pink-500">
+                        <div class="font-bold text-pink-800">Kepribadian</div>
+                        <div class="text-sm text-pink-600">Ego, Empati, Stabilitas</div>
+                    </div>
+                </div>
+
+                <button onclick="quiz.start()" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xl font-bold py-4 rounded-2xl shadow-lg border-b-4 border-purple-800 transition transform hover:-translate-y-1 active:translate-y-0 active:border-b-0">
+                    MULAI TANTANGAN
+                </button>
+            </div>
+
+            <!-- 2. QUIZ SCREEN -->
+            <div id="quiz-screen" class="hidden w-full max-w-4xl flex flex-col">
+                <!-- Progress Bar -->
+                <div class="w-full mb-6 flex items-center gap-4">
+                    <span class="font-bold text-white drop-shadow-md">Soal <span id="q-idx">1</span>/50</span>
+                    <div class="progress-track flex-grow">
+                        <div id="progress-bar" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Card -->
+                <div class="glass-card p-6 md:p-8 animate-pop relative">
+                    <!-- Category Badge -->
+                    <span id="q-cat" class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-4 py-2 rounded-bl-xl rounded-tr-xl uppercase tracking-wider">LOGIKA</span>
+
+                    <!-- Visual -->
+                    <div id="visual-area" class="visual-box hidden">
+                        <!-- SVG Injected Here -->
+                    </div>
+
+                    <!-- Question -->
+                    <h2 id="q-text" class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 leading-snug">
+                        Loading...
+                    </h2>
+
+                    <!-- Options -->
+                    <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Buttons Generated by JS -->
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center text-white/60 text-sm font-bold">
+                    <i class="fas fa-keyboard mr-1"></i> Tekan 1, 2, 3, 4 untuk jawab cepat
+                </div>
+            </div>
+
+            <!-- 3. RESULT SCREEN -->
+            <div id="result-screen" class="hidden w-full max-w-5xl glass-card p-8 animate-pop">
+                <h2 class="text-3xl font-black text-center text-purple-900 mb-8">HASIL ANALISIS LENGKAP</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <!-- Skor Kognitif -->
+                    <div class="bg-gray-50 rounded-2xl p-6 text-center border-2 border-dashed border-gray-200">
+                        <h3 class="text-gray-500 font-bold uppercase tracking-wider mb-2">Potensi Kognitif</h3>
+                        <div class="text-6xl font-black text-purple-600 mb-2" id="score-val">0</div>
+                        <div class="text-sm font-bold text-gray-400">SKOR MAKSIMAL: 100</div>
+                        <div id="score-msg" class="mt-4 inline-block px-4 py-1 bg-purple-100 text-purple-700 rounded-full font-bold text-sm">Cukup Baik</div>
+                    </div>
+
+                    <!-- Grafik Psikogram -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+                        <h3 class="text-gray-500 font-bold uppercase tracking-wider mb-2">Profil Psikogram</h3>
+                        <div class="w-full h-64">
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deskripsi -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="p-4 bg-red-50 rounded-xl border-t-4 border-red-500">
+                        <div class="font-bold text-red-700 mb-1"><i class="fas fa-fire mr-1"></i> Ego Drive</div>
+                        <p id="desc-ego" class="text-xs text-gray-600 leading-relaxed">...</p>
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-xl border-t-4 border-green-500">
+                        <div class="font-bold text-green-700 mb-1"><i class="fas fa-heart mr-1"></i> Affective</div>
+                        <p id="desc-aff" class="text-xs text-gray-600 leading-relaxed">...</p>
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl border-t-4 border-blue-500">
+                        <div class="font-bold text-blue-700 mb-1"><i class="fas fa-balance-scale mr-1"></i> Stability</div>
+                        <p id="desc-sta" class="text-xs text-gray-600 leading-relaxed">...</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button onclick="location.reload()" class="flex-1 bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg transition">
+                        <i class="fas fa-redo mr-2"></i> ULANGI TES
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- 1. SVG ASSETS (Visual Soal) ---
+        const SVG = {
+            segitiga_kompleks: `<svg viewBox="0 0 200 200"><rect x="20" y="20" width="160" height="160" fill="none" stroke="#333" stroke-width="3"/><line x1="20" y1="20" x2="180" y2="180" stroke="#333" stroke-width="3"/><line x1="180" y1="20" x2="20" y2="180" stroke="#333" stroke-width="3"/><line x1="100" y1="20" x2="100" y2="180" stroke="#333" stroke-width="3"/><rect x="60" y="60" width="80" height="80" fill="none" stroke="#e11d48" stroke-width="3" transform="rotate(45, 100, 100)"/></svg>`,
+            rotasi_kubus: `<svg viewBox="0 0 300 100"><g transform="translate(20,20)"><rect x="0" y="0" width="40" height="40" fill="white" stroke="black" stroke-width="2"/><circle cx="20" cy="20" r="10" fill="black"/><path d="M0,0 L15,-15 L55,-15 L40,0" fill="#ddd" stroke="black" stroke-width="2"/><path d="M40,0 L55,-15 L55,25 L40,40" fill="#bbb" stroke="black" stroke-width="2"/></g><text x="110" y="60" font-size="30" fill="#333">➜ 90° ➜</text><text x="250" y="60" font-size="50" fill="#333">?</text></svg>`,
+            pola_matriks: `<svg viewBox="0 0 200 200"><rect x="10" y="10" width="50" height="50" fill="white" stroke="#333" stroke-width="2"/><circle cx="35" cy="35" r="15" fill="black"/><rect x="70" y="10" width="50" height="50" fill="white" stroke="#333" stroke-width="2"/><rect x="85" y="25" width="20" height="20" fill="black"/><rect x="130" y="10" width="50" height="50" fill="white" stroke="#333" stroke-width="2"/><polygon points="155,20 140,50 170,50" fill="black"/><rect x="10" y="70" width="50" height="50" fill="white" stroke="#333" stroke-width="2"/><circle cx="35" cy="95" r="15" fill="none" stroke="black" stroke-width="4"/><rect x="70" y="70" width="50" height="50" fill="white" stroke="#333" stroke-width="2"/><rect x="85" y="85" width="20" height="20" fill="none" stroke="black" stroke-width="4"/><rect x="130" y="70" width="50" height="50" fill="white" stroke="#333" stroke-width="2"/><polygon points="155,80 140,110 170,110" fill="none" stroke="black" stroke-width="4"/><rect x="10" y="130" width="50" height="50" fill="white" stroke="#333" stroke-width="2"/><circle cx="35" cy="155" r="15" fill="#aaa"/><rect x="70" y="130" width="50" height="50" fill="white" stroke="#333" stroke-width="2"/><rect x="85" y="145" width="20" height="20" fill="#aaa"/><rect x="130" y="130" width="50" height="50" fill="none" stroke="#e11d48" stroke-width="3" stroke-dasharray="4"/><text x="155" y="165" font-size="30" text-anchor="middle" fill="#e11d48">?</text></svg>`,
+            lipatan: `<svg viewBox="0 0 300 80"><rect x="10" y="10" width="60" height="60" fill="white" stroke="#333" stroke-dasharray="4"/><line x1="40" y1="10" x2="40" y2="70" stroke="#333" stroke-width="2"/><path d="M100,10 L130,10 L130,70 L100,70 Z" fill="#e2e8f0" stroke="#333" stroke-width="2"/><line x1="100" y1="40" x2="130" y2="40" stroke="#333" stroke-width="2" stroke-dasharray="2"/><rect x="200" y="10" width="30" height="30" fill="#cbd5e1" stroke="#333" stroke-width="2"/><circle cx="215" cy="25" r="5" fill="black"/></svg>`,
+            sudut_jam: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="white" stroke="#333" stroke-width="3"/><line x1="50" y1="50" x2="50" y2="10" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="50" x2="85" y2="85" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="50" r="4" fill="#333"/></svg>`
+        };
+
+        // --- 2. DATABASE SOAL (TPB + PSIKOGRAM) ---
+        // Types: "COG" (Kognitif, ans = index benar), "PERS" (Kepribadian, weights = bobot per opsi)
+        
+        const database = [
+            // --- KOGNITIF: SPASIAL & VISUAL (SVG Based) ---
+            { q: "Berapa jumlah TOTAL segitiga pada gambar di atas?", svg: SVG.segitiga_kompleks, opt: ["12 Segitiga", "16 Segitiga", "20 Segitiga", "24 Segitiga"], ans: 2, type: "COG", cat: "SPASIAL" },
+            { q: "Gambar yang melengkapi pola matriks?", svg: SVG.pola_matriks, opt: ["Segitiga Hitam", "Segitiga Garis", "Segitiga Abu-abu", "Lingkaran Abu-abu"], ans: 2, type: "COG", cat: "SPASIAL" },
+            { q: "Jika kertas dilipat dan dilubangi, hasilnya?", svg: SVG.lipatan, opt: ["2 Lubang Vertikal", "2 Lubang Horizontal", "4 Lubang Sudut", "4 Lubang Tengah"], ans: 2, type: "COG", cat: "SPASIAL" },
+            { q: "Sudut terkecil pukul 12.25?", svg: SVG.sudut_jam, opt: ["120°", "137.5°", "150°", "145°"], ans: 1, type: "COG", cat: "NUMERIK" },
+            
+            // --- KOGNITIF: NUMERIK & LOGIKA ---
+            { q: "1, 4, 27, 256, ... Angka selanjutnya?", opt: ["1024", "3125", "3000", "5000"], ans: 1, type: "COG", cat: "NUMERIK" },
+            { q: "8 pekerja = 15 hari. 12 pekerja = ... hari?", opt: ["8 hari", "10 hari", "12 hari", "14 hari"], ans: 1, type: "COG", cat: "NUMERIK" },
+            { q: "Semua Karyawan wajib disiplin. Sebagian Karyawan suka lembur.", opt: ["Yang suka lembur wajib disiplin", "Yang disiplin suka lembur", "Yang disiplin tak wajib lembur", "Yang tak lembur tak disiplin"], ans: 0, type: "COG", cat: "LOGIKA" },
+            { q: "A seberang B. C kanan A. D antara B dan C. Siapa di kiri B?", opt: ["A", "C", "D", "E"], ans: 1, type: "COG", cat: "LOGIKA" },
+            { q: "Berapa 12,5% dari 1040?", opt: ["120", "125", "130", "140"], ans: 2, type: "COG", cat: "NUMERIK" },
+            { q: "X > Y. Y = 2Z. Z < 0. Maka...", opt: ["X < Z", "X > Z", "X = Z", "Tak Tentu"], ans: 1, type: "COG", cat: "LOGIKA" },
+
+            // --- PSIKOGRAM: KEPRIBADIAN (Bobot Nilai) ---
+            // Bobot: {e: Ego, a: Affective, s: Stability}
+            { 
+                q: "Tim gagal target karena satu orang sakit. Bos marah.", 
+                opt: ["Jelaskan ini salah orang itu.", "Ajak tim lembur kejar target.", "Terima marah & buat evaluasi.", "Diam saja."], 
+                weights: [{e:2,a:0,s:0}, {e:0,a:2,s:1}, {e:0,a:0,s:2}, {e:0,a:0,s:0}], 
+                type: "PERS", cat: "SIKAP KERJA" 
+            },
+            { 
+                q: "Ditawari promosi tapi harus pindah jauh dari keluarga.", 
+                opt: ["Ambil segera, karir no.1.", "Tolak demi keluarga.", "Diskusikan dulu dengan keluarga.", "Ragu & minta saran orang."], 
+                weights: [{e:2,a:0,s:0}, {e:0,a:2,s:0}, {e:0,a:1,s:2}, {e:0,a:0,s:0}], 
+                type: "PERS", cat: "MOTIVASI" 
+            },
+            { 
+                q: "Rekan kerja sering curhat di jam kerja.", 
+                opt: ["Tegur keras.", "Dengarkan karena kasihan.", "Tolak sopan & janji nanti.", "Pakai earphone/abaikan."], 
+                weights: [{e:1,a:0,s:0}, {e:0,a:2,s:0}, {e:0,a:1,s:2}, {e:1,a:0,s:0}], 
+                type: "PERS", cat: "SOSIAL" 
+            },
+            { 
+                q: "Ada celah aturan yang menguntungkan diri sendiri.", 
+                opt: ["Pakai diam-diam.", "Ajak teman pakai.", "Lapor manajemen.", "Biarkan saja."], 
+                weights: [{e:2,a:0,s:0}, {e:0,a:1,s:0}, {e:0,a:0,s:2}, {e:0,a:0,s:0}], 
+                type: "PERS", cat: "INTEGRITAS" 
+            },
+            
+            // --- TAMBAHAN KOGNITIF (Text Based) ---
+            { q: "Sinonim: NISBI", opt: ["Mutlak", "Relatif", "Abadi", "Maya"], ans: 1, type: "COG", cat: "VERBAL" },
+            { q: "Mobil : Bensin = Pelari : ...", opt: ["Sepatu", "Lintasan", "Makanan", "Juara"], ans: 2, type: "COG", cat: "VERBAL" },
+            { q: "1, 1, 2, 3, 5, 8, ...", opt: ["11", "12", "13", "15"], ans: 2, type: "COG", cat: "DERET" },
+            { q: "Akar 625?", opt: ["15", "25", "35", "45"], ans: 1, type: "COG", cat: "NUMERIK" },
+            { q: "Manakah yang bukan logam murni?", opt: ["Seng", "Tembaga", "Emas", "Perunggu"], ans: 3, type: "COG", cat: "UMUM" },
+            { q: "Jarak 150km, Waktu 2,5 jam. Kecepatan?", opt: ["50", "60", "70", "80"], ans: 1, type: "COG", cat: "NUMERIK" },
+            { q: "Sudut 1/3 putaran penuh?", opt: ["90", "120", "150", "180"], ans: 1, type: "COG", cat: "GEOMETRI" },
+            { q: "Ingkaran 'Semua dokter ramah'", opt: ["Semua tidak ramah", "Ada yang tidak ramah", "Tidak ada yang ramah", "Dokter galak"], ans: 1, type: "COG", cat: "LOGIKA" },
+            { q: "5x - 3 = 17. Nilai x?", opt: ["3", "4", "5", "6"], ans: 1, type: "COG", cat: "ALJABAR" },
+            { q: "Hutan : Pohon = Tembok : ...", opt: ["Semen", "Batu Bata", "Rumah", "Putih"], ans: 1, type: "COG", cat: "VERBAL" },
+            { q: "Negara Kincir Angin?", opt: ["Jerman", "Belanda", "Inggris", "Swiss"], ans: 1, type: "COG", cat: "UMUM" },
+            { q: "30% dari 1 jam = ... menit", opt: ["15", "18", "20", "30"], ans: 1, type: "COG", cat: "NUMERIK" },
+            { q: "Pola: A, Z, B, Y, C, ...", opt: ["X", "D", "W", "E"], ans: 0, type: "COG", cat: "DERET" },
+            { q: "Ayah Budi punya 3 anak: Suka, Suki. Anak ke-3?", opt: ["Suko", "Suku", "Budi", "Saka"], ans: 2, type: "COG", cat: "LOGIKA" },
+            { q: "Mana lebih berat: 1kg Besi vs 1kg Kapas?", opt: ["Besi", "Kapas", "Sama", "Tergantung"], ans: 2, type: "COG", cat: "LOGIKA" },
+            
+            // --- TAMBAHAN KEPRIBADIAN (SJT) ---
+            { q: "Tugas numpuk, teman ajak ngopi.", opt: ["Ikut bentar.", "Tolak tegas.", "Ikut lama.", "Kerja sambil ngopi."], weights: [{e:0,a:1,s:1}, {e:1,a:0,s:1}, {e:0,a:2,s:0}, {e:1,a:1,s:1}], type: "PERS", cat: "PRIORITAS" },
+            { q: "Ada rumor buruk tentang Anda.", opt: ["Labrak.", "Klarifikasi.", "Diam & Buktikan.", "Curhat."], weights: [{e:2,a:0,s:0}, {e:1,a:1,s:0}, {e:0,a:0,s:2}, {e:0,a:2,s:0}], type: "PERS", cat: "EMOSI" },
+            { q: "Klien minta di luar kontrak.", opt: ["Tolak.", "Lakukan (Relasi).", "Negosiasi biaya.", "Abaikan."], weights: [{e:1,a:0,s:0}, {e:0,a:2,s:0}, {e:1,a:1,s:2}, {e:0,a:0,s:0}], type: "PERS", cat: "BISNIS" },
+            { q: "Ide dicuri rekan kerja.", opt: ["Marah.", "Lapor Bos.", "Bicara privat.", "Ikhlas."], weights: [{e:2,a:0,s:0}, {e:1,a:0,s:1}, {e:0,a:1,s:2}, {e:0,a:0,s:0}], type: "PERS", cat: "KONFLIK" },
+            { q: "Salah kirim email penting.", opt: ["Panik.", "Segera ralat.", "Pura-pura.", "Salahkan IT."], weights: [{e:0,a:0,s:0}, {e:0,a:1,s:2}, {e:1,a:0,s:0}, {e:2,a:0,s:0}], type: "PERS", cat: "TANGGUNG JAWAB" },
+            { q: "Rapat tidak efektif.", opt: ["Main HP.", "Usul solusi.", "Keluar.", "Tidur."], weights: [{e:0,a:0,s:0}, {e:1,a:0,s:2}, {e:2,a:0,s:0}, {e:0,a:0,s:0}], type: "PERS", cat: "INISIATIF" },
+            { q: "Temu uang 100rb di kantor.", opt: ["Ambil.", "Tanya teman.", "Kasih Satpam.", "Traktir."], weights: [{e:2,a:0,s:0}, {e:0,a:1,s:1}, {e:0,a:0,s:2}, {e:0,a:2,s:0}], type: "PERS", cat: "JUJUR" },
+            { q: "Atasan salah keputusan.", opt: ["Koreksi umum.", "Biarkan.", "Koreksi privat.", "Gosipin."], weights: [{e:2,a:0,s:0}, {e:0,a:0,s:0}, {e:0,a:1,s:2}, {e:0,a:2,s:0}], type: "PERS", cat: "KOMUNIKASI" },
+            { q: "Internet kantor mati.", opt: ["Pulang.", "Ngobrol.", "Baca buku.", "Tethering HP."], weights: [{e:0,a:0,s:0}, {e:0,a:2,s:0}, {e:0,a:0,s:1}, {e:1,a:0,s:2}], type: "PERS", cat: "SOLUSI" },
+            { q: "Gagal target tahunan.", opt: ["Salahkan pasar.", "Evaluasi diri.", "Cari alasan.", "Depresi."], weights: [{e:1,a:0,s:0}, {e:0,a:0,s:2}, {e:2,a:0,s:0}, {e:0,a:0,s:0}], type: "PERS", cat: "RESILIENSI" },
+            { q: "Sikap pada sistem baru.", opt: ["Protes.", "Adaptasi.", "Ikut arus.", "Keluar."], weights: [{e:1,a:0,s:0}, {e:1,a:0,s:2}, {e:0,a:1,s:0}, {e:0,a:0,s:0}], type: "PERS", cat: "ADAPTASI" },
+            { q: "Teman di-bully.", opt: ["Ikutan.", "Diam.", "Bela/Lapor.", "Rekam."], weights: [{e:0,a:0,s:0}, {e:0,a:0,s:0}, {e:0,a:2,s:2}, {e:0,a:0,s:0}], type: "PERS", cat: "EMPATI" },
+            { q: "Diberi tugas sulit.", opt: ["Tolak.", "Belajar.", "Minta tolong.", "Lempar."], weights: [{e:0,a:0,s:0}, {e:2,a:0,s:1}, {e:0,a:2,s:1}, {e:0,a:0,s:0}], type: "PERS", cat: "BELAJAR" },
+            { q: "Presentasi dadakan.", opt: ["Siap.", "Tolak.", "Ragu.", "Panik."], weights: [{e:2,a:0,s:1}, {e:0,a:0,s:1}, {e:0,a:0,s:0}, {e:0,a:0,s:0}], type: "PERS", cat: "CONFIDENCE" },
+            { q: "Gaji besar toxic vs Kecil nyaman?", opt: ["Besar.", "Kecil.", "Cari lain.", "Usaha."], weights: [{e:2,a:0,s:0}, {e:0,a:1,s:2}, {e:1,a:0,s:1}, {e:2,a:0,s:1}], type: "PERS", cat: "VALUE" },
+            { q: "1, 8, 27, 64, ...", opt: ["100", "121", "125", "144"], ans: 2, type: "COG", cat: "DERET" }, // Kubik
+            { q: "Simbol Perak?", opt: ["Ag", "Au", "Fe", "Cu"], ans: 0, type: "COG", cat: "KIMIA" },
+            { q: "Kertas : Pena = Dinding : ...", opt: ["Cat", "Kuas", "Batu", "Semen"], ans: 1, type: "COG", cat: "ANALOGI" },
+            { q: "Besar sudut siku-siku?", opt: ["45", "60", "90", "180"], ans: 2, type: "COG", cat: "GEOMETRI" },
+            { q: "Ibukota Rusia?", opt: ["Kiev", "Moscow", "Minsk", "St Petersburg"], ans: 1, type: "COG", cat: "UMUM" },
+            { q: "1 Jam 45 Menit + 50 Menit?", opt: ["2h 15m", "2h 25m", "2h 35m", "2h 45m"], ans: 2, type: "COG", cat: "WAKTU" }
+        ];
+
+        // --- 3. LOGIC CONTROLLER ---
+        const quiz = {
+            data: [],
+            currIdx: 0,
+            scores: { cog: 0, ego: 0, aff: 0, sta: 0 },
+            timer: 3600, // 60 menit
+            timerInterval: null,
+            canAnswer: false,
+
+            start: function() {
+                // Prepare Data (Shuffle)
+                this.data = database.sort(() => Math.random() - 0.5);
+                this.currIdx = 0;
+                this.scores = { cog: 0, ego: 0, aff: 0, sta: 0 };
+                
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
+                document.getElementById('result-screen').classList.add('hidden');
+                
+                this.startTimer();
+                this.render();
+            },
+
+            startTimer: function() {
+                this.timerInterval = setInterval(() => {
+                    this.timer--;
+                    let m = Math.floor(this.timer / 60).toString().padStart(2, '0');
+                    let s = (this.timer % 60).toString().padStart(2, '0');
+                    document.getElementById('timer-display').innerText = `${m}:${s}`;
+                    if(this.timer <= 0) this.finish();
+                }, 1000);
+            },
+
+            render: function() {
+                this.canAnswer = true;
+                const q = this.data[this.currIdx];
+                
+                // UI Updates
+                document.getElementById('q-idx').innerText = this.currIdx + 1;
+                document.getElementById('q-cat').innerText = q.cat;
+                document.getElementById('q-text').innerText = q.q;
+                document.getElementById('progress-bar').style.width = `${((this.currIdx)/this.data.length)*100}%`;
+
+                // Visual Check
+                const visBox = document.getElementById('visual-area');
+                if(q.svg) {
+                    visBox.innerHTML = q.svg;
+                    visBox.classList.remove('hidden');
+                } else {
+                    visBox.classList.add('hidden');
+                }
+
+                // Options Render
+                const grid = document.getElementById('options-grid');
+                grid.innerHTML = '';
+                q.opt.forEach((txt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `option-btn opt-${idx % 4} p-6 text-xl shadow-lg relative group text-left`;
+                    btn.id = `btn-${idx}`;
+                    btn.innerHTML = `
+                        <span class="absolute top-2 right-3 text-xs bg-black/20 px-2 rounded group-hover:bg-black/40">[${idx+1}]</span>
+                        ${txt}
+                    `;
+                    btn.onclick = () => this.answer(idx);
+                    grid.appendChild(btn);
+                });
+            },
+
+            answer: function(idx) {
+                if (!this.canAnswer) return;
+                this.canAnswer = false;
+
+                const q = this.data[this.currIdx];
+                const btn = document.getElementById(`btn-${idx}`);
+                
+                // Visual Feedback (Click Effect)
+                btn.style.transform = "scale(0.95)";
+                setTimeout(() => btn.style.transform = "scale(1)", 100);
+
+                // Scoring Logic
+                if (q.type === "COG") {
+                    if (idx === q.ans) this.scores.cog += 4; // Max 100 approx if 25 cog q
+                } else {
+                    const w = q.weights[idx];
+                    this.scores.ego += w.e;
+                    this.scores.aff += w.a;
+                    this.scores.sta += w.s;
+                }
+
+                // Next Question Delay
+                setTimeout(() => {
+                    this.currIdx++;
+                    if (this.currIdx < this.data.length) {
+                        this.render();
+                    } else {
+                        this.finish();
+                    }
+                }, 300);
+            },
+
+            finish: function() {
+                clearInterval(this.timerInterval);
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+                
+                // Render Cognitive
+                const cogScore = Math.min(100, Math.round(this.scores.cog * (100 / (this.data.filter(x=>x.type==='COG').length * 4)) || 0)); // Normalize to 100
+                document.getElementById('score-val').innerText = cogScore;
+                
+                const msg = document.getElementById('score-msg');
+                if(cogScore > 80) { msg.innerText = "Sangat Superior (High Potential)"; msg.className = "mt-4 inline-block px-4 py-1 bg-green-100 text-green-700 rounded-full font-bold text-sm"; }
+                else if(cogScore > 60) { msg.innerText = "Rata-rata Atas"; msg.className = "mt-4 inline-block px-4 py-1 bg-blue-100 text-blue-700 rounded-full font-bold text-sm"; }
+                else { msg.innerText = "Perlu Latihan Lagi"; msg.className = "mt-4 inline-block px-4 py-1 bg-red-100 text-red-700 rounded-full font-bold text-sm"; }
+
+                // Interpretasi Psikogram
+                const getDesc = (val, type) => {
+                    if(type === 'ego') return val > 15 ? "Cenderung dominan, ambisius, dan berorientasi pada hasil (Leader Type)." : "Kooperatif, cenderung mengikuti arus, dan menghindari konflik.";
+                    if(type === 'aff') return val > 15 ? "Sangat peduli sosial, hangat, dan mengutamakan harmoni tim." : "Cenderung individualis, fokus pada tugas, dan logis.";
+                    if(type === 'sta') return val > 15 ? "Tenang, taat aturan, dan objektif dalam tekanan." : "Spontan, kreatif, namun terkadang impulsif.";
+                };
+
+                document.getElementById('desc-ego').innerText = getDesc(this.scores.ego, 'ego');
+                document.getElementById('desc-aff').innerText = getDesc(this.scores.aff, 'aff');
+                document.getElementById('desc-sta').innerText = getDesc(this.scores.sta, 'sta');
+
+                // Render Chart
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Ego Drive', 'Affective', 'Stability'],
+                        datasets: [{
+                            label: 'Profil',
+                            data: [this.scores.ego, this.scores.aff, this.scores.sta],
+                            backgroundColor: 'rgba(219, 39, 119, 0.2)',
+                            borderColor: '#db2777',
+                            pointBackgroundColor: '#db2777',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#db2777'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { display: false },
+                                suggestedMin: 0,
+                                suggestedMax: 30
+                            }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        };
+
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            if(['1','2','3','4'].includes(e.key)) {
+                quiz.answer(parseInt(e.key) - 1);
+            }
+        });
+
+    </script>
+</body>
+</html>

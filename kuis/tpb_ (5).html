@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Kompetensi & Kepribadian Seru (Paket B)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #2D033B; /* Dark Purple Quizizz Style */
+            color: white;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Animated Background */
+        .bg-shapes {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        .shape:nth-child(1) { width: 300px; height: 300px; background: #E21B3C; top: -50px; left: -50px; animation-duration: 25s; }
+        .shape:nth-child(2) { width: 200px; height: 200px; background: #1368CE; bottom: 10%; right: -50px; animation-duration: 30s; }
+        .shape:nth-child(3) { width: 150px; height: 150px; background: #D89E00; top: 40%; left: 20%; animation-duration: 20s; }
+        .shape:nth-child(4) { width: 400px; height: 400px; background: #26890C; bottom: -100px; left: 30%; animation-duration: 35s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(100px, 100px) rotate(360deg); }
+        }
+
+        /* Quiz Card Styling */
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 4px solid rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .option-card:active {
+            transform: translateY(4px);
+            border-bottom-width: 0px;
+        }
+        .option-card:hover {
+            filter: brightness(110%);
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* Modal */
+        .modal {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .correct-anim { background-color: #00C985 !important; border-color: #008f5d !important; }
+        .wrong-anim { background-color: #FF4444 !important; border-color: #b32626 !important; }
+
+        /* Scrollbar for review */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2D033B; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body>
+
+    <!-- Background Animation -->
+    <div class="bg-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div id="app" class="max-w-4xl mx-auto min-h-screen flex flex-col p-4 relative">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center py-4 z-10">
+            <div class="flex items-center gap-2">
+                <div class="bg-white/10 p-2 rounded-lg">
+                    <i class="fas fa-brain text-yellow-400 text-xl"></i>
+                </div>
+                <h1 class="font-bold text-xl tracking-wide hidden sm:block">QUIZ PAKET B (Advanced)</h1>
+            </div>
+            
+            <!-- Timer & Pause -->
+            <div id="game-controls" class="hidden flex items-center gap-4">
+                <div class="bg-black/30 px-4 py-1 rounded-full flex items-center gap-2 border border-white/10">
+                    <i class="fas fa-clock text-blue-400"></i>
+                    <span id="timer-display" class="font-mono font-bold">50:00</span>
+                </div>
+                <button onclick="togglePause()" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-pause text-white"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow flex flex-col justify-center items-center relative w-full">
+            
+            <!-- SCREENS -->
+
+            <!-- 1. Start Screen -->
+            <div id="start-screen" class="text-center w-full max-w-lg animate-pop">
+                <img src="https://media.giphy.com/media/l41lFj8afad4T7tsQ/giphy.gif" alt="Study" class="w-48 h-48 mx-auto rounded-full object-cover mb-6 border-4 border-white/20 shadow-xl">
+                <h2 class="text-4xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-500">TANTANGAN BARU</h2>
+                <p class="text-gray-300 mb-8 text-lg">50 Soal "Ambigu" & Logika Tingkat Lanjut</p>
+                
+                <div id="resume-btn-container" class="hidden mb-4">
+                    <button onclick="resumeGame()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(29,78,216)] transition transform active:scale-95 text-xl">
+                        <i class="fas fa-play mr-2"></i> LANJUTKAN SESI
+                    </button>
+                    <p class="text-sm text-gray-400 mt-2">Data tersimpan di perangkat</p>
+                </div>
+
+                <button onclick="startNewGame()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(21,128,61)] transition transform active:scale-95 text-xl">
+                    <i class="fas fa-rocket mr-2"></i> MULAI PAKET B
+                </button>
+            </div>
+
+            <!-- 2. Question Screen -->
+            <div id="question-screen" class="hidden w-full h-full flex flex-col">
+                <!-- Progress Header -->
+                <div class="w-full mb-6">
+                    <div class="flex justify-between text-sm font-bold mb-1 opacity-80">
+                        <span>Soal <span id="q-current">1</span>/<span id="q-total">50</span></span>
+                        <span>Score: <span id="score-display">0</span></span>
+                    </div>
+                    <div class="progress-bar-container h-3 w-full">
+                        <div id="progress-fill" class="h-full bg-gradient-to-r from-green-400 to-blue-500 progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="bg-white text-gray-800 rounded-2xl p-6 md:p-8 shadow-2xl mb-6 relative animate-pop min-h-[200px] flex items-center justify-center text-center">
+                    <span id="q-category" class="absolute top-0 left-0 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-br-xl rounded-tl-xl uppercase tracking-wider">Kategori</span>
+                    
+                    <div class="w-full">
+                        <!-- Image Container (Optional) -->
+                        <div id="q-image-container" class="hidden mb-4 justify-center">
+                            <!-- Image injected via JS -->
+                        </div>
+                        <h3 id="question-text" class="text-xl md:text-2xl font-bold leading-relaxed">
+                            Loading question...
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Options Grid -->
+                <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    <!-- Options injected via JS -->
+                </div>
+            </div>
+
+            <!-- 3. Result Screen -->
+            <div id="result-screen" class="hidden text-center w-full max-w-2xl animate-pop">
+                <div class="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
+                    <h2 class="text-3xl font-bold mb-2">Quiz Selesai!</h2>
+                    <div class="text-6xl font-black text-yellow-400 mb-4 drop-shadow-md" id="final-score">0</div>
+                    <p class="text-xl mb-8" id="final-msg">Hebat!</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-green-500/20 p-4 rounded-xl border border-green-500/30">
+                            <div class="text-2xl font-bold text-green-400" id="stat-correct">0</div>
+                            <div class="text-xs uppercase tracking-wider opacity-70">Benar</div>
+                        </div>
+                        <div class="bg-red-500/20 p-4 rounded-xl border border-red-500/30">
+                            <div class="text-2xl font-bold text-red-400" id="stat-wrong">0</div>
+                            <div class="text-xs uppercase tracking-wider opacity-70">Salah/Kurang Tepat</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        <button onclick="toggleReview()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(88,28,135)] transition">
+                            <i class="fas fa-list-check mr-2"></i> Review Jawaban
+                        </button>
+                        <button onclick="location.reload()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(55,65,81)] transition">
+                            <i class="fas fa-redo mr-2"></i> Main Lagi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Review Section (Hidden by default) -->
+            <div id="review-section" class="hidden w-full mt-8 bg-white/90 text-gray-800 rounded-xl p-6 max-h-[60vh] overflow-y-auto">
+                <h3 class="text-2xl font-bold mb-4 border-b pb-2">Kunci Jawaban & Pembahasan</h3>
+                <div id="review-list" class="space-y-6">
+                    <!-- Review items injected here -->
+                </div>
+                <button onclick="toggleReview()" class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg font-bold">Tutup Review</button>
+            </div>
+
+        </main>
+
+        <!-- Pause Modal -->
+        <div id="pause-modal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center">
+            <div class="bg-white text-gray-800 p-8 rounded-2xl text-center max-w-sm mx-4 shadow-2xl animate-pop">
+                <i class="fas fa-pause-circle text-6xl text-purple-600 mb-4"></i>
+                <h2 class="text-2xl font-bold mb-2">Permainan Dijeda</h2>
+                <p class="text-gray-500 mb-6">Jangan khawatir, progresmu tersimpan.</p>
+                <button onclick="togglePause()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
+                    Lanjut Main
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. DATA SOAL BARU (PAKET B - 50 SOAL) ---
+        // Soal dibuat lebih ambigu pada kepribadian dan lebih kompleks pada logika
+        
+        const questionDatabase = [
+            // --- KEPRIBADIAN & SITUASIONAL (AMBIGU/DILEMA) ---
+            {
+                id: 1, type: "personality", category: "Integritas",
+                q: "Anda melihat sahabat karib Anda mengambil uang kas kelas diam-diam. Saat ditanya guru, dia menyangkal. Sikap Anda?",
+                options: ["Diam saja demi menjaga persahabatan", "Menegurnya secara pribadi dan memintanya mengaku", "Melaporkan langsung ke guru di depan kelas", "Mengganti uang tersebut diam-diam agar masalah selesai"],
+                ans: 1, note: "Opsi B menyeimbangkan integritas (kebenaran) dan empati (tidak mempermalukan di depan umum)."
+            },
+            {
+                id: 2, type: "personality", category: "Kepemimpinan",
+                q: "Tim Anda sedang buntu ide dan deadline besok. Sebagai ketua, apa yang Anda lakukan?",
+                options: ["Mengambil alih semua tugas agar cepat selesai", "Memarahi anggota karena lambat", "Mengajak istirahat sejenak lalu brainstorming ulang dengan santai", "Meminta perpanjangan waktu ke guru"],
+                ans: 2, note: "Opsi C adalah ciri pemimpin yang tenang dan solutif (management stress)."
+            },
+            {
+                id: 3, type: "personality", category: "Adaptasi",
+                q: "Guru favorit Anda diganti dengan guru baru yang cara mengajarnya sangat membosankan dan monoton. Reaksi Anda?",
+                options: ["Sering bolos di jam pelajaran tersebut", "Mengajukan protes ke kepala sekolah", "Mencari sumber belajar lain untuk melengkapi materi", "Tidur di kelas karena tidak paham"],
+                ans: 2, note: "Opsi C menunjukkan kemandirian belajar (proaktif) daripada menyalahkan keadaan."
+            },
+            {
+                id: 4, type: "personality", category: "Konflik",
+                q: "Anda dituduh menyontek padahal tidak. Bukti CCTV tidak jelas. Guru mengancam nilai E jika tidak mengaku.",
+                options: ["Mengaku saja daripada nilai E", "Marah dan berteriak bahwa itu fitnah", "Tetap tenang, menyangkal dengan sopan, dan minta pembuktian ulang", "Menangis dan memohon belas kasihan"],
+                ans: 2, note: "Opsi C menunjukkan ketegasan (asertif) dan kontrol emosi yang baik."
+            },
+            {
+                id: 5, type: "personality", category: "Prioritas",
+                q: "Besok ujian penting, tapi malam ini teman dekat Anda menelepon sambil menangis karena masalah keluarga berat.",
+                options: ["Mematikan HP agar bisa fokus belajar", "Mendengarkan curhatnya semalam suntuk", "Mendengarkan sebentar, menenangkan, lalu izin lanjut belajar", "Menyuruhnya cerita ke orang lain saja"],
+                ans: 2, note: "Opsi C adalah win-win solution: empati tetap jalan, tanggung jawab pribadi (belajar) tetap terjaga."
+            },
+            {
+                id: 6, type: "personality", category: "Kerjasama",
+                q: "Dalam kelompok, ada anggota yang idenya sangat buruk tapi dia sangat dominan dan keras kepala.",
+                options: ["Membiarkan saja agar tidak ribut", "Mengkritik idenya habis-habisan di depan forum", "Mengapresiasi idenya dulu, lalu menawarkan alternatif dengan logis", "Keluar dari kelompok"],
+                ans: 2, note: "Opsi C teknik komunikasi 'Sandwich' (puji-koreksi-solusi) yang efektif meredam ego."
+            },
+            {
+                id: 7, type: "personality", category: "Growth Mindset",
+                q: "Anda terpilih ikut lomba tapi materinya belum Anda kuasai sama sekali. Waktu persiapan 1 minggu.",
+                options: ["Menolak karena takut mempermalukan sekolah", "Menerima tapi pasrah jika kalah", "Menerima dan belajar intensif fokus pada dasar-dasarnya", "Menerima lalu mencari joki/bantuan curang"],
+                ans: 2, note: "Opsi C menunjukkan keberanian mengambil tantangan (Risk Taking) yang positif."
+            },
+            {
+                id: 8, type: "personality", category: "Etika",
+                q: "Anda menemukan kunci jawaban ujian besok tertinggal di mesin fotokopi sekolah.",
+                options: ["Memfotonya lalu menyebarkan ke grup kelas", "Menggunakannya untuk diri sendiri saja", "Mengabaikannya dan pura-pura tidak lihat", "Menyerahkannya ke guru piket tanpa melihat isinya"],
+                ans: 3, note: "Opsi D adalah tingkat integritas tertinggi."
+            },
+            {
+                id: 9, type: "personality", category: "Sosial",
+                q: "Di acara sekolah, Anda tidak mengenal siapa pun. Apa yang Anda lakukan?",
+                options: ["Main HP di pojokan sampai acara selesai", "Pulang diam-diam", "Menunggu ada yang menyapa", "Mencoba tersenyum dan menyapa satu orang yang terlihat ramah"],
+                ans: 3, note: "Opsi D menunjukkan inisiatif sosial dan keberanian."
+            },
+            {
+                id: 10, type: "personality", category: "Tekanan",
+                q: "Banyak tugas menumpuk, orang tua menuntut nilai tinggi, dan Anda merasa 'burnout'.",
+                options: ["Lari dari rumah", "Terus memaksakan diri begadang tiap malam", "Berkomunikasi jujur ke orang tua tentang kondisi dan minta jeda", "Masa bodoh dengan semuanya"],
+                ans: 2, note: "Opsi C adalah komunikasi asertif dan self-care yang sehat."
+            },
+
+            // --- LOGIKA & ANALITIK (LEBIH KOMPLEKS) ---
+            { id: 11, type: "logic", category: "Silogisme", q: "Semua A adalah B. Sebagian B adalah C. Maka...", options: ["Semua A adalah C", "Sebagian A adalah C", "Semua C adalah B", "Tidak dapat disimpulkan hubungan A dan C pasti"], ans: 3, note: "Bisa saja himpunan A dan C tidak beririsan sama sekali di dalam B." },
+            { id: 12, type: "logic", category: "Posisi", q: "Jojo lebih tinggi dari Adi. Adi lebih tinggi dari Budi. Caca lebih pendek dari Jojo tapi lebih tinggi dari Adi. Siapa terpendek?", options: ["Jojo", "Adi", "Budi", "Caca"], ans: 2, note: "Urutan: Jojo > Caca > Adi > Budi." },
+            { id: 13, type: "logic", category: "Analogi", q: "Kamera : Gambar = ... : ...", options: ["Kuas : Cat", "Pena : Tulisan", "Gitar : Lagu", "Mata : Wajah"], ans: 1, note: "Alat untuk menghasilkan sesuatu (visual/teks)." },
+            { id: 14, type: "logic", category: "Sebab-Akibat", q: "Jika hujan, jalanan basah. Jalanan basah.", options: ["Pasti hujan", "Mungkin hujan, mungkin disiram air", "Tidak hujan", "Pasti banjir"], ans: 1, note: "Afirmasi konsekuen (fallacy). Jalan basah tidak selalu karena hujan." },
+            { id: 15, type: "logic", category: "Kode", q: "KODE = 11-15-4-5. Maka BACA = ...", options: ["2-1-3-1", "2-1-4-1", "3-1-2-1", "2-2-3-1"], ans: 0, note: "A=1, B=2, C=3..." },
+            { id: 16, type: "logic", category: "Visual", q: "Manakah yang berbeda? [Meja, Kursi, Lemari, Buku]", options: ["Meja", "Kursi", "Lemari", "Buku"], ans: 3, note: "Meja, Kursi, Lemari adalah furnitur/perabot. Buku adalah alat tulis/bacaan." },
+            { id: 17, type: "logic", category: "Logika Cerita", q: "Hari ini hari Rabu. 100 hari lagi adalah hari...", options: ["Rabu", "Kamis", "Jumat", "Sabtu"], ans: 2, note: "100 mod 7 = 2. Rabu + 2 hari = Jumat." },
+            { id: 18, type: "logic", category: "Implikasi", q: "Pernyataan: 'Semua anggota DPR adalah politisi'. Ingkaran (negasi) dari pernyataan tersebut adalah:", options: ["Tidak ada anggota DPR yang politisi", "Semua politisi adalah anggota DPR", "Ada anggota DPR yang bukan politisi", "Beberapa politisi bukan anggota DPR"], ans: 2, note: "Negasi 'Semua' adalah 'Ada/Beberapa yang tidak'." },
+            { id: 19, type: "logic", category: "Urutan", q: "X lebih tua dari Y. Z lebih muda dari Y. Siapa paling tua?", options: ["X", "Y", "Z", "Tidak tahu"], ans: 0, note: "X > Y > Z." },
+            { id: 20, type: "logic", category: "Spasial", q: "Kubus memiliki berapa rusuk?", options: ["6", "8", "12", "16"], ans: 2, note: "Fakta geometri dasar." },
+
+            // --- NUMERIK (HITUNGAN & POLA) ---
+            { id: 21, type: "numeric", category: "Deret", q: "2, 3, 5, 9, 17, ...", options: ["30", "31", "33", "35"], ans: 2, note: "Pola: +1, +2, +4, +8. Selanjutnya +16. 17+16=33." },
+            { id: 22, type: "numeric", category: "Pecahan", q: "2/3 dari 60% adalah...", options: ["0.2", "0.4", "20%", "30%"], ans: 1, note: "2/3 * 60/100 = 120/300 = 0.4." },
+            { id: 23, type: "numeric", category: "Aritmatika", q: "0.04 x 0.02 = ...", options: ["0.08", "0.008", "0.0008", "0.8"], ans: 2, note: "4 desimal di belakang koma." },
+            { id: 24, type: "numeric", category: "Perbandingan", q: "A : B = 2 : 3. Jika A = 24, maka B = ...", options: ["30", "36", "40", "48"], ans: 1, note: "2x = 24 -> x=12. B = 3*12 = 36." },
+            { id: 25, type: "numeric", category: "Kecepatan", q: "Mobil A 60km/jam. Mobil B 80km/jam. Berangkat bersamaan. Setelah 2 jam, selisih jarak mereka?", options: ["20 km", "40 km", "60 km", "80 km"], ans: 1, note: "Selisih 20km tiap jam. 2 jam = 40km." },
+            { id: 26, type: "numeric", category: "Deret Huruf", q: "A, C, F, J, ...", options: ["M", "N", "O", "P"], ans: 2, note: "A(+2)C, C(+3)F, F(+4)J, J(+5)O." },
+            { id: 27, type: "numeric", category: "Aljabar", q: "Jika 2x + 5 = 17, maka x + 2 = ...", options: ["6", "8", "9", "10"], ans: 1, note: "2x=12 -> x=6. Maka x+2 = 8." },
+            { id: 28, type: "numeric", category: "Bangun Ruang", q: "Volume kubus dengan sisi 5 cm adalah...", options: ["25", "100", "125", "150"], ans: 2, note: "5 x 5 x 5." },
+            { id: 29, type: "numeric", category: "Statistika", q: "Rata-rata 5, 6, 7, 8, x adalah 7. Berapakah x?", options: ["7", "8", "9", "10"], ans: 2, note: "Total 5 data = 35. 5+6+7+8=26. x = 35-26=9." },
+            { id: 30, type: "numeric", category: "Diskon Bertingkat", q: "Harga 100rb diskon 50% + 20%. Harga akhir?", options: ["30rb", "40rb", "50rb", "70rb"], ans: 1, note: "100rb - 50% = 50rb. 50rb - 20% = 40rb. Bukan 70% langsung." },
+
+            // --- GENERAL KNOWLEDGE & SITUASIONAL CAMPURAN ---
+            { id: 31, type: "general", category: "Wawasan", q: "Ibukota negara yang akan pindah ke Kalimantan adalah...", options: ["Nusantara", "Jakarta", "Balikpapan", "Samarinda"], ans: 0 },
+            { id: 32, type: "general", category: "Sains", q: "Planet terdekat dengan Matahari adalah...", options: ["Venus", "Bumi", "Mars", "Merkurius"], ans: 3 },
+            { id: 33, type: "personality", category: "Manajemen Waktu", q: "Mana yang paling prioritas?", options: ["Tugas deadline besok (Penting & Mendesak)", "Rencana liburan bulan depan (Tidak Penting)", "Olahraga rutin (Penting Tidak Mendesak)", "Notifikasi chat grup (Mendesak Tidak Penting)"], ans: 0, note: "Matriks Eisenhower: Penting & Mendesak didahulukan." },
+            { id: 34, type: "personality", category: "Keuangan", q: "Dapat bonus uang tak terduga. Tindakan paling bijak?", options: ["Habiskan untuk pesta", "Tabung semua", "Gunakan sebagian untuk kebutuhan, sisanya ditabung", "Pinjamkan ke teman semua"], ans: 2, note: "Balance antara menikmati dan menabung." },
+            { id: 35, type: "logic", category: "Pola Gambar", q: "Segitiga (3), Segiempat (4), Segilima (5), ...", options: ["Lingkaran", "Segienam", "Segitiga", "Garis"], ans: 1 },
+            { id: 36, type: "personality", category: "Emosi", q: "Teman membatalkan janji di menit terakhir.", options: ["Marah besar dan memblokir kontaknya", "Kecewa tapi menanyakan alasannya baik-baik", "Masa bodoh", "Menyindir di media sosial"], ans: 1, note: "Komunikasi dewasa." },
+            { id: 37, type: "personality", category: "Karir", q: "Pekerjaan gaji besar tapi lingkungan toxic, atau gaji sedang tapi nyaman?", options: ["Gaji besar, mental urusan belakangan", "Gaji sedang, kesehatan mental terjaga", "Keluar kerja tanpa rencana", "Demo atasan"], ans: 1, note: "Kesejahteraan jangka panjang biasanya lebih sustainable." },
+            { id: 38, type: "logic", category: "Analogi", q: "Dokter : Pasien = Guru : ...", options: ["Sekolah", "Papan Tulis", "Murid", "Nilai"], ans: 2 },
+            { id: 39, type: "numeric", category: "Umur", q: "A 2x umur B. Jika A 20 tahun, umur B?", options: ["10", "40", "22", "18"], ans: 0 },
+            { id: 40, type: "personality", category: "Fokus", q: "Susah fokus saat belajar.", options: ["Minum kopi sebanyak mungkin", "Teknik Pomodoro (25 menit fokus, 5 menit istirahat)", "Belajar sambil nonton film", "Berhenti belajar selamanya"], ans: 1, note: "Metode belajar efektif." },
+            { id: 41, type: "logic", category: "Kesimpulan", q: "Semua unggas bertelur. Kucing tidak bertelur.", options: ["Kucing adalah unggas", "Kucing bukan unggas", "Kucing mungkin unggas", "Unggas bisa melahirkan"], ans: 1 },
+            { id: 42, type: "general", category: "Bahasa", q: "Sinonim 'Efisien' adalah...", options: ["Boros", "Tepat guna", "Cepat", "Mahal"], ans: 1 },
+            { id: 43, type: "general", category: "Bahasa", q: "Antonim 'Optimis' adalah...", options: ["Pesimis", "Realistis", "Kritis", "Sinid"], ans: 0 },
+            { id: 44, type: "numeric", category: "Satuan", q: "1,5 Jam = ... menit", options: ["60", "90", "100", "120"], ans: 1 },
+            { id: 45, type: "personality", category: "Inisiatif", q: "Melihat sampah berserakan di jalan umum.", options: ["Memungut dan buang ke tong sampah", "Mengeluh pemerintah tidak kerja", "Pura-pura tidak lihat", "Foto dan viralkan tanpa aksi"], ans: 0, note: "Aksi nyata." },
+            { id: 46, type: "logic", category: "Arah", q: "Menghadap Utara. Putar kanan 180 derajat. Menghadap mana?", options: ["Selatan", "Timur", "Barat", "Utara"], ans: 0 },
+            { id: 47, type: "numeric", category: "Uang", q: "Beli 3 buku @5000. Bayar 20.000. Kembalian?", options: ["5000", "10000", "15000", "0"], ans: 0 },
+            { id: 48, type: "personality", category: "Resiko", q: "Ditawari investasi untung 50% sehari tapi tidak jelas legalitasnya.", options: ["Ikut segera sebelum terlambat", "Cari tahu legalitasnya dulu (Skeptis sehat)", "Ajak teman ikut", "Pinjam uang orang tua untuk ikut"], ans: 1, note: "Literasi finansial." },
+            { id: 49, type: "logic", category: "Urutan Kata", q: "Susun: Makan - Lapar - Kenyang", options: ["Lapar - Makan - Kenyang", "Makan - Lapar - Kenyang", "Kenyang - Lapar - Makan", "Lapar - Kenyang - Makan"], ans: 0 },
+            { id: 50, type: "personality", category: "Penutup", q: "Apa kunci sukses utama menurut Anda?", options: ["Kecerdasan IQ semata", "Keberuntungan", "Konsistensi dan Grit (Kegigihan)", "Koneksi orang dalam"], ans: 2, note: "Angela Duckworth: Grit is key." }
+        ];
+
+        // --- 2. GAME VARIABLES ---
+        let currentQIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        let timerInterval;
+        let totalTime = 50 * 60; // 50 minutes
+        let isPaused = false;
+        
+        // --- 3. DOM ELEMENTS ---
+        const startScreen = document.getElementById('start-screen');
+        const questionScreen = document.getElementById('question-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const pauseModal = document.getElementById('pause-modal');
+        
+        const qText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const qCurrentDisplay = document.getElementById('q-current');
+        const scoreDisplay = document.getElementById('score-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const progressBar = document.getElementById('progress-fill');
+        const qCategory = document.getElementById('q-category');
+
+        // --- 4. CORE FUNCTIONS ---
+
+        function init() {
+            // Check LocalStorage key khusus Paket B
+            const savedData = localStorage.getItem('quiz_save_paket_b');
+            if (savedData) {
+                document.getElementById('resume-btn-container').classList.remove('hidden');
+            }
+        }
+
+        function startNewGame() {
+            localStorage.removeItem('quiz_save_paket_b');
+            currentQIndex = 0;
+            score = 0;
+            userAnswers = [];
+            totalTime = 50 * 60;
+            
+            startGameUI();
+        }
+
+        function resumeGame() {
+            const savedData = JSON.parse(localStorage.getItem('quiz_save_paket_b'));
+            if (savedData) {
+                currentQIndex = savedData.index;
+                score = savedData.score;
+                userAnswers = savedData.answers;
+                totalTime = savedData.time;
+                startGameUI();
+            } else {
+                startNewGame();
+            }
+        }
+
+        function startGameUI() {
+            startScreen.classList.add('hidden');
+            questionScreen.classList.remove('hidden');
+            questionScreen.classList.add('flex');
+            document.getElementById('game-controls').classList.remove('hidden');
+            document.getElementById('game-controls').classList.add('flex');
+            
+            renderQuestion();
+            startTimer();
+        }
+
+        function renderQuestion() {
+            const q = questionDatabase[currentQIndex];
+            
+            // Update UI Texts
+            qCurrentDisplay.innerText = currentQIndex + 1;
+            document.getElementById('q-total').innerText = questionDatabase.length;
+            scoreDisplay.innerText = score;
+            qCategory.innerText = q.category;
+            qText.innerText = q.q;
+
+            // Update Progress Bar
+            const pct = ((currentQIndex) / questionDatabase.length) * 100;
+            progressBar.style.width = `${pct}%`;
+
+            // Clear options
+            optionsGrid.innerHTML = '';
+
+            // Generate Option Colors
+            const colors = [
+                'bg-blue-500 border-blue-700', 
+                'bg-teal-500 border-teal-700', 
+                'bg-yellow-500 border-yellow-700', 
+                'bg-pink-500 border-pink-700'
+            ];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-card text-white text-lg font-bold py-6 px-4 rounded-xl shadow-lg text-left relative overflow-hidden group ${colors[idx % 4]}`;
+                btn.innerHTML = `
+                    <div class="relative z-10 flex items-center">
+                        <span class="bg-black/20 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">${String.fromCharCode(65 + idx)}</span>
+                        <span>${opt}</span>
+                    </div>
+                    <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition"></div>
+                `;
+                btn.onclick = () => handleAnswer(idx);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex) {
+            const q = questionDatabase[currentQIndex];
+            const isCorrect = selectedIndex === q.ans;
+            
+            userAnswers.push({
+                qId: q.id,
+                qText: q.q,
+                yourAns: q.options[selectedIndex],
+                correctAns: q.options[q.ans],
+                isCorrect: isCorrect,
+                note: q.note || "Analisis logika/psikologi."
+            });
+
+            const buttons = optionsGrid.children;
+            if(isCorrect) {
+                buttons[selectedIndex].classList.add('correct-anim');
+                score += 100; 
+                playSound('correct');
+            } else {
+                buttons[selectedIndex].classList.add('wrong-anim');
+                playSound('wrong');
+            }
+
+            for(let btn of buttons) btn.disabled = true;
+
+            setTimeout(() => {
+                currentQIndex++;
+                saveProgress();
+                
+                if (currentQIndex < questionDatabase.length) {
+                    renderQuestion();
+                } else {
+                    endGame();
+                }
+            }, 800);
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    totalTime--;
+                    updateTimerDisplay();
+                    
+                    if (totalTime <= 0) {
+                        endGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(totalTime / 60);
+            const s = totalTime % 60;
+            timerDisplay.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            if(totalTime < 300) timerDisplay.classList.add('text-red-400');
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                pauseModal.classList.remove('hidden');
+                saveProgress();
+            } else {
+                pauseModal.classList.add('hidden');
+            }
+        }
+
+        function saveProgress() {
+            const state = {
+                index: currentQIndex,
+                score: score,
+                answers: userAnswers,
+                time: totalTime
+            };
+            localStorage.setItem('quiz_save_paket_b', JSON.stringify(state));
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            localStorage.removeItem('quiz_save_paket_b');
+            
+            questionScreen.classList.add('hidden');
+            document.getElementById('game-controls').classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = score;
+            const correctCount = userAnswers.filter(a => a.isCorrect).length;
+            document.getElementById('stat-correct').innerText = correctCount;
+            document.getElementById('stat-wrong').innerText = 50 - correctCount;
+
+            const msgEl = document.getElementById('final-msg');
+            if (correctCount > 40) msgEl.innerText = "Jenius! Kemampuan analisismu tajam.";
+            else if (correctCount > 25) msgEl.innerText = "Bagus! Terus asah logika dan empatimu.";
+            else msgEl.innerText = "Tetap semangat! Jadikan ini pembelajaran.";
+
+            generateReview();
+        }
+
+        function generateReview() {
+            const list = document.getElementById('review-list');
+            list.innerHTML = '';
+
+            userAnswers.forEach((ans, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-4 rounded-lg border-l-4 ${ans.isCorrect ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`;
+                
+                item.innerHTML = `
+                    <p class="font-bold text-gray-700 mb-2">${idx+1}. ${ans.qText}</p>
+                    <div class="text-sm">
+                        <p class="${ans.isCorrect ? 'text-green-700' : 'text-red-600'}">
+                            <i class="fas ${ans.isCorrect ? 'fa-check' : 'fa-times'}"></i> 
+                            Jawabanmu: <span class="font-semibold">${ans.yourAns}</span>
+                        </p>
+                        ${!ans.isCorrect ? `<p class="text-green-700 mt-1"><i class="fas fa-arrow-right"></i> Kunci: <span class="font-semibold">${ans.correctAns}</span></p>` : ''}
+                        <p class="text-gray-500 text-xs mt-2 italic">"${ans.note}"</p>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function toggleReview() {
+            const section = document.getElementById('review-section');
+            section.classList.toggle('hidden');
+        }
+
+        function playSound(type) {
+            // Placeholder sound
+        }
+
+        init();
+    </script>
+</body>
+</html>
