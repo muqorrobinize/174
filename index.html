@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mr. On Exam</title>
+    <title>BEENONEXAM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        void: '#050505',
-                        surface: '#0a0a0a',
-                        border: '#27272a',
-                        accent: '#10b981', /* Emerald */
-                        accentdim: '#064e3b',
-                        mist: '#a1a1aa',
-                        text: '#e4e4e7',
-                        error: '#ef4444'
+                        paper: '#FAFAFA',
+                        ink: '#0F0F0F',
+                        ash: '#E5E5E5',
+                        mist: '#666666',
+                        accent: '#000000', 
                     },
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        gothic: ['UnifrakturMaguntia', 'cursive'],
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'scroll': 'scroll 30s linear infinite',
                     },
                     keyframes: {
@@ -41,197 +41,134 @@
     </script>
 
     <style>
-        body { background-color: #050505; color: #e4e4e7; }
+        body { background-color: #FAFAFA; color: #0F0F0F; }
         
-        /* Glass Effect */
-        .glass { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(39, 39, 42, 0.5); }
+        /* Editorial Borders */
+        .border-thick { border-width: 4px; border-color: #0F0F0F; }
+        .border-thin { border-width: 1px; border-color: #0F0F0F; }
         
-        /* Card Hover */
-        .interactive-card { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
-        .interactive-card:hover { transform: translateY(-4px); border-color: #10b981; box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.15); }
-        
-        /* Input Focus */
-        .input-focus:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 1px #10b981; }
+        /* Interactive Newspaper Card */
+        .editorial-card { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid #E5E5E5; }
+        .editorial-card:hover { 
+            transform: translateY(-4px); 
+            border-color: #0F0F0F; 
+            box-shadow: 4px 4px 0px 0px #0F0F0F; 
+        }
 
-        /* Hide Scrollbar but keep functionality */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Input Custom */
+        .clean-input {
+            border-bottom: 2px solid #E5E5E5;
+            transition: border-color 0.3s ease;
+        }
+        .clean-input:focus {
+            outline: none;
+            border-bottom: 2px solid #0F0F0F;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #FAFAFA; }
+        ::-webkit-scrollbar-thumb { background: #0F0F0F; }
 
         /* Loader */
-        .loader { width: 48px; height: 48px; border: 3px solid #27272a; border-radius: 50%; display: inline-block; position: relative; box-sizing: border-box; animation: rotation 1s linear infinite; }
-        .loader::after { content: ''; box-sizing: border-box; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; border: 3px solid; border-color: #10b981 transparent; }
+        .loader { width: 16px; height: 16px; border: 2px solid #0F0F0F; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col font-sans selection:bg-accent selection:text-black overflow-x-hidden">
+<body class="antialiased min-h-screen flex flex-col font-sans selection:bg-ink selection:text-paper overflow-x-hidden">
 
-    <!-- === GATEKEEPER OVERLAY === -->
-    <div id="gatekeeper-overlay" class="fixed inset-0 z-[100] bg-void flex flex-col items-center justify-center p-6 transition-opacity duration-500">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/5 via-void to-void pointer-events-none"></div>
-        
-        <div class="w-full max-w-md space-y-8 relative z-10">
-            <div class="text-center space-y-2">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-accent/20 bg-accent/5 text-[10px] uppercase tracking-widest text-accent font-mono mb-4">
-                    <span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
-                    Secure Access Protocol
+    <div id="gatekeeper-overlay" class="fixed inset-0 z-[100] bg-paper flex flex-col items-center justify-center p-6 transition-opacity duration-700">
+        <div class="w-full max-w-lg space-y-8 relative z-10 bg-white p-10 border border-ink shadow-[8px_8px_0px_0px_rgba(15,15,15,1)]">
+            <div class="text-center space-y-4 border-b-2 border-ink pb-6">
+                <h1 class="text-5xl md:text-6xl text-ink font-gothic tracking-wide">BeenOnExam</h1>
+                <div class="font-mono text-xs tracking-[0.2em] uppercase text-mist">
+                    Authorization Required &mdash; Vol. I
                 </div>
-                <h1 class="text-4xl font-bold tracking-tight text-white font-mono">IDENTITAS DIPERLUKAN</h1>
-                <p class="text-mist text-sm leading-relaxed">
-                    Sistem ini dilindungi. Masukkan kunci digital (Wallet Address) Anda untuk mengakses arsip latihan.
+            </div>
+
+            <div class="space-y-6 pt-2">
+                <p class="text-ink text-sm leading-relaxed font-medium text-center">
+                    The archives are restricted. Please provide your digital identifier to proceed into the reading room.
                 </p>
-            </div>
 
-            <!-- Login Methods -->
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="connectEVM()" class="group relative flex items-center justify-center gap-3 p-4 rounded bg-surface border border-border hover:border-accent transition-all">
-                        <svg class="w-5 h-5 text-mist group-hover:text-accent transition-colors" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12l-9-9-9 9 9 9 9-9z"/></svg>
-                        <span class="text-xs font-bold tracking-wider text-mist group-hover:text-white">EVM / METAMASK</span>
-                    </button>
-                    <button onclick="connectSolana()" class="group relative flex items-center justify-center gap-3 p-4 rounded bg-surface border border-border hover:border-accent transition-all">
-                        <svg class="w-5 h-5 text-mist group-hover:text-accent transition-colors" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-                        <span class="text-xs font-bold tracking-wider text-mist group-hover:text-white">SOL / PHANTOM</span>
-                    </button>
-                </div>
-
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-border"></span></div>
-                    <div class="relative flex justify-center text-xs uppercase"><span class="bg-void px-2 text-mist font-mono">Atau Manual</span></div>
-                </div>
-
-                <div class="flex gap-2">
-                    <input type="text" id="manual-address" placeholder="Tempel Address (0x... / Sol...)" class="flex-1 bg-surface border border-border px-4 py-3 text-sm text-white rounded input-focus transition-all font-mono placeholder-mist/50">
-                    <button onclick="connectManual()" class="bg-white text-black px-6 py-3 font-bold text-sm hover:bg-mist transition-all rounded">
-                        VERIFIKASI
+                <div class="flex flex-col gap-4">
+                    <input type="text" id="manual-address" placeholder="Enter Access Code / Address" class="w-full bg-transparent clean-input py-3 text-sm text-ink font-mono placeholder-mist text-center">
+                    
+                    <button onclick="connectManual()" class="w-full bg-ink text-paper px-6 py-4 font-bold text-sm hover:bg-white hover:text-ink border-2 border-transparent hover:border-ink transition-all uppercase tracking-widest mt-2">
+                        Grant Access
                     </button>
                 </div>
             </div>
 
-            <div class="text-center pt-8">
-                <a href="https://beenonexamaccess.vercel.app/" target="_blank" class="text-xs text-mist hover:text-accent underline underline-offset-4 transition-colors font-mono">
-                    BINGUNG? BACA PANDUAN AKSES →
+            <div class="text-center pt-4">
+                <a href="https://beenonexamaccess.vercel.app/" target="_blank" class="text-xs text-mist hover:text-ink underline underline-offset-4 transition-colors font-mono">
+                    Read the Access Guidelines
                 </a>
             </div>
 
-            <!-- Error Toast -->
-            <div id="wallet-error" class="hidden p-4 rounded border border-error/20 bg-error/5 text-error text-xs font-mono text-center">
+            <div id="wallet-error" class="hidden p-3 border border-ink bg-red-50 text-ink text-xs font-mono text-center font-bold">
                 Error message here
             </div>
         </div>
     </div>
 
-    <!-- === MAIN APP (INITIALLY HIDDEN) === -->
     <div id="app-shell" class="opacity-0 transition-opacity duration-1000 flex flex-col min-h-screen">
         
-        <!-- Navbar Desktop -->
-        <nav class="fixed top-0 w-full z-40 glass">
-            <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <div class="font-bold tracking-tight text-lg text-white flex items-center gap-2 font-mono">
-                        <span class="text-accent">Mr.</span>EXAM
+        <header class="w-full border-b-4 border-ink pt-6 md:pt-10 px-6 bg-paper">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-center md:items-end pb-6 gap-6">
+                    <div class="text-center md:text-left flex-1">
+                        <div class="font-mono text-[10px] tracking-widest uppercase text-mist mb-2">The Official Digital Archive</div>
+                        <h1 class="text-6xl md:text-8xl text-ink font-gothic leading-none">BeenOnExam</h1>
                     </div>
-                    <!-- Marquee Container (Inside Nav for Desktop) -->
-                    <div class="hidden md:flex items-center h-8 overflow-hidden w-[400px] lg:w-[600px] border-l border-border pl-4 ml-4">
-                        <div class="whitespace-nowrap animate-scroll text-[10px] font-mono text-mist">
-                            Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="text-accent hover:underline">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp; Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer.
-                        </div>
+                    
+                    <div class="w-full md:w-auto relative group flex-shrink-0">
+                        <input type="text" id="search-input" placeholder="Search the archives..." class="w-full md:w-64 bg-transparent clean-input py-2 pl-8 text-sm text-ink font-sans">
+                        <svg class="w-4 h-4 text-ink absolute left-0 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
-                </div>
-
-                <div class="hidden md:flex items-center gap-6">
-                    <button onclick="location.reload()" class="text-xs font-bold text-mist hover:text-white transition-colors uppercase tracking-widest">Dashboard</button>
-                    <button onclick="toggleView()" class="text-xs font-bold text-mist hover:text-white transition-colors uppercase tracking-widest">Layout</button>
-                    <button onclick="toggleMusicWidget()" class="text-xs font-bold text-accent border border-accent/20 bg-accent/5 px-4 py-2 rounded-full hover:bg-accent hover:text-black transition-all uppercase tracking-widest">
-                        Music
-                    </button>
                 </div>
             </div>
-        </nav>
+        </header>
 
-        <!-- Marquee Mobile (Below Nav) -->
-        <div class="md:hidden mt-16 bg-surface border-b border-border py-2 overflow-hidden relative">
-            <div class="whitespace-nowrap animate-scroll text-[10px] font-mono text-mist px-4">
-                Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="text-accent underline">Saweria (click link)</a>. Don't be a ghost. Keep this joint alive. &nbsp;&nbsp; /// &nbsp;&nbsp; Yo, for real, you think this magic just happens?
+        <div class="w-full bg-ink text-paper py-2 overflow-hidden border-b-2 border-ink">
+            <div class="whitespace-nowrap animate-scroll text-[11px] font-mono px-4 uppercase tracking-widest flex items-center">
+                Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. Support the archives via <a href="https://saweria.co/beenspaceess" target="_blank" class="underline ml-1 mr-1 hover:text-gray-300">Saweria</a>. Keep this joint alive. Don't be a ghost. &nbsp;&nbsp;&nbsp; ✦ &nbsp;&nbsp;&nbsp; Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. Support the archives via <a href="https://saweria.co/beenspaceess" target="_blank" class="underline ml-1 mr-1 hover:text-gray-300">Saweria</a>.
             </div>
         </div>
 
-        <!-- Main Content -->
-        <main class="flex-grow pt-24 md:pt-32 pb-32 px-6">
-            <div class="max-w-5xl mx-auto space-y-12">
-
-                <!-- Hero Section -->
-                <header class="space-y-6">
-                    <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-white">
-                        Arsip <span class="text-accent">Pengetahuan</span><br>
-                        Digital.
-                    </h1>
-                    <div class="flex flex-col md:flex-row gap-6 justify-between items-end">
-                        <p class="text-mist max-w-lg leading-relaxed text-sm md:text-base">
-                            Akses materi ujian, kuis, dan dokumentasi rahasia. Terenkripsi dan hanya tersedia untuk entitas terverifikasi.
-                        </p>
-                        
-                        <!-- Search -->
-                        <div class="w-full md:w-auto relative group">
-                            <input type="text" id="search-input" placeholder="Cari Kode Materi..." class="w-full md:w-80 bg-void border border-border px-4 py-3 pl-10 text-sm text-white rounded input-focus transition-all font-mono">
-                            <svg class="w-4 h-4 text-mist absolute left-3 top-3.5 group-focus-within:text-accent transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        </div>
-                    </div>
-                </header>
-
-                <hr class="border-border">
-
-                <!-- Stats -->
-                <div id="stats-area" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- JS Injected Stats -->
-                    <div class="bg-surface border border-border p-4 rounded flex items-center justify-center gap-2 text-mist">
-                        <span class="loader w-4 h-4 border-2"></span> <span class="text-xs font-mono">LOADING DATA...</span>
-                    </div>
+        <div class="border-b border-ash py-3 px-6 bg-white sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto flex justify-between items-center text-xs font-mono uppercase tracking-widest">
+                <button onclick="location.reload()" class="hover:text-mist transition-colors font-bold">Main Edition</button>
+                <div id="stats-area" class="hidden md:flex items-center gap-6 text-mist">
+                    <span>Loading Data...</span>
                 </div>
+                <button onclick="toggleView()" class="hover:text-mist transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    View Layout
+                </button>
+            </div>
+        </div>
 
-                <!-- Grid Content -->
-                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- JS Injected Cards -->
-                </div>
+        <main class="flex-grow py-12 px-6">
+            <div class="max-w-7xl mx-auto">
+                <div id="stats-area-mobile" class="md:hidden flex flex-wrap gap-4 mb-8 text-xs font-mono uppercase text-mist border-b border-ash pb-4">
+                    </div>
 
+                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
+                    </div>
             </div>
         </main>
 
-        <!-- Mobile Bottom Dock -->
-        <div class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 glass px-6 py-3 rounded-full flex items-center gap-8 shadow-2xl shadow-black">
-            <button onclick="location.reload()" class="text-mist hover:text-accent transition-colors flex flex-col items-center gap-1">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-            </button>
-            <button onclick="toggleMusicWidget()" class="bg-accent text-black w-10 h-10 rounded-full flex items-center justify-center -mt-8 border-4 border-void shadow-lg shadow-accent/20">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-2v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-2" /></svg>
-            </button>
-            <button onclick="toggleView()" class="text-mist hover:text-accent transition-colors flex flex-col items-center gap-1">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </button>
-        </div>
-
-        <!-- Music Widget (Floating) -->
-        <div id="music-pill" class="fixed bottom-24 md:bottom-10 right-6 z-50 glass rounded-full pl-2 pr-4 py-2 flex items-center gap-3 translate-y-32 transition-transform duration-500 shadow-xl shadow-accent/5 border-accent/20">  
-            <button id="music-btn" class="w-8 h-8 rounded-full bg-accent text-black flex items-center justify-center hover:scale-105 transition-transform">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <div class="flex flex-col">
-                <span class="text-[10px] text-mist font-mono uppercase tracking-widest">Now Playing</span>
-                <span id="track-name" class="text-xs font-bold text-white max-w-[100px] truncate">No Track</span>
-            </div>
-            <button onclick="toggleMusicWidget()" class="ml-2 text-mist hover:text-white">&times;</button>
-        </div>
-
-        <!-- Footer -->
-        <footer class="border-t border-border bg-void py-8 mt-auto">
-            <div class="max-w-7xl mx-auto px-6 text-center md:text-left md:flex justify-between items-center text-xs text-gray-600 font-mono">
-                <div>&copy; 2025 Mr. ON EXAM. ALL RIGHTS RESERVED.</div>
-                <div class="mt-2 md:mt-0">SYSTEM BY <span class="text-gray-400">SIR YAEON</span> x <span class="text-gray-400">B$4BE!N</span></div>
+        <footer class="border-t-4 border-ink py-10 mt-auto bg-paper px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs font-mono uppercase tracking-widest text-mist gap-4">
+                <div class="text-ink font-bold">&copy; 2026 BEENONEXAM.</div>
+                <div class="font-gothic text-2xl text-ink">B</div>
+                <div>PUBLISHED BY <span class="text-ink font-bold">SIR YAEON</span> &times; <span class="text-ink font-bold">B$4BE!N</span></div>
             </div>
         </footer>
 
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
         // === STATE & DOM ===
         const appShell = document.getElementById('app-shell');
@@ -241,8 +178,6 @@
         const searchInput = document.getElementById('search-input');
         
         let quizzes = {};
-        let musicList = [];
-        let audio = new Audio();
         let isListView = false;
 
         // === AUTH LOGIC ===
@@ -251,14 +186,13 @@
             setTimeout(() => {
                 gateOverlay.style.display = 'none';
                 appShell.classList.remove('opacity-0');
-            }, 500);
+            }, 700);
             init(); 
         }
 
         function showError(msg) {
             errorMsg.classList.remove('hidden');
-            errorMsg.innerText = "ACCESS DENIED: " + msg;
-            // Shake effect
+            errorMsg.innerText = msg;
             errorMsg.classList.add('animate-pulse');
             setTimeout(() => errorMsg.classList.remove('animate-pulse'), 500);
         }
@@ -272,32 +206,13 @@
                 });
                 const data = await response.json();
                 if (response.ok && data.access) { grantAccess(); } 
-                else { showError(data.error || "ID Tidak Terdaftar di Database."); }
-            } catch (err) { showError("Gagal Menghubungi Server."); }
-        }
-
-        async function connectEVM() {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    await checkWalletAuth(accounts[0].toLowerCase());
-                } catch { showError("Koneksi EVM Dibatalkan."); }
-            } else { showError("MetaMask Tidak Terdeteksi."); }
-        }
-
-        async function connectSolana() {
-            const provider = window.solana;
-            if (provider && provider.isPhantom) {
-                try {
-                    const resp = await provider.connect();
-                    await checkWalletAuth(resp.publicKey.toString());
-                } catch { showError("Koneksi Phantom Dibatalkan."); }
-            } else { showError("Phantom Wallet Tidak Terdeteksi."); }
+                else { showError(data.error || "ID not found in the registry."); }
+            } catch (err) { showError("Failed to contact the server."); }
         }
 
         async function connectManual() {
             const val = document.getElementById('manual-address').value.trim();
-            if(!val) return showError("Address Kosong.");
+            if(!val) return showError("Credentials required.");
             await checkWalletAuth(val);
         }
 
@@ -310,7 +225,7 @@
                     files = JSON.parse(cached).data;
                 } else {
                     const res = await fetch('/api/content?folder=kuis'); 
-                    if (!res.ok) throw new Error("Gagal mengambil data konten.");
+                    if (!res.ok) throw new Error("Failed to retrieve archives.");
                     files = await res.json();
                     localStorage.setItem('v6_cache', JSON.stringify({data:files, ts:Date.now()}));
                 }
@@ -327,13 +242,12 @@
 
                 renderHome();
                 renderStats();
-                loadMusic();
 
             } catch(e) {
                 grid.innerHTML = `
-                    <div class="col-span-full text-center py-20 border border-error/20 bg-error/5 rounded-lg">
-                        <p class="text-error font-mono font-bold mb-2">SYSTEM ERROR</p>
-                        <p class="text-mist text-sm">${e.message}</p>
+                    <div class="col-span-full py-12 border-y border-ink text-center">
+                        <p class="text-ink font-gothic text-3xl mb-2">Service Unavailable</p>
+                        <p class="text-mist font-mono text-xs uppercase">${e.message}</p>
                     </div>`;
             }
         }
@@ -342,70 +256,82 @@
             const cats = Object.keys(quizzes);
             const total = Object.values(quizzes).reduce((a,b)=>a+b.length,0);
             
-            const statItem = (label, val) => `
-                <div class="bg-surface border border-border p-4 rounded text-center">
-                    <div class="text-2xl font-bold text-white mb-1">${val}</div>
-                    <div class="text-[10px] font-mono text-mist uppercase tracking-widest">${label}</div>
-                </div>
+            const desktopHtml = `
+                <span>CATEGORIES: <b class="text-ink">${cats.length}</b></span>
+                <span>DOCUMENTS: <b class="text-ink">${total}</b></span>
+                <span>STATUS: <b class="text-ink">LIVE</b></span>
             `;
             
-            document.getElementById('stats-area').innerHTML = 
-                statItem('Kategori', cats.length) + 
-                statItem('Total Modul', total) +
-                statItem('Status', '<span class="text-accent">ACTIVE</span>');
+            const mobileHtml = `
+                <div class="w-full flex justify-between"><span>CAT: <b class="text-ink">${cats.length}</b></span> <span>DOCS: <b class="text-ink">${total}</b></span></div>
+            `;
+
+            document.getElementById('stats-area').innerHTML = desktopHtml;
+            document.getElementById('stats-area-mobile').innerHTML = mobileHtml;
         }
 
         function renderHome(filter="") {
             grid.innerHTML = "";
-            grid.className = isListView 
-                ? "grid grid-cols-1 gap-4" 
-                : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
             
-            Object.keys(quizzes).sort().forEach(cat => {
+            // Layout styling toggle
+            if(isListView) {
+                grid.className = "max-w-3xl mx-auto flex flex-col gap-0 border-t border-ink";
+            } else {
+                // Asymmetric masonry-like grid
+                grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6";
+            }
+            
+            Object.keys(quizzes).sort().forEach((cat, index) => {
                 if(filter && !cat.toLowerCase().includes(filter.toLowerCase())) return;
 
                 const isSecret = /secret/i.test(cat);
                 const name = cat.replace(/secret/i,'').trim();
                 const count = quizzes[cat].length;
                 
-                // Icons (Using simple text/emoji or SVGs for clean look)
                 const card = document.createElement('div');
                 
-                // Styling based on View
                 if (isListView) {
-                    card.className = `group bg-surface border border-border hover:border-accent p-4 rounded flex items-center justify-between cursor-pointer transition-all ${isSecret ? 'border-amber-500/30' : ''}`;
+                    // List View: Compact rows
+                    card.className = `group flex items-center justify-between py-4 border-b border-ash cursor-pointer hover:bg-white transition-colors ${isSecret ? 'opacity-70' : ''}`;
                     card.innerHTML = `
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-void border border-border rounded flex items-center justify-center text-lg">
-                                ${isSecret ? '🔒' : '📂'}
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-white group-hover:text-accent transition-colors">${name}</h3>
-                                <p class="text-xs text-mist font-mono">${count} File</p>
-                            </div>
+                        <div class="flex items-center gap-6">
+                            <span class="font-gothic text-xl text-ink w-8">${index + 1}.</span>
+                            <h3 class="font-bold text-ink text-lg uppercase tracking-tight">${name}</h3>
                         </div>
-                        <span class="text-mist group-hover:translate-x-1 transition-transform">→</span>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs font-mono text-mist">${count} FILES</span>
+                            ${isSecret ? '<span class="text-[10px] bg-ink text-white px-2 py-1 font-mono uppercase">LOCKED</span>' : '<span class="text-ink">→</span>'}
+                        </div>
                     `;
                 } else {
-                    card.className = `group interactive-card bg-surface border border-border p-6 rounded-xl cursor-pointer relative overflow-hidden ${isSecret ? 'border-amber-500/30' : ''}`;
+                    // Grid View: Editorial blocks
+                    // Membuat variasi span kolom agar asimetris (opsional)
+                    let colSpan = "col-span-1";
+                    if (index === 0 || index === 5) colSpan = "md:col-span-2 lg:col-span-2"; // Artikel 'headline' lebih besar
+
+                    card.className = `group editorial-card bg-white p-6 cursor-pointer flex flex-col justify-between min-h-[200px] ${colSpan} ${isSecret ? 'bg-gray-50/50' : ''}`;
                     card.innerHTML = `
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span class="text-6xl font-serif select-none">${name.charAt(0)}</span>
+                        <div>
+                            <div class="flex justify-between items-start mb-6">
+                                <span class="text-[10px] font-mono border border-ink px-2 py-0.5 uppercase font-bold text-ink">
+                                    ${isSecret ? 'RESTRICTED' : 'PUBLIC'}
+                                </span>
+                                <span class="font-gothic text-4xl text-mist group-hover:text-ink transition-colors opacity-20">
+                                    ${name.charAt(0)}
+                                </span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-ink leading-tight mb-2 font-serif">${name}</h3>
                         </div>
-                        <div class="w-12 h-12 bg-void border border-border rounded-lg flex items-center justify-center text-xl mb-4 text-accent group-hover:scale-110 transition-transform">
-                            ${isSecret ? '🔒' : '⚡'}
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-accent transition-colors">${name}</h3>
-                        <div class="flex items-center gap-2 text-xs text-mist font-mono">
-                            <span class="bg-void px-2 py-1 rounded border border-border">${count} ITEMS</span>
-                            ${isSecret ? '<span class="text-amber-500">RESTRICTED</span>' : ''}
+                        <div class="border-t border-ash pt-3 mt-4 flex justify-between items-center text-xs font-mono">
+                            <span class="text-mist">${count} Documents</span>
+                            <span class="text-ink font-bold opacity-0 group-hover:opacity-100 transition-opacity">READ &rarr;</span>
                         </div>
                     `;
                 }
 
                 card.onclick = (e) => { 
                     e.preventDefault(); 
-                    if (isSecret) alert('AKSES DITOLAK: KONTEN TERENKRIPSI.'); 
+                    if (isSecret) alert('ACCESS DENIED: Encrypted content.'); 
                     else openFolder(cat); 
                 };
                 
@@ -417,31 +343,28 @@
             window.scrollTo({top:0, behavior:'smooth'});
             const name = cat.replace(/secret/i,'').trim();
             
-            // Header Folder
+            grid.className = "max-w-4xl mx-auto flex flex-col gap-0";
+            
+            // Header for Directory
             grid.innerHTML = `
-                <div class="col-span-full flex items-center justify-between mb-4 pb-4 border-b border-border">
-                    <button onclick="renderHome()" class="flex items-center gap-2 text-sm font-bold text-mist hover:text-white transition-colors">
-                        <span>← KEMBALI</span>
+                <div class="flex items-center justify-between mb-8 pb-4 border-b-2 border-ink">
+                    <button onclick="renderHome()" class="font-mono text-xs font-bold text-ink hover:text-mist transition-colors uppercase flex items-center gap-2">
+                        &larr; Return to Index
                     </button>
-                    <div class="font-mono text-accent text-sm uppercase tracking-widest">DIR: ${name}</div>
+                    <div class="font-gothic text-3xl text-ink">${name}</div>
                 </div>
             `;
-            
-            // Reset grid layout for items
-            grid.className = "grid grid-cols-1 gap-3";
 
-            quizzes[cat].forEach(q => {
+            quizzes[cat].forEach((q, idx) => {
                 const item = document.createElement('a');
                 item.href = `kuis/${q.file}`;
-                item.className = "group bg-surface border border-border p-4 rounded flex items-center gap-4 hover:border-accent hover:bg-accent/5 transition-all";
+                item.className = "group py-4 border-b border-ash flex items-center justify-between hover:bg-white transition-all cursor-pointer";
                 item.innerHTML = `
-                    <div class="text-mist group-hover:text-accent transition-colors">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <div class="flex items-center gap-4 md:gap-8">
+                        <span class="font-mono text-mist text-xs w-6 text-right">${(idx + 1).toString().padStart(2, '0')}</span>
+                        <div class="font-medium text-ink text-sm md:text-base group-hover:underline underline-offset-4 decoration-ink decoration-2">${q.name}</div>
                     </div>
-                    <div class="flex-grow">
-                        <div class="text-sm font-medium text-gray-300 group-hover:text-white">${q.name}</div>
-                    </div>
-                    <div class="text-xs font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">BUKA</div>
+                    <div class="text-[10px] font-mono text-ink opacity-0 group-hover:opacity-100 transition-opacity uppercase border border-ink px-3 py-1 bg-ink text-white">Open</div>
                 `;
                 grid.appendChild(item);
             });
@@ -455,49 +378,9 @@
         }
         
         searchInput.oninput = (e) => {
-            // Jika sedang di dalam folder, search tidak jalan (simple implementation)
-            // Idealnya kita track state 'currentView'
             renderHome(e.target.value);
-        };
-
-        // --- MUSIC ---
-        async function loadMusic() {
-            try {
-                const res = await fetch('/api/content?folder=music');
-                if (!res.ok) return; 
-                const files = await res.json();
-                musicList = files.filter(f=>f.name.endsWith('.mp3')).map(f=>f.download_url);
-            } catch(e){}
-        }
-        
-        let playing = false;
-        const musicPill = document.getElementById('music-pill');
-        const musicBtn = document.getElementById('music-btn');
-        const trackName = document.getElementById('track-name');
-
-        function toggleMusicWidget() { 
-            musicPill.classList.toggle('translate-y-32'); 
-        }
-        
-        musicBtn.onclick = () => {
-            if(!playing && musicList.length) {
-                if(!audio.src) audio.src = musicList[0];
-                audio.play();
-                playing = true;
-                trackName.innerText = "Playing Stream...";
-                musicBtn.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>';
-                musicBtn.classList.add('animate-pulse');
-            } else {
-                audio.pause();
-                playing = false;
-                trackName.innerText = "Stream Paused";
-                musicBtn.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-                musicBtn.classList.remove('animate-pulse');
-            }
         };
 
     </script>
 </body>
 </html>
-
-
