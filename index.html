@@ -90,6 +90,21 @@
 </head>
 <body class="min-h-screen flex flex-col font-mono selection:bg-ink selection:text-base overflow-x-hidden border-x-4 md:border-x-[12px] border-ink">
 
+    <!-- === DOCUMENT VIEWER OVERLAY === -->
+    <div id="viewer-overlay" class="fixed inset-0 z-[100] bg-base hidden flex-col transition-opacity duration-300">
+        <div class="h-14 md:h-16 border-b border-line bg-surface flex items-center justify-between px-4 md:px-6 shrink-0 shadow-sm">
+            <div class="flex items-center gap-3 md:gap-4 overflow-hidden">
+                <span class="w-2 h-2 bg-error animate-blink block shrink-0"></span>
+                <span class="font-mono text-[10px] md:text-xs uppercase tracking-widest font-bold text-ink truncate" id="viewer-title">READING DOCUMENT...</span>
+            </div>
+            <button onclick="closeViewer()" class="font-mono text-[10px] uppercase font-bold tracking-widest border border-line bg-base px-3 py-1.5 md:px-5 md:py-2 hover:bg-ink hover:text-base transition-colors flex items-center gap-2 shrink-0">
+                &larr; <span class="hidden sm:inline">CLOSE & RETURN</span><span class="sm:hidden">CLOSE</span>
+            </button>
+        </div>
+        <!-- Iframe untuk me-load dokumen tanpa pindah halaman -->
+        <iframe id="viewer-frame" class="w-full flex-grow border-none bg-base" src=""></iframe>
+    </div>
+
     <!-- === MAIN APP === -->
     <div id="app-shell" class="flex flex-col min-h-screen">
         
@@ -477,7 +492,17 @@
             // Render Item / File di dalam Sub-Folder tersebut
             items.forEach(q => {
                 const item = document.createElement('a');
-                item.href = q.url !== "#" ? `kuis/${q.file}` : '#';
+                const fileUrl = q.url !== "#" ? `kuis/${q.file}` : '#';
+                
+                item.href = fileUrl;
+                
+                // INJEKSI VIEWER: Cegah pindah halaman, buka di viewer
+                if (fileUrl !== '#') {
+                    item.onclick = (e) => {
+                        e.preventDefault(); 
+                        openViewer(fileUrl, q.name); 
+                    };
+                }
                 
                 item.className = "group editorial-card py-4 px-6 md:px-8 flex flex-col md:flex-row md:items-center justify-between cursor-pointer";
                 
@@ -504,6 +529,31 @@
         searchInput.oninput = (e) => {
             renderHome(e.target.value);
         };
+
+        // === IN-APP VIEWER LOGIC ===
+        function openViewer(url, title) {
+            document.getElementById('viewer-title').innerText = "VIEWING: " + title;
+            document.getElementById('viewer-frame').src = url;
+            
+            const overlay = document.getElementById('viewer-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            
+            // Kunci scroll pada halaman utama di background
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeViewer() {
+            const overlay = document.getElementById('viewer-overlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            
+            // Hapus source iframe agar tidak berjalan/buffering di background
+            setTimeout(() => { document.getElementById('viewer-frame').src = ''; }, 300);
+            
+            // Kembalikan fungsi scroll halaman utama
+            document.body.style.overflow = ''; 
+        }
 
     </script>
 </body>
