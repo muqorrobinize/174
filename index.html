@@ -1,38 +1,42 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BEENONEXAM</title>
+    <title>174</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        paper: '#FAFAFA',
-                        ink: '#0F0F0F',
-                        ash: '#E5E5E5',
-                        mist: '#666666',
+                        base: '#ffffff',
+                        surface: '#f4f4f5',
+                        ink: '#000000',
+                        inkdim: '#52525b',
+                        line: '#000000',
                         accent: '#000000', 
+                        error: '#dc2626'
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
                         gothic: ['UnifrakturMaguntia', 'cursive'],
+                        serif: ['Lora', 'serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     animation: {
                         'scroll': 'scroll 30s linear infinite',
+                        'blink': 'blink 1s step-end infinite',
                     },
                     keyframes: {
                         scroll: {
                             '0%': { transform: 'translateX(0)' },
                             '100%': { transform: 'translateX(-100%)' },
+                        },
+                        blink: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0' },
                         }
                     }
                 }
@@ -41,247 +45,248 @@
     </script>
 
     <style>
-        body { background-color: #FAFAFA; color: #0F0F0F; }
+        body { background-color: #ffffff; color: #000000; }
         
-        /* Editorial Borders */
-        .border-thick { border-width: 4px; border-color: #0F0F0F; }
-        .border-thin { border-width: 1px; border-color: #0F0F0F; }
-        
-        /* Interactive Newspaper Card */
-        .editorial-card { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid #E5E5E5; }
-        .editorial-card:hover { 
-            transform: translateY(-4px); 
-            border-color: #0F0F0F; 
-            box-shadow: 4px 4px 0px 0px #0F0F0F; 
+        /* Brutalist / Editorial Hover Styles */
+        .editorial-card {
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
+        }
+        .editorial-card::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 100%; height: 0;
+            background-color: #000;
+            transition: height 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: -1;
+        }
+        .editorial-card:hover {
+            color: #fff;
+        }
+        .editorial-card:hover::after {
+            height: 100%;
+        }
+        .editorial-card:hover .card-text-dim {
+            color: #a1a1aa;
+        }
+        .editorial-card:hover .card-border {
+            border-color: #fff;
         }
 
-        /* Input Custom */
-        .clean-input {
-            border-bottom: 2px solid #E5E5E5;
-            transition: border-color 0.3s ease;
-        }
-        .clean-input:focus {
-            outline: none;
-            border-bottom: 2px solid #0F0F0F;
-        }
+        /* Minimalist Input Focus */
+        .input-focus:focus { outline: none; border-color: #000; box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); transform: translate(-2px, -2px); }
+        .input-focus { transition: all 0.2s ease; }
 
         /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #FAFAFA; }
-        ::-webkit-scrollbar-thumb { background: #0F0F0F; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #fff; border-left: 1px solid #000; }
+        ::-webkit-scrollbar-thumb { background: #000; }
 
-        /* Loader */
-        .loader { width: 16px; height: 16px; border: 2px solid #0F0F0F; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        /* Sharp Loader */
+        .loader { width: 16px; height: 16px; border: 2px solid #000; border-bottom-color: transparent; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col font-sans selection:bg-ink selection:text-paper overflow-x-hidden">
+<body class="antialiased min-h-screen flex flex-col font-mono selection:bg-ink selection:text-base overflow-x-hidden border-x-[12px] border-ink">
 
-    <div id="gatekeeper-overlay" class="fixed inset-0 z-[100] bg-paper flex flex-col items-center justify-center p-6 transition-opacity duration-700">
-        <div class="w-full max-w-lg space-y-8 relative z-10 bg-white p-10 border border-ink shadow-[8px_8px_0px_0px_rgba(15,15,15,1)]">
-            <div class="text-center space-y-4 border-b-2 border-ink pb-6">
-                <h1 class="text-5xl md:text-6xl text-ink font-gothic tracking-wide">BeenOnExam</h1>
-                <div class="font-mono text-xs tracking-[0.2em] uppercase text-mist">
-                    Authorization Required &mdash; Vol. I
-                </div>
-            </div>
-
-            <div class="space-y-6 pt-2">
-                <p class="text-ink text-sm leading-relaxed font-medium text-center">
-                    The archives are restricted. Please provide your digital identifier to proceed into the reading room.
-                </p>
-
-                <div class="flex flex-col gap-4">
-                    <input type="text" id="manual-address" placeholder="Enter Access Code / Address" class="w-full bg-transparent clean-input py-3 text-sm text-ink font-mono placeholder-mist text-center">
-                    
-                    <button onclick="connectManual()" class="w-full bg-ink text-paper px-6 py-4 font-bold text-sm hover:bg-white hover:text-ink border-2 border-transparent hover:border-ink transition-all uppercase tracking-widest mt-2">
-                        Grant Access
-                    </button>
-                </div>
-            </div>
-
-            <div class="text-center pt-4">
-                <a href="https://beenonexamaccess.vercel.app/" target="_blank" class="text-xs text-mist hover:text-ink underline underline-offset-4 transition-colors font-mono">
-                    Read the Access Guidelines
-                </a>
-            </div>
-
-            <div id="wallet-error" class="hidden p-3 border border-ink bg-red-50 text-ink text-xs font-mono text-center font-bold">
-                Error message here
+    <!-- === MAIN APP === -->
+    <div id="app-shell" class="flex flex-col min-h-screen">
+        
+        <!-- Marquee Ticker (Fixed Top) -->
+        <div class="fixed top-0 w-full z-50 bg-ink text-base border-b-4 border-line overflow-hidden py-1.5 flex items-center shadow-lg">
+            <div class="whitespace-nowrap animate-scroll text-[11px] font-mono uppercase tracking-wide">
+                Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="underline decoration-base underline-offset-2 hover:text-gray-400">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp; Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer.
             </div>
         </div>
-    </div>
 
-    <div id="app-shell" class="opacity-0 transition-opacity duration-1000 flex flex-col min-h-screen">
-        
-        <header class="w-full border-b-4 border-ink pt-6 md:pt-10 px-6 bg-paper">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex flex-col md:flex-row justify-between items-center md:items-end pb-6 gap-6">
-                    <div class="text-center md:text-left flex-1">
-                        <div class="font-mono text-[10px] tracking-widest uppercase text-mist mb-2">The Official Digital Archive</div>
-                        <h1 class="text-6xl md:text-8xl text-ink font-gothic leading-none">BeenOnExam</h1>
-                    </div>
-                    
-                    <div class="w-full md:w-auto relative group flex-shrink-0">
-                        <input type="text" id="search-input" placeholder="Search the archives..." class="w-full md:w-64 bg-transparent clean-input py-2 pl-8 text-sm text-ink font-sans">
-                        <svg class="w-4 h-4 text-ink absolute left-0 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                    </div>
+        <!-- Main Header / Masthead -->
+        <header class="pt-20 px-6 border-b-[6px] border-line bg-base relative z-40">
+            <div class="max-w-6xl mx-auto pb-8 pt-12 flex flex-col items-center justify-center text-center">
+                <div class="font-mono text-xs uppercase tracking-[0.4em] mb-6 font-bold border border-ink px-4 py-1">
+                    Holly MF Platform
                 </div>
+                
+                <!-- NYT Style Gothic Logo -->
+                <h1 class="font-gothic text-7xl md:text-[9rem] leading-none text-ink select-none">
+                    174.
+                </h1>
             </div>
         </header>
 
-        <div class="w-full bg-ink text-paper py-2 overflow-hidden border-b-2 border-ink">
-            <div class="whitespace-nowrap animate-scroll text-[11px] font-mono px-4 uppercase tracking-widest flex items-center">
-                Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. Support the archives via <a href="https://saweria.co/beenspaceess" target="_blank" class="underline ml-1 mr-1 hover:text-gray-300">Saweria</a>. Keep this joint alive. Don't be a ghost. &nbsp;&nbsp;&nbsp; ✦ &nbsp;&nbsp;&nbsp; Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. Support the archives via <a href="https://saweria.co/beenspaceess" target="_blank" class="underline ml-1 mr-1 hover:text-gray-300">Saweria</a>.
-            </div>
-        </div>
-
-        <div class="border-b border-ash py-3 px-6 bg-white sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto flex justify-between items-center text-xs font-mono uppercase tracking-widest">
-                <button onclick="location.reload()" class="hover:text-mist transition-colors font-bold">Main Edition</button>
-                <div id="stats-area" class="hidden md:flex items-center gap-6 text-mist">
-                    <span>Loading Data...</span>
+        <!-- Tool Bar -->
+        <nav class="border-b-4 border-line bg-base sticky top-8 z-30">
+            <div class="max-w-6xl mx-auto px-6 h-12 flex justify-between items-center">
+                <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest font-bold">
+                    <span class="animate-blink w-2 h-2 bg-ink block"></span>
+                    <span id="system-status">SYSTEM IDLE</span>
                 </div>
-                <button onclick="toggleView()" class="hover:text-mist transition-colors flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    View Layout
-                </button>
+                <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest font-bold">
+                    <button onclick="location.reload()" class="hover:underline underline-offset-4 decoration-2">INDEX</button>
+                    <button onclick="toggleView()" class="hover:underline underline-offset-4 decoration-2">TOGGLE LAYOUT</button>
+                </div>
             </div>
-        </div>
+        </nav>
 
-        <main class="flex-grow py-12 px-6">
-            <div class="max-w-7xl mx-auto">
-                <div id="stats-area-mobile" class="md:hidden flex flex-wrap gap-4 mb-8 text-xs font-mono uppercase text-mist border-b border-ash pb-4">
+        <!-- Main Content -->
+        <main class="flex-grow pb-32">
+            
+            <!-- MANDATORY DIRECTIVE (FIGHT CLUB RULE) -->
+            <div class="border-b-4 border-line bg-ink text-base py-12 px-6 relative overflow-hidden">
+                <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none select-none overflow-hidden">
+                    <span class="font-gothic text-[15rem] text-error whitespace-nowrap">RESTRICTED</span>
+                </div>
+                
+                <div class="max-w-3xl mx-auto text-center relative z-10">
+                    <div class="font-mono text-[10px] uppercase tracking-[0.4em] font-bold text-error mb-4 border border-error/30 inline-block px-3 py-1">
+                        Mandatory Directive
                     </div>
-
-                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
+                    <h2 class="font-serif text-3xl md:text-4xl font-bold uppercase tracking-wide mb-6">
+                        The First Rule
+                    </h2>
+                    <div class="font-mono text-sm md:text-base font-bold uppercase tracking-widest leading-relaxed space-y-4">
+                        <p>1. The first rule of the 174 Archive is: <br><span class="text-error underline decoration-2 underline-offset-4">You do not share the 174 Archive.</span></p>
+                        <p>2. The second rule of the 174 Archive is: <br><span class="text-error underline decoration-2 underline-offset-4">YOU DO NOT SHARE THE LINK TO THE 174 ARCHIVE.</span></p>
                     </div>
+                    <p class="font-mono text-xs uppercase tracking-widest text-gray-400 mt-8 font-bold max-w-xl mx-auto leading-loose border-t border-dashed border-gray-700 pt-6">
+                        If this transmission leaks to the public domain, the entire directory will be permanently purged. Do not compromise the network. Proceed with absolute discretion.
+                    </p>
+                </div>
             </div>
+
+            <!-- Search / Query Section -->
+            <div class="border-b-4 border-line bg-surface py-12 px-6">
+                <div class="max-w-3xl mx-auto">
+                    <div class="relative group">
+                        <label for="search-input" class="absolute -top-3 left-4 bg-surface px-2 text-[10px] font-mono uppercase tracking-widest font-bold">QUERY PARAMETER</label>
+                        <input type="text" id="search-input" placeholder="Enter classification code or title..." class="w-full bg-base border-4 border-line px-6 py-5 text-sm text-ink rounded-none input-focus font-mono placeholder-inkdim font-bold uppercase tracking-wider">
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-6xl mx-auto px-6 pt-12">
+                <!-- Grid Content -->
+                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-3 gap-0 border-t-4 border-l-4 border-line">
+                    <!-- JS Injected Cards -->
+                </div>
+            </div>
+
+            <!-- Contact & Corrections Section -->
+            <div class="max-w-6xl mx-auto px-6 pt-20">
+                <div class="border-t-4 border-line pt-10 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                    <div class="max-w-md">
+                        <div class="font-mono text-[10px] uppercase tracking-widest font-bold mb-2 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-ink block"></span>
+                            DIRECT TRANSMISSION
+                        </div>
+                        <h3 class="font-serif text-3xl font-bold uppercase mb-3 leading-none">Corrections & Features</h3>
+                        <p class="font-mono text-[10px] uppercase tracking-widest text-inkdim font-bold leading-relaxed">
+                            Report anomalies, request features, or submit corrections directly to the administrators via secure lines.
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0">
+                        <a href="https://wa.me/6281372406462" target="_blank" class="px-8 py-4 border-4 border-line bg-base hover:bg-ink hover:text-base transition-all duration-300 text-center font-mono text-xs uppercase tracking-widest font-bold block">
+                            CALL THE ALCHEMIST
+                        </a>
+                        <a href="https://wa.me/6281280702747" target="_blank" class="px-8 py-4 border-4 border-line bg-base hover:bg-ink hover:text-base transition-all duration-300 text-center font-mono text-xs uppercase tracking-widest font-bold block">
+                            CALL THE GRACE
+                        </a>
+                    </div>
+                </div>
+            </div>
+
         </main>
 
-        <footer class="border-t-4 border-ink py-10 mt-auto bg-paper px-6">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs font-mono uppercase tracking-widest text-mist gap-4">
-                <div class="text-ink font-bold">&copy; 2026 BEENONEXAM.</div>
-                <div class="font-gothic text-2xl text-ink">B</div>
-                <div>PUBLISHED BY <span class="text-ink font-bold">SIR YAEON</span> &times; <span class="text-ink font-bold">B$4BE!N</span></div>
+        <!-- Mobile Bottom Action Bar -->
+        <div class="md:hidden fixed bottom-0 left-0 w-full z-40 bg-base border-t-4 border-line flex divide-x-4 divide-line font-mono text-[10px] uppercase tracking-widest font-bold">
+            <button onclick="location.reload()" class="flex-1 py-4 text-center hover:bg-ink hover:text-base transition-colors">
+                INDEX
+            </button>
+            <button onclick="toggleView()" class="flex-1 py-4 text-center hover:bg-ink hover:text-base transition-colors">
+                LAYOUT
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="border-t-[6px] border-line bg-base py-16 mt-auto">
+            <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="font-gothic text-5xl">174.</div>
+                <div class="text-center md:text-right text-[10px] text-ink font-mono uppercase tracking-widest space-y-2 font-bold">
+                    <div>&copy; 2026 THE 174 ARCHIVE. ALL PROTOCOLS OBSERVED.</div>
+                    <div class="text-inkdim">MAINTAINED BY SIR YAEON & B$4BE!N</div>
+                </div>
             </div>
         </footer>
 
     </div>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         // === STATE & DOM ===
-        const appShell = document.getElementById('app-shell');
-        const gateOverlay = document.getElementById('gatekeeper-overlay');
-        const errorMsg = document.getElementById('wallet-error');
         const grid = document.getElementById('grid-wrapper');
         const searchInput = document.getElementById('search-input');
+        const sysStatus = document.getElementById('system-status');
         
         let quizzes = {};
         let isListView = false;
 
-        // === AUTH LOGIC ===
-        function grantAccess() {
-            gateOverlay.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                gateOverlay.style.display = 'none';
-                appShell.classList.remove('opacity-0');
-            }, 700);
-            init(); 
-        }
-
-        function showError(msg) {
-            errorMsg.classList.remove('hidden');
-            errorMsg.innerText = msg;
-            errorMsg.classList.add('animate-pulse');
-            setTimeout(() => errorMsg.classList.remove('animate-pulse'), 500);
-        }
-        
-        async function checkWalletAuth(userAddress) {
-            try {
-                const response = await fetch('/api/check-auth', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ address: userAddress })
-                });
-                const data = await response.json();
-                if (response.ok && data.access) { grantAccess(); } 
-                else { showError(data.error || "ID not found in the registry."); }
-            } catch (err) { showError("Failed to contact the server."); }
-        }
-
-        async function connectManual() {
-            const val = document.getElementById('manual-address').value.trim();
-            if(!val) return showError("Credentials required.");
-            await checkWalletAuth(val);
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
 
         // === CONTENT LOGIC ===
         async function init() {
+            sysStatus.innerText = "FETCHING DATA...";
             try {
-                const cached = localStorage.getItem('v6_cache');
-                let files;
-                if(cached && (Date.now() - JSON.parse(cached).ts < 600000)) {
-                    files = JSON.parse(cached).data;
-                } else {
-                    const res = await fetch('/api/content?folder=kuis'); 
-                    if (!res.ok) throw new Error("Failed to retrieve archives.");
-                    files = await res.json();
-                    localStorage.setItem('v6_cache', JSON.stringify({data:files, ts:Date.now()}));
-                }
+                const res = await fetch('/api/content?folder=kuis'); 
+                if (!res.ok) throw new Error("API Fetch failed");
+                const files = await res.json();
 
-                quizzes = files.filter(f=>f.name.endsWith('.html')).reduce((acc, f) => {
+                if (!files || files.length === 0) throw new Error("DIRECTORY EMPTY");
+
+                // Parse and group
+                quizzes = files.filter(f => f.name.endsWith('.html')).reduce((acc, f) => {
                     const parts = f.name.split('_');
                     if(parts.length < 2) return acc;
-                    const cat = parts[0].trim();
+                    
+                    let originalCat = parts[0].trim();
+                    let cat = originalCat;
                     const name = parts.slice(1).join(' ').replace('.html','').trim();
+
+                    // Semester 1 Grouping Logic
+                    if (['1.1', '1.2', '1.3', '1.4'].includes(cat)) {
+                        cat = 'SEMESTER 1';
+                    }
+
                     if(!acc[cat]) acc[cat] = [];
-                    acc[cat].push({name, file:f.name});
+                    
+                    // Prepend original category if grouped into Semester 1 for clarity
+                    const displayName = cat === 'SEMESTER 1' ? `[${originalCat}] ${name}` : name;
+                    
+                    acc[cat].push({name: displayName, file: f.name, url: f.download_url});
                     return acc;
                 }, {});
 
+                sysStatus.innerText = "SYSTEM ACTIVE";
                 renderHome();
-                renderStats();
 
             } catch(e) {
+                sysStatus.innerText = "SYSTEM FAULT";
                 grid.innerHTML = `
-                    <div class="col-span-full py-12 border-y border-ink text-center">
-                        <p class="text-ink font-gothic text-3xl mb-2">Service Unavailable</p>
-                        <p class="text-mist font-mono text-xs uppercase">${e.message}</p>
+                    <div class="col-span-full text-center py-32 border-b-4 border-r-4 border-line bg-base">
+                        <p class="text-ink font-gothic text-4xl mb-4">Connection Terminated</p>
+                        <p class="text-ink font-mono text-xs uppercase tracking-widest font-bold">ERROR: ${e.message}</p>
                     </div>`;
             }
         }
 
-        function renderStats() {
-            const cats = Object.keys(quizzes);
-            const total = Object.values(quizzes).reduce((a,b)=>a+b.length,0);
-            
-            const desktopHtml = `
-                <span>CATEGORIES: <b class="text-ink">${cats.length}</b></span>
-                <span>DOCUMENTS: <b class="text-ink">${total}</b></span>
-                <span>STATUS: <b class="text-ink">LIVE</b></span>
-            `;
-            
-            const mobileHtml = `
-                <div class="w-full flex justify-between"><span>CAT: <b class="text-ink">${cats.length}</b></span> <span>DOCS: <b class="text-ink">${total}</b></span></div>
-            `;
-
-            document.getElementById('stats-area').innerHTML = desktopHtml;
-            document.getElementById('stats-area-mobile').innerHTML = mobileHtml;
-        }
-
         function renderHome(filter="") {
             grid.innerHTML = "";
+            grid.className = isListView 
+                ? "grid grid-cols-1 border-t-4 border-l-4 border-line" 
+                : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t-4 border-l-4 border-line";
             
-            // Layout styling toggle
-            if(isListView) {
-                grid.className = "max-w-3xl mx-auto flex flex-col gap-0 border-t border-ink";
-            } else {
-                // Asymmetric masonry-like grid
-                grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6";
-            }
-            
-            Object.keys(quizzes).sort().forEach((cat, index) => {
+            Object.keys(quizzes).sort().forEach(cat => {
                 if(filter && !cat.toLowerCase().includes(filter.toLowerCase())) return;
 
                 const isSecret = /secret/i.test(cat);
@@ -291,47 +296,39 @@
                 const card = document.createElement('div');
                 
                 if (isListView) {
-                    // List View: Compact rows
-                    card.className = `group flex items-center justify-between py-4 border-b border-ash cursor-pointer hover:bg-white transition-colors ${isSecret ? 'opacity-70' : ''}`;
+                    // Minimal List View
+                    card.className = `group editorial-card bg-base border-r-4 border-b-4 border-line p-6 flex items-center justify-between cursor-pointer`;
                     card.innerHTML = `
-                        <div class="flex items-center gap-6">
-                            <span class="font-gothic text-xl text-ink w-8">${index + 1}.</span>
-                            <h3 class="font-bold text-ink text-lg uppercase tracking-tight">${name}</h3>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-xs font-mono text-mist">${count} FILES</span>
-                            ${isSecret ? '<span class="text-[10px] bg-ink text-white px-2 py-1 font-mono uppercase">LOCKED</span>' : '<span class="text-ink">→</span>'}
+                        <div class="flex items-center gap-8 w-full">
+                            <div class="font-mono text-xs font-bold w-12 card-text-dim text-inkdim">${isSecret ? 'SCT' : 'DIR'}</div>
+                            <h3 class="font-serif text-2xl font-bold w-1/3 truncate">${name}</h3>
+                            <div class="flex-grow border-b-2 border-dotted border-line card-border opacity-50"></div>
+                            <p class="text-xs font-mono font-bold">${count} FILES</p>
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[10px] uppercase font-bold ml-8 tracking-widest">ACCESS &rarr;</span>
                         </div>
                     `;
                 } else {
-                    // Grid View: Editorial blocks
-                    // Membuat variasi span kolom agar asimetris (opsional)
-                    let colSpan = "col-span-1";
-                    if (index === 0 || index === 5) colSpan = "md:col-span-2 lg:col-span-2"; // Artikel 'headline' lebih besar
-
-                    card.className = `group editorial-card bg-white p-6 cursor-pointer flex flex-col justify-between min-h-[200px] ${colSpan} ${isSecret ? 'bg-gray-50/50' : ''}`;
+                    // Editorial Grid View
+                    card.className = `group editorial-card bg-base border-r-4 border-b-4 border-line p-8 cursor-pointer flex flex-col justify-between min-h-[220px] z-10`;
                     card.innerHTML = `
                         <div>
                             <div class="flex justify-between items-start mb-6">
-                                <span class="text-[10px] font-mono border border-ink px-2 py-0.5 uppercase font-bold text-ink">
-                                    ${isSecret ? 'RESTRICTED' : 'PUBLIC'}
+                                <span class="text-[10px] font-mono uppercase tracking-widest font-bold ${isSecret ? 'text-error' : 'card-text-dim text-inkdim'}">
+                                    ${isSecret ? '[ RESTRICTED ]' : '[ PUBLIC ]'}
                                 </span>
-                                <span class="font-gothic text-4xl text-mist group-hover:text-ink transition-colors opacity-20">
-                                    ${name.charAt(0)}
-                                </span>
+                                <span class="text-[10px] font-mono font-bold border-2 border-line px-2 py-0.5 card-border">${count} VOL</span>
                             </div>
-                            <h3 class="text-2xl font-bold text-ink leading-tight mb-2 font-serif">${name}</h3>
+                            <h3 class="text-3xl font-serif font-bold leading-tight decoration-2 underline-offset-4 group-hover:underline">${name}</h3>
                         </div>
-                        <div class="border-t border-ash pt-3 mt-4 flex justify-between items-center text-xs font-mono">
-                            <span class="text-mist">${count} Documents</span>
-                            <span class="text-ink font-bold opacity-0 group-hover:opacity-100 transition-opacity">READ &rarr;</span>
+                        <div class="mt-8 flex justify-end">
+                            <svg class="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                         </div>
                     `;
                 }
 
                 card.onclick = (e) => { 
                     e.preventDefault(); 
-                    if (isSecret) alert('ACCESS DENIED: Encrypted content.'); 
+                    if (isSecret) alert('ACCESS DENIED: CLEARANCE LEVEL INSUFFICIENT.'); 
                     else openFolder(cat); 
                 };
                 
@@ -343,28 +340,33 @@
             window.scrollTo({top:0, behavior:'smooth'});
             const name = cat.replace(/secret/i,'').trim();
             
-            grid.className = "max-w-4xl mx-auto flex flex-col gap-0";
-            
-            // Header for Directory
+            // Header Folder (Brutalist Style)
             grid.innerHTML = `
-                <div class="flex items-center justify-between mb-8 pb-4 border-b-2 border-ink">
-                    <button onclick="renderHome()" class="font-mono text-xs font-bold text-ink hover:text-mist transition-colors uppercase flex items-center gap-2">
-                        &larr; Return to Index
+                <div class="col-span-full border-r-4 border-b-4 border-line p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface">
+                    <div>
+                        <div class="text-[10px] font-mono uppercase tracking-widest font-bold mb-3">ACCESSING DIRECTORY</div>
+                        <h2 class="font-gothic text-5xl md:text-6xl uppercase leading-none">${name}</h2>
+                    </div>
+                    <button onclick="renderHome()" class="self-start md:self-auto font-mono text-xs uppercase font-bold border-2 border-line px-6 py-3 hover:bg-ink hover:text-base transition-colors flex items-center gap-2">
+                        &larr; RETURN TO INDEX
                     </button>
-                    <div class="font-gothic text-3xl text-ink">${name}</div>
                 </div>
             `;
+            
+            grid.className = "grid grid-cols-1 border-t-4 border-l-4 border-line";
 
-            quizzes[cat].forEach((q, idx) => {
+            quizzes[cat].forEach(q => {
                 const item = document.createElement('a');
-                item.href = `kuis/${q.file}`;
-                item.className = "group py-4 border-b border-ash flex items-center justify-between hover:bg-white transition-all cursor-pointer";
+                item.href = q.url !== "#" ? `kuis/${q.file}` : '#';
+                item.className = "group editorial-card border-r-4 border-b-4 border-line py-6 px-8 flex flex-col md:flex-row md:items-center justify-between cursor-pointer bg-base";
                 item.innerHTML = `
-                    <div class="flex items-center gap-4 md:gap-8">
-                        <span class="font-mono text-mist text-xs w-6 text-right">${(idx + 1).toString().padStart(2, '0')}</span>
-                        <div class="font-medium text-ink text-sm md:text-base group-hover:underline underline-offset-4 decoration-ink decoration-2">${q.name}</div>
+                    <div class="flex items-center gap-6">
+                        <div class="text-xs font-mono font-bold w-6 opacity-0 group-hover:opacity-100 transition-opacity">&rarr;</div>
+                        <div class="font-serif text-xl font-medium">${q.name}</div>
                     </div>
-                    <div class="text-[10px] font-mono text-ink opacity-0 group-hover:opacity-100 transition-opacity uppercase border border-ink px-3 py-1 bg-ink text-white">Open</div>
+                    <div class="text-[10px] font-mono uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-4 md:mt-0 md:text-right">
+                        DECRYPT FILE
+                    </div>
                 `;
                 grid.appendChild(item);
             });
