@@ -159,7 +159,7 @@
             
             <div class="flex flex-col justify-center">
                 <div class="text-[10px] font-mono font-bold uppercase tracking-widest text-ink">SINX (Jarvis)</div>
-                <div id="sinx-status-text" class="text-[9px] font-mono text-inkdim tracking-wide">Mendengarkan, Tuan...</div>
+                <div id="sinx-status-text" class="text-[9px] font-mono text-inkdim tracking-wide">Mendengarkan, Sir...</div>
             </div>
 
             <!-- Voice Waves -->
@@ -756,18 +756,20 @@
                     activeUI.classList.remove('hidden');
                     
                     // 3. Play Persona Greeting
-                    speakJarvis("Sistem daring dan siap, Tuan.");
+                    speakJarvis("Sistem daring dan siap, Sir.");
 
-                    // 4. Setup Deepgram Connection (if API exists)
-                    // The API Key should be provided by your backend to window.SINX_API
-                    const API_KEY = window.SINX_API || ''; 
+                    // 4. Setup Deepgram Connection
+                    let API_KEY = window.SINX_API || '';
+                    if (!API_KEY && typeof process !== 'undefined' && process.env && process.env.SINX_API) {
+                        API_KEY = process.env.SINX_API;
+                    }
                     
                     if (API_KEY) {
                         // Added &language=id for Indonesian Speech-to-Text
                         deepgramSocket = new WebSocket('wss://api.deepgram.com/v1/listen?encoding=linear16&sample_rate=16000&channels=1&language=id', ['token', API_KEY]);
                         
                         deepgramSocket.onopen = () => {
-                            statusText.innerText = "Menunggu perintah, Tuan...";
+                            statusText.innerText = "Menunggu perintah, Sir...";
                             
                             mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
                             mediaRecorder.addEventListener('dataavailable', event => {
@@ -787,17 +789,17 @@
                                 console.log("SINX Mendengar: ", transcript);
                                 
                                 setTimeout(() => {
-                                    statusText.innerText = "Mendengarkan, Tuan...";
+                                    statusText.innerText = "Mendengarkan, Sir...";
                                 }, 1500);
                             }
                         };
                     } else {
                         statusText.innerText = "[Mode Demo - Tanpa API Key]";
-                        console.warn("SINX: window.SINX_API is missing. Running in UI Demo Mode.");
+                        console.warn("SINX: Variabel lingkungan SINX_API tidak ditemukan. Berjalan di Mode Demo UI.");
                     }
 
                 } catch (err) {
-                    alert('Sinx membutuhkan akses mikrofon untuk membantu Anda, Tuan.');
+                    alert('Sinx membutuhkan akses mikrofon untuk membantu Anda, Sir.');
                     console.error(err);
                 }
             } else {
@@ -806,7 +808,7 @@
                 idleBtn.classList.remove('hidden');
                 activeUI.classList.add('hidden');
                 
-                speakJarvis("Mematikan sistem, Tuan.");
+                speakJarvis("Mematikan sistem, Sir.");
                 
                 if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
