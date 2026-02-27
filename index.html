@@ -2,23 +2,25 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>174</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>174. | Classified Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        base: '#ffffff',       /* Pure white */
-                        surface: '#f9fafb',    /* Very light gray for subtle contrast */
-                        surfaceHov: '#f3f4f6', 
-                        ink: '#000000',        /* Pure black */
-                        inkdim: '#52525b',     /* Readable gray */
-                        line: '#000000',       /* Sharp black borders */
-                        error: '#dc2626'       /* Alert red */
+                        /* CSS Variables untuk mode dinamis (Normal / Party) */
+                        base: 'rgb(var(--c-base) / <alpha-value>)',
+                        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+                        surfaceHov: 'rgb(var(--c-surfaceHov) / <alpha-value>)', 
+                        ink: 'rgb(var(--c-ink) / <alpha-value>)',
+                        inkdim: 'rgb(var(--c-inkdim) / <alpha-value>)',
+                        line: 'rgb(var(--c-line) / <alpha-value>)', 
+                        lineDark: 'rgb(var(--c-lineDark) / <alpha-value>)',
+                        error: 'rgb(var(--c-error) / <alpha-value>)'
                     },
                     fontFamily: {
                         times: ['"Times New Roman"', 'Times', 'serif'],
@@ -26,9 +28,10 @@
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     animation: {
-                        'scroll': 'scroll 35s linear infinite',
-                        'blink': 'blink 1.5s step-end infinite',
-                        'wave': 'wave 1.2s ease-in-out infinite',
+                        'scroll': 'scroll 40s linear infinite',
+                        'blink': 'blink 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pop-in': 'popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     },
                     keyframes: {
                         scroll: {
@@ -37,11 +40,15 @@
                         },
                         blink: {
                             '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0.2' },
+                            '50%': { opacity: '0.3' },
                         },
-                        wave: {
-                            '0%, 100%': { height: '8px' },
-                            '50%': { height: '24px' },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        popIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
                         }
                     }
                 }
@@ -50,312 +57,275 @@
     </script>
 
     <style>
+        /* Definisi Warna Dasar */
+        :root {
+            --c-base: 255 255 255;       
+            --c-surface: 244 244 245;    
+            --c-surfaceHov: 228 228 231; 
+            --c-ink: 9 9 11;             
+            --c-inkdim: 113 113 122;     
+            --c-line: 228 228 231;       
+            --c-lineDark: 9 9 11;        
+            --c-error: 220 38 38;        
+        }
+
+        /* Easter Egg: Party Mode (Merah & Kuning Menyala) */
+        .party-mode {
+            --c-base: 185 28 28;         /* Bright Red */
+            --c-surface: 153 27 27;      /* Darker Red */
+            --c-surfaceHov: 127 29 29;   /* Even Darker Red */
+            --c-ink: 250 204 21;         /* Bright Yellow */
+            --c-inkdim: 253 224 71;      /* Lighter Yellow */
+            --c-line: 234 179 8;         /* Yellow Border */
+            --c-lineDark: 250 204 21;    
+            --c-error: 255 255 255;      /* Putih agar kontras di latar merah */
+        }
+
         body { 
-            background-color: #ffffff; 
-            color: #000000; 
+            background-color: rgb(var(--c-base)); 
+            color: rgb(var(--c-ink)); 
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
         
-        /* Clean Editorial Hover Styles */
-        .editorial-card {
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            background: #ffffff;
-            border: 1px solid #000000;
-        }
-        .editorial-card:hover {
-            background: #000000;
-            color: #ffffff;
-            transform: translateY(-4px) scale(1.01);
-            box-shadow: 8px 8px 0px 0px rgba(0,0,0,0.15);
-        }
-        .editorial-card:hover .card-text-dim {
-            color: #a1a1aa;
-        }
-        .editorial-card:hover .icon-arrow {
-            stroke: #ffffff;
-        }
-
-        /* RETRO FOLDER SHAPE */
-        .folder-tab-card {
-            margin-top: 14px;
-            border-top-left-radius: 0;
-        }
-        .folder-tab-card::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: -1px;
-            width: 45%;
-            height: 15px;
-            background: inherit;
-            border: 1px solid #000000;
-            border-bottom: none;
-            border-radius: 6px 6px 0 0;
-            transition: inherit;
-            z-index: 0;
-        }
-        .folder-tab-card:hover::before {
-            background: #000000;
-        }
-
-        /* Input Focus dengan Brutalist Press Effect */
-        .input-brutalist {
-            box-shadow: 6px 6px 0px 0px #000000;
-            transition: all 0.15s ease-out;
-        }
-        .input-brutalist:focus {
+        .input-sleek { transition: all 0.2s ease-out; }
+        .input-sleek:focus {
             outline: none;
-            box-shadow: 2px 2px 0px 0px #000000;
-            transform: translate(4px, 4px);
-            background-color: #ffffff;
+            border-color: rgb(var(--c-ink));
+            box-shadow: 0 4px 20px -4px rgba(var(--c-ink) / 0.1);
         }
 
         /* Minimal Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #ffffff; border-left: 1px solid #e5e7eb; }
-        ::-webkit-scrollbar-thumb { background: #000000; }
-        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgb(var(--c-lineDark)); border-radius: 4px; }
         
-        /* Viewer Start Menu Overlay */
-        .menu-open {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-            pointer-events: auto;
-        }
-        .menu-closed {
-            opacity: 0;
-            transform: scale(0.95) translateY(10px);
-            pointer-events: none;
-        }
-
-        /* Wave animation delays for Sinx Assistant */
-        .wave-1 { animation-delay: 0.0s; }
-        .wave-2 { animation-delay: 0.2s; }
-        .wave-3 { animation-delay: 0.4s; }
-        .wave-4 { animation-delay: 0.1s; }
-        .wave-5 { animation-delay: 0.3s; }
+        /* Viewer Start Menu Overlay - Fluid Absolute */
+        .menu-open { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+        .menu-closed { opacity: 0; transform: scale(0.95) translateY(20px); pointer-events: none; }
+        
+        /* Iframe penyesuaian untuk mode party */
+        #viewer-frame { background-color: rgb(var(--c-surface)); transition: background-color 0.4s ease; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col font-mono selection:bg-ink selection:text-base overflow-x-hidden border-x-4 md:border-x-[12px] border-ink">
+<body class="min-h-screen flex flex-col font-mono selection:bg-ink selection:text-base relative overflow-x-hidden">
 
-    <!-- === SINX AI ASSISTANT (FLOATING EVERYWHERE) === -->
-    <div id="sinx-container" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[200] flex items-center justify-end">
-        
-        <!-- Call Button (Idle State) -->
-        <button id="sinx-call-btn" onclick="toggleSinxCall()" class="w-16 h-16 rounded-full bg-ink text-base flex items-center justify-center border-[3px] border-base shadow-[0_0_0_2px_#000,4px_4px_10px_rgba(0,0,0,0.5)] hover:scale-105 active:scale-95 transition-all group relative">
-            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
-            <div class="absolute right-20 bg-ink text-base text-[10px] font-mono tracking-widest px-3 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none rounded-sm">
-                CALL SINX
-            </div>
-        </button>
+    <!-- Elemen Audio Tersembunyi untuk Mode Pesta -->
+    <audio id="party-audio" loop></audio>
 
-        <!-- Active Call UI (Pill Shape) -->
-        <div id="sinx-active-ui" class="hidden h-16 bg-surface border-[3px] border-ink shadow-[4px_4px_0_0_#000] rounded-full flex items-center p-2 pr-6 gap-4 origin-right transition-all">
-            <!-- End Call Button -->
-            <button onclick="toggleSinxCall()" class="w-10 h-10 rounded-full bg-error text-white flex items-center justify-center hover:bg-red-700 transition-colors shadow-inner">
-                <svg class="w-5 h-5 fill-current transform rotate-[135deg]" viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
-            </button>
+    <!-- === THE FIRST RULE MODAL (Floating Protocol) === -->
+    <div id="protocol-modal" class="fixed inset-0 z-[300] bg-ink/60 backdrop-blur-sm flex items-center justify-center p-5 transition-opacity duration-500">
+        <div class="bg-base border border-line rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-pop-in relative overflow-hidden">
+            <!-- Pola background -->
+            <div class="absolute inset-0 bg-[radial-gradient(rgb(var(--c-line))_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none"></div>
             
-            <div class="flex flex-col justify-center">
-                <div class="text-[10px] font-mono font-bold uppercase tracking-widest text-ink">SINX (Jarvis)</div>
-                <div id="sinx-status-text" class="text-[9px] font-mono text-inkdim tracking-wide">Mendengarkan, Sir...</div>
-            </div>
-
-            <!-- Voice Waves -->
-            <div class="flex items-center gap-1 h-8 ml-2">
-                <div class="w-1.5 bg-ink rounded-full animate-wave wave-1"></div>
-                <div class="w-1.5 bg-ink rounded-full animate-wave wave-2"></div>
-                <div class="w-1.5 bg-ink rounded-full animate-wave wave-3"></div>
-                <div class="w-1.5 bg-ink rounded-full animate-wave wave-4"></div>
-                <div class="w-1.5 bg-ink rounded-full animate-wave wave-5"></div>
+            <div class="relative z-10">
+                <div class="flex items-center gap-3 mb-6 border-b border-line pb-4">
+                    <div class="p-1.5 bg-error/10 rounded-lg">
+                        <svg class="w-5 h-5 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <h2 class="font-serif text-xl md:text-2xl font-bold uppercase tracking-widest text-ink">Mandatory Protocol</h2>
+                </div>
+                
+                <div class="font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest leading-relaxed space-y-5 text-inkdim mb-8">
+                    <p class="flex items-start gap-3">
+                        <span class="text-ink shrink-0 bg-surface px-2 py-0.5 rounded">01</span> 
+                        <span class="mt-0.5">The first rule of the 174 Archive is: <br><span class="text-error border-b border-error/30 pb-0.5">You do not share the Archive.</span></span>
+                    </p>
+                    <p class="flex items-start gap-3">
+                        <span class="text-ink shrink-0 bg-surface px-2 py-0.5 rounded">02</span> 
+                        <span class="mt-0.5">The second rule of the 174 Archive is: <br><span class="text-error border-b border-error/30 pb-0.5">YOU DO NOT SHARE THE LINK.</span></span>
+                    </p>
+                </div>
+                
+                <button onclick="toggleProtocol(false)" class="w-full py-4 bg-ink text-base font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-xl hover:opacity-80 active:scale-95 transition-all shadow-lg">
+                    SIR, YES SIR
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- === DOCUMENT VIEWER OVERLAY (WITH 174 START MENU) === -->
-    <div id="viewer-overlay" class="fixed inset-0 pt-8 z-[100] bg-base hidden flex-col">
+    <!-- === DOCUMENT VIEWER OVERLAY === -->
+    <div id="viewer-overlay" class="fixed inset-0 pt-[5rem] z-[100] bg-base hidden flex-col transition-all duration-300">
+        <!-- Barisan informasi kecil di atas iframe agar tidak menutupi desain -->
+        <div class="absolute top-8 left-0 right-0 h-12 bg-base/90 backdrop-blur-md border-b border-line flex justify-between items-center px-5 z-10 pointer-events-none">
+            <span class="font-mono text-[9px] font-bold uppercase tracking-widest text-inkdim flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-error rounded-full animate-blink"></span>
+                LIVE_VIEWER
+            </span>
+        </div>
+        <iframe id="viewer-frame" class="w-full h-full flex-grow border-none relative z-0" src=""></iframe>
+    </div>
+
+    <!-- === FLOATING ACTION BUTTON & MENUS (Selalu Tersedia) === -->
+    <div class="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[200]">
         
-        <!-- Iframe untuk meload dokumen -->
-        <iframe id="viewer-frame" class="w-full h-full flex-grow border-none bg-surface" src=""></iframe>
-        
-        <!-- OS-style "174" Start Button (Floating Bottom Left) -->
-        <div class="absolute bottom-6 left-6 md:bottom-8 md:left-8 z-[110]">
+        <!-- Chat Bubble (Posisi Absolut di atas FAB) -->
+        <div id="saweria-bubble" class="absolute bottom-[4.5rem] right-0 w-64 bg-base border border-line p-4 rounded-2xl rounded-br-sm shadow-2xl text-[10px] font-mono text-inkdim opacity-0 translate-y-4 transition-all duration-500 pointer-events-none z-[190]">
+            <span class="text-error font-bold block mb-1">SYS_MESSAGE:</span>
+            Yo, server ain't free fam! Slide some love to <span class="text-ink font-bold">Saweria</span> or this whole thing goes poof!
+        </div>
+
+        <!-- Menu Panel (Fleksibel bergaya OS Control Center - Ukuran Dirampingkan) -->
+        <div id="start-menu-panel" class="absolute bottom-[4.5rem] right-0 w-[85vw] max-w-[260px] bg-base/95 backdrop-blur-xl border border-line shadow-[0_10px_40px_rgba(0,0,0,0.15)] rounded-2xl menu-closed transition-all duration-300 origin-bottom-right flex flex-col overflow-hidden z-[210]">
             
-            <!-- Menu Panel -->
-            <div id="start-menu-panel" class="absolute bottom-[4.5rem] left-0 w-[85vw] max-w-sm bg-base border-[3px] border-ink shadow-[8px_8px_0_0_rgba(0,0,0,1)] menu-closed transition-all duration-200 origin-bottom-left flex flex-col z-[120]">
-                
-                <div class="p-4 border-b-[3px] border-ink bg-ink text-base flex justify-between items-center shrink-0">
-                    <span class="font-mono text-xs tracking-widest font-bold uppercase" id="viewer-menu-title">System Menu</span>
-                    <span class="w-2.5 h-2.5 bg-error animate-blink block rounded-full"></span>
+            <!-- System Header -->
+            <div class="p-4 bg-gradient-to-b from-surface to-transparent border-b border-line flex flex-col gap-1.5 shrink-0">
+                <div class="flex justify-between items-center">
+                    <span class="font-serif text-lg font-bold text-ink">Control Center</span>
+                    <span class="px-2 py-1 bg-green-500/10 text-green-600 border border-green-500/20 text-[7px] font-mono font-bold uppercase tracking-widest rounded-md flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-blink block"></span> Active</span>
                 </div>
-                
-                <div class="p-2 font-mono text-[10px] text-inkdim uppercase font-bold tracking-widest bg-surface border-b-[3px] border-ink">
-                    CURRENT DIRECTORY FILES
-                </div>
-                
-                <!-- File List Container -->
-                <div class="p-2 max-h-[40vh] overflow-y-auto bg-base" id="start-menu-file-list">
-                    <!-- Javascript will populate files here -->
-                </div>
-                
-                <div class="p-3 border-t-[3px] border-ink bg-surfaceHov shrink-0">
-                    <button onclick="closeViewer()" class="w-full text-left font-mono text-xs font-bold uppercase tracking-widest p-4 border-2 border-line bg-base hover:bg-error hover:text-base hover:border-error transition-colors flex items-center justify-between shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none">
-                        <span>CLOSE & RETURN</span>
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
+                <span class="font-mono text-[8px] uppercase tracking-widest text-inkdim">OS: 174_CORE | GUEST</span>
+            </div>
+            
+            <!-- Quick Utility Grid -->
+            <div class="grid grid-cols-3 gap-1.5 p-3 bg-surface/50 border-b border-line shrink-0">
+                <button onclick="location.reload()" class="flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl bg-base border border-line hover:border-ink hover:shadow-md transition-all text-inkdim hover:text-ink">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="text-[7px] font-bold uppercase tracking-wider">Home</span>
+                </button>
+                <button onclick="toggleProtocol(true); toggleStartMenu();" class="flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl bg-base border border-line hover:border-ink hover:shadow-md transition-all text-inkdim hover:text-ink">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    <span class="text-[7px] font-bold uppercase tracking-wider">Rules</span>
+                </button>
+                <button onclick="copyToClipboard();" class="flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl bg-base border border-line hover:border-ink hover:shadow-md transition-all text-inkdim hover:text-ink">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    <span class="text-[7px] font-bold uppercase tracking-wider">Share</span>
+                </button>
+                <button onclick="toggleEasterEgg(); toggleStartMenu();" class="flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl bg-base border border-line hover:border-ink hover:shadow-md transition-all text-inkdim hover:text-ink">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span class="text-[7px] font-bold uppercase tracking-wider">Party</span>
+                </button>
+                <a href="https://wa.me/6281372406462" target="_blank" class="flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl bg-base border border-line hover:border-ink hover:shadow-md transition-all text-inkdim hover:text-ink">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span class="text-[7px] font-bold uppercase tracking-wider">Support</span>
+                </a>
+                <a href="https://saweria.co/beenspaceess" target="_blank" class="flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl bg-error/10 border border-error/20 hover:bg-error hover:text-white transition-all text-error">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                    <span class="text-[7px] font-bold uppercase tracking-wider">Donate</span>
+                </a>
             </div>
 
-            <!-- Floating 174 Button -->
-            <button onclick="toggleStartMenu()" class="w-16 h-16 rounded-full bg-ink text-base flex items-center justify-center border-[3px] border-base shadow-[0_0_0_2px_#000,4px_4px_10px_rgba(0,0,0,0.5)] hover:scale-105 active:scale-95 transition-all z-[130] relative group">
-                <span class="font-times text-2xl font-bold italic tracking-tighter pr-1">174</span>
-                <div class="absolute left-20 bg-ink text-base text-[10px] font-mono tracking-widest px-3 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none rounded-sm">
-                    OPEN MENU
-                </div>
-            </button>
+            <!-- List File Direktori Aktif -->
+            <div class="px-4 py-2 font-mono text-[8px] text-inkdim uppercase font-bold tracking-widest bg-base border-b border-line flex justify-between items-center">
+                <span>Active Directory</span>
+                <span class="w-1 h-1 bg-ink rounded-full"></span>
+            </div>
+            <div class="p-2 max-h-[25vh] overflow-y-auto bg-surface/30 custom-scrollbar" id="start-menu-file-list">
+                <div class="p-3 text-center text-[9px] text-inkdim border border-dashed border-line rounded-xl mx-1 my-1">No document opened.</div>
+            </div>
+            
+            <!-- Close Document Button -->
+            <div class="p-3 bg-base border-t border-line shrink-0" id="close-viewer-container" style="display: none;">
+                <button onclick="closeViewer()" class="w-full text-center font-mono text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-xl bg-ink text-base hover:bg-error hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    CLOSE DOCUMENT
+                </button>
+            </div>
         </div>
+
+        <!-- Floating FAB -->
+        <button onclick="toggleStartMenu()" class="w-16 h-16 rounded-full bg-ink text-base flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all relative group border-[3px] border-base z-[220]">
+            <span class="font-times text-2xl font-bold italic tracking-tighter pr-0.5 pointer-events-none">174</span>
+            <div class="absolute -top-2 -right-2 w-4 h-4 bg-error rounded-full border-2 border-base"></div> <!-- Notif dot -->
+        </button>
     </div>
 
     <!-- === MAIN APP === -->
     <div id="app-shell" class="flex flex-col min-h-screen">
         
-        <!-- Marquee Ticker -->
-        <div class="fixed top-0 left-0 right-0 z-[150] h-8 bg-base text-ink border-b border-line flex items-center shadow-sm">
-            <div class="whitespace-nowrap animate-scroll text-[10px] md:text-xs font-mono uppercase tracking-widest flex">
+        <!-- Sleek Marquee Ticker -->
+        <div class="fixed top-0 left-0 right-0 z-[150] h-8 bg-ink text-base flex items-center overflow-hidden border-b border-ink">
+            <div class="whitespace-nowrap animate-scroll text-[10px] font-mono uppercase tracking-[0.2em] flex items-center font-medium opacity-90">
                 <span>
-                    Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="font-bold underline decoration-2 underline-offset-2 hover:text-gray-500 transition-colors">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp;
+                    Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="text-error font-bold underline decoration-error/50 underline-offset-2 hover:text-white">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp;
                 </span>
                 <span>
-                    Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="font-bold underline decoration-2 underline-offset-2 hover:text-gray-500 transition-colors">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp;
+                    Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="text-error font-bold underline decoration-error/50 underline-offset-2 hover:text-white">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp;
                 </span>
             </div>
         </div>
 
-        <!-- System Top Bar -->
-        <nav class="border-b border-line bg-surface sticky top-8 z-40 mt-8">
-            <div class="max-w-7xl mx-auto px-6 h-12 flex justify-between items-center">
-                <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest font-bold">
-                    <span class="animate-blink w-2 h-2 bg-ink block"></span>
-                    <span id="system-status">SYSTEM IDLE</span>
+        <!-- System Navigation (Sticky) -->
+        <nav class="sticky top-8 z-40 bg-base/80 backdrop-blur-md border-b border-line mt-8 transition-colors duration-500">
+            <div class="max-w-6xl mx-auto px-5 h-12 flex justify-between items-center">
+                <div class="flex items-center gap-2 font-mono text-[9px] uppercase tracking-widest font-bold text-inkdim">
+                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-blink block" id="status-indicator"></span>
+                    <span id="system-status">SYS_ACTIVE</span>
                 </div>
-                <div class="flex items-center gap-6 font-mono text-[10px] uppercase tracking-widest font-bold">
-                    <button onclick="location.reload()" class="hover:underline underline-offset-4 decoration-2">INDEX</button>
-                    <button onclick="toggleView()" class="hover:underline underline-offset-4 decoration-2 flex items-center gap-2">
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-                        <span class="hidden sm:inline">LAYOUT</span>
-                    </button>
+                
+                <div class="flex items-center gap-6 font-mono text-[9px] uppercase tracking-widest font-bold">
+                    <button onclick="location.reload()" class="hover:text-ink transition-colors">INDEX</button>
+                    <button onclick="toggleProtocol(true)" class="hover:text-ink transition-colors">PROTOCOL</button>
+                    
+                    <!-- Support Dropdown -->
+                    <div class="relative group">
+                        <button class="hover:text-ink transition-colors flex items-center gap-1 py-4">
+                            SUPPORT <svg class="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="absolute top-full right-0 w-48 bg-base border border-line rounded-xl shadow-lg opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 flex flex-col overflow-hidden">
+                            <a href="https://wa.me/6281372406462" target="_blank" class="px-4 py-3 hover:bg-surface border-b border-line transition-colors">CALL THE ALCHEMIST</a>
+                            <a href="https://wa.me/6281280702747" target="_blank" class="px-4 py-3 hover:bg-surface transition-colors">CALL THE GRACE</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Donate Direct -->
+                    <a href="https://saweria.co/beenspaceess" target="_blank" class="text-error hover:text-ink transition-colors hidden sm:block">
+                        DONATE
+                    </a>
                 </div>
             </div>
         </nav>
 
-        <!-- Redesigned Header: Title + Rules side-by-side -->
-        <header class="pt-16 pb-12 px-6 border-b border-line bg-base relative z-30">
-            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-end justify-between gap-10">
-                
-                <!-- Left: Huge Title -->
-                <div class="text-center lg:text-left flex-shrink-0 w-full lg:w-auto">
-                    <div class="font-mono text-[10px] uppercase tracking-[0.4em] font-bold border border-ink px-4 py-1.5 inline-block mb-6 bg-surface">
-                        Holly MF Platform
-                    </div>
-                    <h1 class="font-times text-[6rem] sm:text-[8rem] md:text-[11rem] leading-none text-ink select-none tracking-tight drop-shadow-sm">
-                        174.
-                    </h1>
-                </div>
-
-                <!-- Right: Mandatory Directive (Compact & Balanced) -->
-                <div class="w-full lg:max-w-md border border-ink p-5 md:p-6 bg-surface relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <div class="absolute -top-3 left-4 bg-ink px-3 py-0.5 text-[10px] font-mono uppercase tracking-widest font-bold text-base border-2 border-ink">
-                        Mandatory Directive
-                    </div>
-                    
-                    <h2 class="font-serif text-xl font-bold uppercase mb-4 mt-2">The First Rule</h2>
-                    
-                    <div class="font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest leading-relaxed space-y-3">
-                        <p class="flex items-start gap-2">
-                            <span class="text-ink">1.</span> 
-                            <span>The first rule of the 174 Archive is: <br><span class="text-error border-b border-error">You do not share the Archive.</span></span>
-                        </p>
-                        <p class="flex items-start gap-2">
-                            <span class="text-ink">2.</span> 
-                            <span>The second rule of the 174 Archive is: <br><span class="text-error border-b border-error">YOU DO NOT SHARE THE LINK.</span></span>
-                        </p>
-                    </div>
-                    
-                    <p class="font-mono text-[9px] uppercase tracking-widest text-inkdim mt-5 pt-4 border-t border-dashed border-ink/30 leading-loose">
-                        If this transmission leaks to the public domain, the entire directory will be permanently purged. Proceed with absolute discretion.
-                    </p>
-                </div>
-
+        <!-- Redesigned Vertical Header (Minimal & Centered) -->
+        <header class="pt-16 pb-12 px-5 border-b border-line bg-surface/30 flex flex-col items-center justify-center text-center relative overflow-hidden transition-colors duration-500">
+            <div class="absolute inset-0 bg-[radial-gradient(rgb(var(--c-line))_1px,transparent_1px)] [background-size:20px_20px] opacity-30 pointer-events-none"></div>
+            
+            <div class="relative z-10 flex flex-col items-center">
+                <span class="font-mono text-[10px] md:text-xs tracking-[0.6em] uppercase text-inkdim font-bold mb-[-12px] md:mb-[-16px] ml-3 select-none">
+                    the
+                </span>
+                <h1 onclick="toggleEasterEgg()" class="font-times text-[7rem] md:text-[12rem] lg:text-[14rem] leading-none text-ink tracking-tighter select-none cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform duration-300 drop-shadow-sm">
+                    174
+                </h1>
+                <span class="font-mono text-[10px] md:text-xs tracking-[0.6em] uppercase text-inkdim font-bold mt-[-8px] md:mt-[-16px] ml-3 select-none">
+                    archive
+                </span>
             </div>
         </header>
 
-        <!-- Highly Intuitive Search / Query Section -->
-        <div class="border-b border-line bg-surface py-12 md:py-16 px-6">
-            <div class="max-w-7xl mx-auto">
-                <div class="relative group max-w-3xl mx-auto">
-                    <label for="search-input" class="absolute -top-4 left-6 bg-ink text-base px-3 py-1 text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] font-bold z-10 border-2 border-ink shadow-[2px_2px_0_0_#000]">QUERY PARAMETER</label>
-                    
-                    <input type="text" id="search-input" placeholder="Search keywords, codes, or subjects..." class="w-full bg-surface border-[4px] border-ink px-6 py-6 text-sm md:text-lg text-ink input-brutalist font-mono placeholder-inkdim font-bold uppercase tracking-wider relative z-0">
-                    
-                    <div class="absolute right-6 top-1/2 transform -translate-y-1/2 text-ink pointer-events-none">
-                        <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <!-- Modern Search Area -->
+        <div class="py-6 px-5 border-b border-line bg-base sticky top-[5rem] z-30 shadow-sm transition-colors duration-500">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-inkdim" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
+                    <input type="text" id="search-input" placeholder="Search parameters, subjects, or documents..." class="w-full bg-surface border border-line rounded-full pl-10 pr-4 py-3 text-sm text-ink input-sleek font-mono placeholder-inkdim/60">
                 </div>
+                
+                <button onclick="toggleView()" class="shrink-0 bg-base border border-line rounded-full px-5 py-3 text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-surface transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                    <span>Layout</span>
+                </button>
             </div>
         </div>
 
-        <!-- Main Content Area -->
-        <main class="flex-grow pb-32 bg-base pt-10">
-            <div class="max-w-7xl mx-auto px-6">
-                
-                <!-- Grid Content -->
-                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
-                    <!-- JS Injected Cards -->
+        <!-- Main Dynamic Content Area -->
+        <main class="flex-grow pb-40 pt-8 px-5 bg-surface/20 transition-colors duration-500">
+            <div class="max-w-6xl mx-auto">
+                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+                    <!-- Folders injected here -->
                 </div>
-
-                <!-- Contact & Corrections Section -->
-                <div class="mt-24 border-t border-line pt-12 pb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 bg-surface p-8 md:p-10 border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <div class="max-w-lg">
-                        <div class="font-mono text-[10px] uppercase tracking-widest font-bold mb-3 flex items-center gap-2">
-                            <span class="w-2 h-2 bg-ink block"></span>
-                            DIRECT TRANSMISSION
-                        </div>
-                        <h3 class="font-serif text-2xl md:text-3xl font-bold uppercase mb-3 leading-none">Corrections & Features</h3>
-                        <p class="font-mono text-[10px] uppercase tracking-widest text-inkdim leading-relaxed">
-                            Report anomalies, request features, or submit corrections directly to the administrators via secure lines.
-                        </p>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0">
-                        <a href="https://wa.me/6281372406462" target="_blank" class="px-6 py-4 border border-line bg-base hover:bg-ink hover:text-base transition-colors text-center font-mono text-xs uppercase tracking-widest font-bold block">
-                            CALL THE ALCHEMIST
-                        </a>
-                        <a href="https://wa.me/6281280702747" target="_blank" class="px-6 py-4 border border-line bg-base hover:bg-ink hover:text-base transition-colors text-center font-mono text-xs uppercase tracking-widest font-bold block">
-                            CALL THE GRACE
-                        </a>
-                    </div>
-                </div>
-
             </div>
         </main>
 
-        <!-- Mobile Bottom Action Bar -->
-        <div class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-base border-t border-line flex divide-x divide-line font-mono text-[10px] uppercase tracking-widest font-bold">
-            <button onclick="location.reload()" class="flex-1 py-4 text-center hover:bg-surface transition-colors active:bg-ink active:text-base">
-                INDEX
-            </button>
-            <button onclick="toggleView()" class="flex-1 py-4 text-center hover:bg-surface transition-colors active:bg-ink active:text-base">
-                LAYOUT
-            </button>
-        </div>
-
-        <!-- Footer -->
-        <footer class="border-t-[4px] border-line bg-surface py-12 md:py-16 mt-auto">
-            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="font-times text-5xl opacity-80">174.</div>
-                <div class="text-center md:text-right text-[10px] text-ink font-mono uppercase tracking-widest space-y-2 font-bold">
-                    <div>&copy; 2026 THE 174 ARCHIVE. ALL PROTOCOLS OBSERVED.</div>
-                    <div class="text-inkdim">MAINTAINED BY SIR YAEON & B$4BE!N</div>
+        <!-- Minimalist Footer (Sempit) -->
+        <footer class="border-t border-line bg-surface py-5 mt-auto transition-colors duration-500 relative z-10">
+            <div class="max-w-6xl mx-auto px-5 flex justify-between items-center gap-2">
+                <div class="font-times text-xl text-inkdim">174.</div>
+                <div class="font-mono text-[8px] sm:text-[9px] uppercase tracking-widest text-inkdim/80 text-right">
+                    &copy; 2026 Archive.<br class="sm:hidden"> Maintained by Yaeon & B$4BE!N.
                 </div>
             </div>
         </footer>
@@ -363,95 +333,153 @@
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
-    <script>
-        // === STATE & DOM ===
+    <script type="module">
         const grid = document.getElementById('grid-wrapper');
         const searchInput = document.getElementById('search-input');
         const sysStatus = document.getElementById('system-status');
         
         let quizzes = {};
         let isListView = false;
-        
-        // Simpan referensi list file yang sedang aktif di-klik untuk Start Menu Viewer
         let activeSubFolderFiles = []; 
         let activeSubFolderTitle = "";
 
+        // Party / Music Variables
+        let isPartyMode = false;
+        const partyAudio = document.getElementById('party-audio');
+        let musicUrlFallback = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+        let foundMusicUrl = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             init();
+            
+            // Aturan Pertama (Protocol) selalu muncul di awal
+            toggleProtocol(true);
+
+            // Jalankan Chat Bubble Saweria secara berkala (Setiap 1 menit = 60000ms)
+            setInterval(showSaweriaBubble, 60000); 
         });
 
-        // === CONTENT LOGIC ===
+        // === FETCH API (Kuis & Music dipisah) ===
         async function init() {
-            sysStatus.innerText = "FETCHING DATA...";
+            sysStatus.innerText = "FETCHING_DATA...";
             
+            // 1. Fetch data dari folder Kuis via GitHub API
             try {
-                // Real API Fetch
-                const res = await fetch('/api/content?folder=kuis'); 
-                if (!res.ok) {
-                    throw new Error("API Fetch failed with status: " + res.status);
-                }
+                const res = await fetch('https://api.github.com/repos/muqorrobinize/174/contents/kuis'); 
+                if (!res.ok) throw new Error("API Fetch failed");
                 const files = await res.json();
+                if (!files || files.length === 0) throw new Error("EMPTY_DIRECTORY");
 
-                if (!files || files.length === 0) throw new Error("DIRECTORY EMPTY");
-
-                // Parse and group
-                quizzes = files.filter(f => f.name.endsWith('.html')).reduce((acc, f) => {
+                quizzes = files.filter(f => f.type === 'file' && (f.name.endsWith('.html') || f.name.endsWith('.mp3') || f.name.endsWith('.wav'))).reduce((acc, f) => {
                     const parts = f.name.split('_');
                     if(parts.length < 2) return acc;
                     
-                    let originalCat = parts[0].trim(); // Berfungsi sebagai Sub-Folder (misal: "1.1", "Network")
+                    let originalCat = parts[0].trim(); 
                     let cat = originalCat;
-                    const name = parts.slice(1).join(' ').replace('.html','').replace(/_/g, ' ').trim();
+                    const name = parts.slice(1).join(' ').replace(/\.(html|mp3|wav)$/,'').replace(/_/g, ' ').trim();
 
-                    // Dynamic Semester Grouping Logic
                     const semesterMatch = originalCat.match(/^(\d+)\./);
-                    
                     if (semesterMatch) {
                         cat = `SEMESTER ${semesterMatch[1]}`;
                     } else if (!cat.toLowerCase().includes('secret')) {
-                        // Jika tidak diawali nomor dan bukan rahasia, masuk OTHER
                         cat = 'OTHER';
                     }
 
                     if(!acc[cat]) acc[cat] = [];
-                    
-                    acc[cat].push({
-                        name: name, 
-                        subCat: originalCat, 
-                        file: f.name, 
-                        url: f.download_url
-                    });
-                    
+                    acc[cat].push({ name, subCat: originalCat, file: f.name, url: f.download_url });
                     return acc;
                 }, {});
 
-                sysStatus.innerText = "SYSTEM ACTIVE";
-                sysStatus.previousElementSibling.classList.replace('bg-ink', 'bg-green-500'); 
-                
+                sysStatus.innerText = "SYS_ONLINE";
                 renderHome();
 
             } catch(e) {
-                sysStatus.innerText = "SYSTEM FAULT";
-                sysStatus.previousElementSibling.classList.replace('bg-ink', 'bg-error');
+                sysStatus.innerText = "SYS_ERROR";
+                document.getElementById('status-indicator').classList.replace('bg-green-500', 'bg-error');
                 
                 grid.className = "grid grid-cols-1";
                 grid.innerHTML = `
-                    <div class="col-span-full text-center py-20 md:py-32 border border-line bg-surface shadow-[4px_4px_0_0_#000]">
-                        <p class="text-ink font-times text-4xl md:text-5xl mb-4">Connection Terminated</p>
-                        <p class="text-error font-mono text-[10px] uppercase tracking-widest font-bold border border-error inline-block px-4 py-2 bg-error/10">ERROR: ${e.message}</p>
+                    <div class="w-full max-w-lg mx-auto text-center py-20 animate-slide-up">
+                        <div class="w-16 h-16 mx-auto bg-error/10 text-error rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <h2 class="font-serif text-2xl font-bold mb-2">Connection Terminated</h2>
+                        <p class="font-mono text-[10px] text-inkdim bg-surface p-3 rounded-lg inline-block border border-line">ERROR: ${e.message}</p>
                     </div>`;
+            }
+
+            // 2. Fetch khusus Music secara diam-diam dari GitHub API (Silent Fetch)
+            try {
+                const resMusic = await fetch('https://api.github.com/repos/muqorrobinize/174/contents/music');
+                if (resMusic.ok) {
+                    const musicFiles = await resMusic.json();
+                    const targetAudio = musicFiles.find(f => f.type === 'file' && (f.name.endsWith('.mp3') || f.name.endsWith('.wav')));
+                    if (targetAudio) {
+                        foundMusicUrl = targetAudio.download_url;
+                    }
+                }
+            } catch(e) {
+                console.log("Folder music tidak ditemukan atau kosong. Menggunakan lagu cadangan.");
             }
         }
 
+        // === REALISTIC FOLDER GENERATOR ===
+        function createFolderHTML(title, count, isSecret, onClick) {
+            const secretClasses = isSecret ? 'bg-error text-base border-error' : 'bg-surface border-line text-inkdim';
+            const iconClasses = isSecret ? 'text-error' : 'text-ink';
+            
+            return `
+                <div class="group relative flex flex-col h-full cursor-pointer animate-slide-up hover:-translate-y-1 transition-transform duration-300" onclick="${onClick}">
+                    <div class="w-2/5 min-w-[100px] max-w-[140px] border-t border-l border-r rounded-t-xl px-3 py-1.5 flex items-center justify-between relative z-10 transition-colors duration-300 ${secretClasses} group-hover:bg-ink group-hover:text-base group-hover:border-ink">
+                        <span class="font-mono text-[9px] font-bold tracking-widest uppercase truncate">${isSecret ? 'RESTRICTED' : 'DIR_INDEX'}</span>
+                    </div>
+                    <div class="flex-1 bg-base border border-line rounded-b-2xl rounded-tr-2xl p-6 flex flex-col justify-between relative z-0 -mt-[1px] shadow-sm hover:shadow-xl group-hover:border-ink transition-all duration-300">
+                        <div>
+                            <h3 class="font-serif text-2xl font-semibold leading-tight text-ink group-hover:underline decoration-lineDark underline-offset-4">${title}</h3>
+                            <p class="font-mono text-[10px] text-inkdim mt-3 uppercase tracking-widest">${count} Entities</p>
+                        </div>
+                        <div class="mt-8 flex justify-end">
+                            <div class="w-8 h-8 rounded-full bg-surface border border-line flex items-center justify-center group-hover:bg-ink group-hover:border-ink transition-colors duration-300">
+                                <svg class="w-4 h-4 transition-colors ${iconClasses} group-hover:text-base" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // === LIST ITEM GENERATOR ===
+        function createListItemHTML(title, meta, isSecret, onClick, isDocument = false) {
+            const secretLabel = isSecret ? '<span class="text-[9px] font-mono text-error bg-error/10 px-2 py-0.5 rounded-sm">LOCKED</span>' : '';
+            const actionText = isDocument ? 'ACCESS' : 'OPEN';
+            
+            return `
+                <div class="group bg-base border border-line rounded-2xl p-4 md:p-5 flex items-center justify-between cursor-pointer hover:border-ink hover:shadow-md transition-all duration-300 animate-slide-up" onclick="${onClick}">
+                    <div class="flex items-center gap-4 w-full pr-4">
+                        <div class="w-10 h-10 rounded-full bg-surface shrink-0 flex items-center justify-center group-hover:bg-ink group-hover:text-base transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isDocument ? 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' : 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'}"></path></svg>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h3 class="font-serif text-base md:text-lg font-medium text-ink truncate group-hover:text-ink">${title}</h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <p class="font-mono text-[9px] text-inkdim uppercase tracking-widest">${meta}</p>
+                                ${secretLabel}
+                            </div>
+                        </div>
+                    </div>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[9px] font-bold uppercase tracking-widest text-ink shrink-0 hidden sm:block">${actionText} &rarr;</span>
+                </div>
+            `;
+        }
+
+        // === RENDER HOME ===
         function renderHome(filter="") {
             grid.innerHTML = "";
             grid.className = isListView 
-                ? "grid grid-cols-1 gap-4" 
-                : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10"; // Increased gap for folder tabs
+                ? "flex flex-col gap-3" 
+                : "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 lg:gap-10 pt-4"; 
             
             Object.keys(quizzes).sort().forEach(cat => {
-                
-                // Enhanced Search
                 const matchesFilter = quizzes[cat].some(q => 
                     q.name.toLowerCase().includes(filter.toLowerCase()) || 
                     q.subCat.toLowerCase().includes(filter.toLowerCase())
@@ -463,47 +491,14 @@
                 const name = cat.replace(/secret/i,'').trim() || 'UNDEFINED';
                 const count = quizzes[cat].length;
                 
-                const card = document.createElement('div');
-                
-                // Jika grid view, pakai class folder tab
-                const folderClass = isListView ? '' : 'folder-tab-card';
-                
-                if (isListView) {
-                    card.className = `group editorial-card p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between cursor-pointer`;
-                    card.innerHTML = `
-                        <div class="flex items-center gap-6 md:gap-8 w-full">
-                            <div class="font-mono text-[10px] font-bold w-8 card-text-dim tracking-widest ${isSecret ? 'text-error' : 'text-inkdim'}">${isSecret ? 'SCT' : 'DIR'}</div>
-                            <h3 class="font-serif text-lg md:text-xl font-bold w-1/2 md:w-1/3 truncate">${name}</h3>
-                            <div class="hidden md:block flex-grow border-b border-dotted border-line opacity-30 group-hover:border-base transition-colors"></div>
-                            <p class="text-[10px] font-mono font-bold tracking-widest px-4">${count} FILES</p>
-                            <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[10px] uppercase font-bold tracking-widest whitespace-nowrap hidden md:block">ACCESS &rarr;</span>
-                        </div>
-                    `;
-                } else {
-                    card.className = `group editorial-card ${folderClass} p-6 md:p-8 cursor-pointer flex flex-col justify-between min-h-[200px] md:min-h-[220px]`;
-                    card.innerHTML = `
-                        <div>
-                            <div class="flex justify-between items-start mb-6 font-mono text-[10px] uppercase tracking-widest font-bold relative z-10">
-                                <span class="${isSecret ? 'text-error bg-error/10 px-2' : 'card-text-dim text-inkdim'}">
-                                    ${isSecret ? '[ RESTRICTED ]' : '[ PUBLIC ]'}
-                                </span>
-                                <span class="border border-line px-2 py-0.5 bg-surface group-hover:bg-ink group-hover:border-base group-hover:text-base transition-colors shadow-[2px_2px_0_0_#000] group-hover:shadow-none">${count} VOL</span>
-                            </div>
-                            <h3 class="text-2xl md:text-3xl font-serif font-bold leading-tight group-hover:underline decoration-2 underline-offset-4 relative z-10">${name}</h3>
-                        </div>
-                        <div class="mt-6 flex justify-end relative z-10">
-                            <svg class="w-6 h-6 icon-arrow stroke-ink transform group-hover:translate-x-3 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="square" stroke-linejoin="miter" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                        </div>
-                    `;
-                }
+                const clickAction = isSecret ? `alert('ACCESS DENIED: CLEARANCE LEVEL INSUFFICIENT.')` : `openCategory('${cat}')`;
 
-                card.onclick = (e) => { 
-                    e.preventDefault(); 
-                    if (isSecret) alert('ACCESS DENIED: CLEARANCE LEVEL INSUFFICIENT.'); 
-                    else openCategory(cat); 
-                };
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = isListView 
+                    ? createListItemHTML(name, `${count} Directories`, isSecret, clickAction)
+                    : createFolderHTML(name, count, isSecret, clickAction);
                 
-                grid.appendChild(card);
+                grid.appendChild(wrapper.firstElementChild);
             });
         }
 
@@ -512,25 +507,21 @@
             const catName = cat.replace(/secret/i,'').trim() || 'SYS_DIR';
             
             grid.className = isListView 
-                ? "grid grid-cols-1 gap-4" 
-                : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10"; // Match folder gaps
+                ? "flex flex-col gap-3" 
+                : "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 lg:gap-10"; 
             
-            // Header
             grid.innerHTML = `
-                <div class="col-span-full border border-line p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface mb-4 shadow-[4px_4px_0_0_#000]">
+                <div class="col-span-full mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-up">
                     <div>
-                        <div class="text-[10px] font-mono uppercase tracking-[0.3em] font-bold text-inkdim mb-3 flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 bg-ink block"></span> ACTIVE DIRECTORY
-                        </div>
-                        <h2 class="font-times text-4xl md:text-6xl uppercase leading-none">${catName}</h2>
+                        <div class="font-mono text-[9px] uppercase tracking-widest text-inkdim mb-1">Index / ${catName}</div>
+                        <h2 class="font-serif text-3xl font-semibold">${catName} Sub-Directories</h2>
                     </div>
-                    <button onclick="renderHome()" class="self-start md:self-auto font-mono text-[10px] uppercase font-bold tracking-widest border border-line bg-base px-5 py-3 hover:bg-ink hover:text-base transition-colors flex items-center gap-2 shadow-[2px_2px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none">
-                        &larr; RETURN TO INDEX
+                    <button onclick="renderHome()" class="self-start md:self-auto px-5 py-2.5 bg-base border border-line rounded-xl shadow-sm hover:border-ink font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
+                        &larr; Back
                     </button>
                 </div>
             `;
 
-            // Kelompokkan Sub-Folder
             const subGroups = quizzes[cat].reduce((acc, q) => {
                 const sCat = q.subCat || 'UNCATEGORIZED';
                 if(!acc[sCat]) acc[sCat] = [];
@@ -538,45 +529,16 @@
                 return acc;
             }, {});
 
-            // Render Sub-Folder Cards
             Object.keys(subGroups).sort().forEach(subCat => {
                 const count = subGroups[subCat].length;
-                const card = document.createElement('div');
-                const folderClass = isListView ? '' : 'folder-tab-card';
-                
-                if (isListView) {
-                    card.className = `group editorial-card p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between cursor-pointer`;
-                    card.innerHTML = `
-                        <div class="flex items-center gap-6 md:gap-8 w-full">
-                            <div class="font-mono text-[10px] font-bold w-8 card-text-dim tracking-widest text-inkdim">SUB</div>
-                            <h3 class="font-serif text-lg md:text-xl font-bold w-1/2 md:w-1/3 truncate">${subCat}</h3>
-                            <div class="hidden md:block flex-grow border-b border-dotted border-line opacity-30 group-hover:border-base transition-colors"></div>
-                            <p class="text-[10px] font-mono font-bold tracking-widest px-4">${count} FILES</p>
-                            <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[10px] uppercase font-bold tracking-widest whitespace-nowrap hidden md:block">OPEN &rarr;</span>
-                        </div>
-                    `;
-                } else {
-                    card.className = `group editorial-card ${folderClass} p-6 md:p-8 cursor-pointer flex flex-col justify-between min-h-[160px] md:min-h-[180px]`;
-                    card.innerHTML = `
-                        <div>
-                            <div class="flex justify-between items-start mb-6 font-mono text-[10px] uppercase tracking-widest font-bold relative z-10">
-                                <span class="card-text-dim text-inkdim bg-surface px-1">[ DIRECTORY ]</span>
-                                <span class="border border-line px-2 py-0.5 bg-surface group-hover:bg-ink group-hover:border-base group-hover:text-base transition-colors shadow-[2px_2px_0_0_#000] group-hover:shadow-none">${count} VOL</span>
-                            </div>
-                            <h3 class="text-2xl font-serif font-bold leading-tight group-hover:underline decoration-2 underline-offset-4 relative z-10">${subCat}</h3>
-                        </div>
-                        <div class="mt-6 flex justify-end relative z-10">
-                            <svg class="w-6 h-6 icon-arrow stroke-ink transform group-hover:translate-x-3 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="square" stroke-linejoin="miter" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                        </div>
-                    `;
-                }
+                const clickAction = `openSubFolder('${cat}', '${subCat}')`;
 
-                card.onclick = (e) => { 
-                    e.preventDefault(); 
-                    openSubFolder(cat, subCat); 
-                };
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = isListView 
+                    ? createListItemHTML(subCat, `${count} Files`, false, clickAction)
+                    : createFolderHTML(subCat, count, false, clickAction);
                 
-                grid.appendChild(card);
+                grid.appendChild(wrapper.firstElementChild);
             });
         }
 
@@ -584,52 +546,38 @@
             window.scrollTo({top:0, behavior:'smooth'});
             const catName = cat.replace(/secret/i,'').trim() || 'SYS_DIR';
             
-            // Setup array aktif untuk Start Menu
             activeSubFolderFiles = quizzes[cat].filter(q => (q.subCat || 'UNCATEGORIZED') === subCat);
             activeSubFolderTitle = subCat;
 
-            // List view untuk dokumen
-            grid.className = "flex flex-col gap-4";
+            grid.className = "flex flex-col gap-3"; 
             
             grid.innerHTML = `
-                <div class="border border-line p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface mb-4 shadow-[4px_4px_0_0_#000]">
+                <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-up">
                     <div>
-                        <div class="text-[10px] font-mono uppercase tracking-[0.3em] font-bold text-inkdim mb-3 flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 bg-ink block"></span> ${catName} / DIRECTORY
-                        </div>
-                        <h2 class="font-times text-3xl md:text-5xl uppercase leading-none">${subCat}</h2>
+                        <div class="font-mono text-[9px] uppercase tracking-widest text-inkdim mb-1">Index / ${catName} / ${subCat}</div>
+                        <h2 class="font-serif text-3xl font-semibold">${subCat} Documents</h2>
                     </div>
-                    <button onclick="openCategory('${cat}')" class="self-start md:self-auto font-mono text-[10px] uppercase font-bold tracking-widest border border-line bg-base px-5 py-3 hover:bg-ink hover:text-base transition-colors flex items-center gap-2 shadow-[2px_2px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none">
-                        &larr; BACK TO ${catName}
+                    <button onclick="openCategory('${cat}')" class="self-start md:self-auto px-5 py-2.5 bg-base border border-line rounded-xl shadow-sm hover:border-ink font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
+                        &larr; Back
                     </button>
                 </div>
             `;
 
             activeSubFolderFiles.forEach((q, index) => {
-                const item = document.createElement('a');
-                const fileUrl = q.url !== "#" ? `kuis/${q.file}` : '#';
+                // Memakai tautan mentah langsung dari GitHub JSON response
+                const fileUrl = q.url !== "#" ? q.url : '#';
+                const isAudio = q.file.endsWith('.mp3') || q.file.endsWith('.wav');
                 
-                item.href = fileUrl;
-                
-                if (fileUrl !== '#') {
-                    item.onclick = (e) => {
-                        e.preventDefault(); 
-                        openViewer(fileUrl, q.name); 
-                    };
+                let clickAction = '';
+                if(isAudio) {
+                     clickAction = `playAudio('${fileUrl}')`;
+                } else if (fileUrl !== '#') {
+                     clickAction = `openViewer('${fileUrl}', '${q.name}')`;
                 }
                 
-                item.className = "group editorial-card py-5 px-6 md:px-8 flex flex-col md:flex-row md:items-center justify-between cursor-pointer";
-                item.innerHTML = `
-                    <div class="flex items-center gap-4 md:gap-6">
-                        <div class="text-[10px] font-mono text-inkdim w-6">0${index+1}</div>
-                        <div class="text-[10px] font-mono font-bold w-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-4 group-hover:translate-x-0">&rarr;</div>
-                        <div class="font-serif text-lg md:text-xl font-bold">${q.name}</div>
-                    </div>
-                    <div class="text-[10px] font-mono uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-4 md:mt-0 md:text-right card-text-dim border border-base px-3 py-1">
-                        DECRYPT / READ
-                    </div>
-                `;
-                grid.appendChild(item);
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = createListItemHTML(q.name, isAudio ? 'Audio File' : `Document 0${index+1}`, false, clickAction, !isAudio);
+                grid.appendChild(wrapper.firstElementChild);
             });
         }
 
@@ -644,56 +592,145 @@
             renderHome(e.target.value);
         };
 
+        function copyToClipboard() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert("URL System berhasil disalin ke Clipboard!");
+                toggleStartMenu();
+            }).catch(err => {
+                console.error('Gagal menyalin text: ', err);
+            });
+        }
+
+        // === EASTER EGG (Party Mode) ===
+        function toggleEasterEgg() {
+            isPartyMode = !isPartyMode;
+            if(isPartyMode) {
+                document.body.classList.add('party-mode');
+                document.getElementById('status-indicator').classList.replace('bg-green-500', 'bg-yellow-400');
+                sysStatus.innerText = "SYS_OVERRIDE";
+                
+                // Gunakan audio dari folder music jika ada, jika tidak pakai lagu fallback
+                partyAudio.src = foundMusicUrl || musicUrlFallback;
+                partyAudio.play().catch(e => console.log('Audio error:', e));
+
+            } else {
+                document.body.classList.remove('party-mode');
+                document.getElementById('status-indicator').classList.replace('bg-yellow-400', 'bg-green-500');
+                sysStatus.innerText = "SYS_ACTIVE";
+                partyAudio.pause();
+                partyAudio.currentTime = 0;
+            }
+        }
+
+        function playAudio(url) {
+            partyAudio.src = url;
+            partyAudio.play();
+            alert("Memutar audio dari direktori...");
+        }
+
+        // === PROTOCOL MODAL & SAWERIA BUBBLE ===
+        function toggleProtocol(show) {
+            const modal = document.getElementById('protocol-modal');
+            if(show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            } else {
+                modal.classList.add('opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 500);
+            }
+        }
+
+        function showSaweriaBubble() {
+            const bubble = document.getElementById('saweria-bubble');
+            const menu = document.getElementById('start-menu-panel');
+            // Hanya muncul jika panel menu start sedang tertutup
+            if(bubble && menu.classList.contains('menu-closed')) {
+                bubble.classList.remove('opacity-0');
+                bubble.classList.remove('translate-y-4');
+                bubble.classList.add('translate-y-0');
+                
+                // Sembunyikan setelah 6 detik
+                setTimeout(() => {
+                    bubble.classList.remove('translate-y-0');
+                    bubble.classList.add('translate-y-4');
+                    bubble.classList.add('opacity-0');
+                }, 6000);
+            }
+        }
+
         // === IN-APP VIEWER & START MENU LOGIC ===
         function openViewer(url, currentFileName) {
             document.getElementById('viewer-frame').src = url;
-            
             const overlay = document.getElementById('viewer-overlay');
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
             
+            // Sembunyikan scroll halaman utama di background
             document.body.style.overflow = 'hidden'; 
             
-            // Reset start menu state
+            document.getElementById('close-viewer-container').style.display = 'block';
+            
             const panel = document.getElementById('start-menu-panel');
             panel.classList.remove('menu-open');
             panel.classList.add('menu-closed');
             
-            // Build the dynamic start menu list based on the active folder
             buildStartMenu(currentFileName);
         }
 
         function buildStartMenu(activeFileName) {
-            document.getElementById('viewer-menu-title').innerText = activeSubFolderTitle;
+            const isViewerOpen = !document.getElementById('viewer-overlay').classList.contains('hidden');
             const container = document.getElementById('start-menu-file-list');
-            container.innerHTML = '';
             
-            activeSubFolderFiles.forEach(q => {
-                const isActive = q.name === activeFileName;
-                const fileUrl = q.url !== "#" ? `kuis/${q.file}` : '#';
+            if(activeSubFolderFiles.length > 0) {
+                container.innerHTML = '';
                 
-                const btn = document.createElement('button');
-                btn.className = `w-full text-left font-mono text-[10px] uppercase p-4 border-b border-line/20 transition-colors flex items-center gap-3 ${isActive ? 'bg-ink text-base font-bold' : 'hover:bg-surfaceHov'}`;
-                
-                if (isActive) {
-                    btn.innerHTML = `<span class="w-1.5 h-1.5 bg-error rounded-full animate-blink shrink-0"></span> <span class="truncate leading-tight">${q.name}</span>`;
-                } else {
-                    btn.innerHTML = `<span class="w-1.5 h-1.5 border border-ink rounded-full shrink-0"></span> <span class="truncate text-inkdim leading-tight">${q.name}</span>`;
-                    btn.onclick = () => {
-                        // Ganti file langsung dari menu
-                        document.getElementById('viewer-frame').src = fileUrl;
-                        buildStartMenu(q.name); // update visual indikator aktif
-                        toggleStartMenu(); // Auto-hide menu setelah memilih
-                    };
-                }
-                
-                container.appendChild(btn);
-            });
+                activeSubFolderFiles.forEach(q => {
+                    const isActive = q.name === activeFileName;
+                    // Memakai tautan mentah langsung dari GitHub JSON response
+                    const fileUrl = q.url !== "#" ? q.url : '#';
+                    const isAudio = q.file.endsWith('.mp3') || q.file.endsWith('.wav');
+                    
+                    const btn = document.createElement('button');
+                    btn.className = `w-full text-left font-mono text-[9px] uppercase px-3 py-2.5 rounded-xl mb-1 transition-all flex items-center gap-2.5 ${isActive ? 'bg-ink text-base shadow-md' : 'hover:bg-line bg-surface/50 border border-transparent hover:border-lineDark'}`;
+                    
+                    if (isActive) {
+                        btn.innerHTML = `<span class="w-1.5 h-1.5 bg-error rounded-full animate-blink shrink-0"></span> <span class="truncate leading-tight">${q.name}</span>`;
+                    } else {
+                        btn.innerHTML = `<span class="w-1.5 h-1.5 border border-inkdim rounded-full shrink-0"></span> <span class="truncate text-inkdim leading-tight">${q.name}</span>`;
+                        btn.onclick = () => {
+                            if(isAudio) {
+                                playAudio(fileUrl);
+                            } else {
+                                if(isViewerOpen) {
+                                    document.getElementById('viewer-frame').src = fileUrl;
+                                    buildStartMenu(q.name); 
+                                } else {
+                                    openViewer(fileUrl, q.name);
+                                }
+                            }
+                            toggleStartMenu(); 
+                        };
+                    }
+                    
+                    container.appendChild(btn);
+                });
+            } else {
+                container.innerHTML = `<div class="p-3 text-center text-[9px] text-inkdim border border-dashed border-line rounded-xl mx-1 my-1">No active folder opened.</div>`;
+            }
         }
 
         function toggleStartMenu() {
             const panel = document.getElementById('start-menu-panel');
+            
             if(panel.classList.contains('menu-closed')) {
+                // Saat panel dibuka, sembunyikan chat bubble paksa agar tidak bentrok visual
+                const bubble = document.getElementById('saweria-bubble');
+                bubble.classList.add('opacity-0');
+                
+                if(document.getElementById('viewer-overlay').classList.contains('hidden')){
+                    document.getElementById('close-viewer-container').style.display = 'none';
+                    buildStartMenu(""); // Refresh status indikator aktif
+                }
                 panel.classList.remove('menu-closed');
                 panel.classList.add('menu-open');
             } else {
@@ -711,119 +748,23 @@
             panel.classList.remove('menu-open');
             panel.classList.add('menu-closed');
             
+            // Hapus source iframe, kembalikan scroll
             setTimeout(() => { document.getElementById('viewer-frame').src = ''; }, 300);
             document.body.style.overflow = ''; 
         }
 
-        // === SINX AI (JARVIS) LOGIC ===
-        let isSinxActive = false;
-        let deepgramSocket = null;
-        let mediaRecorder = null;
-
-        function speakJarvis(text) {
-            // Using standard Web Speech API as fallback for the TTS persona
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'id-ID';
-                utterance.pitch = 0.8; // Lower pitch for Jarvis vibe
-                utterance.rate = 1.0;
-                
-                // Try to find an Indonesian voice
-                const voices = speechSynthesis.getVoices();
-                const jarvisVoice = voices.find(v => (v.lang === 'id-ID' || v.name.includes('Indonesia')) && v.name.toLowerCase().includes('male')) 
-                                 || voices.find(v => v.lang === 'id-ID' || v.name.includes('Indonesia'));
-                
-                if (jarvisVoice) utterance.voice = jarvisVoice;
-                
-                speechSynthesis.speak(utterance);
-            }
-        }
-
-        async function toggleSinxCall() {
-            const idleBtn = document.getElementById('sinx-call-btn');
-            const activeUI = document.getElementById('sinx-active-ui');
-            const statusText = document.getElementById('sinx-status-text');
-
-            if (!isSinxActive) {
-                // START CALL
-                try {
-                    // 1. Ask for Mic Permission
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    
-                    // 2. Update UI
-                    isSinxActive = true;
-                    idleBtn.classList.add('hidden');
-                    activeUI.classList.remove('hidden');
-                    
-                    // 3. Play Persona Greeting
-                    speakJarvis("Sistem daring dan siap, Sir.");
-
-                    // 4. Setup Deepgram Connection
-                    let API_KEY = window.SINX_API || '';
-                    if (!API_KEY && typeof process !== 'undefined' && process.env && process.env.SINX_API) {
-                        API_KEY = process.env.SINX_API;
-                    }
-                    
-                    if (API_KEY) {
-                        // Added &language=id for Indonesian Speech-to-Text
-                        deepgramSocket = new WebSocket('wss://api.deepgram.com/v1/listen?encoding=linear16&sample_rate=16000&channels=1&language=id', ['token', API_KEY]);
-                        
-                        deepgramSocket.onopen = () => {
-                            statusText.innerText = "Menunggu perintah, Sir...";
-                            
-                            mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-                            mediaRecorder.addEventListener('dataavailable', event => {
-                                if (event.data.size > 0 && deepgramSocket.readyState === 1) {
-                                    deepgramSocket.send(event.data);
-                                }
-                            });
-                            mediaRecorder.start(250); // Send slice every 250ms
-                        };
-
-                        deepgramSocket.onmessage = (message) => {
-                            const received = JSON.parse(message.data);
-                            const transcript = received.channel?.alternatives[0]?.transcript;
-                            if (transcript && received.is_final) {
-                                statusText.innerText = "Memproses...";
-                                // Here you would send the transcript to your LLM
-                                console.log("SINX Mendengar: ", transcript);
-                                
-                                setTimeout(() => {
-                                    statusText.innerText = "Mendengarkan, Sir...";
-                                }, 1500);
-                            }
-                        };
-                    } else {
-                        statusText.innerText = "[Mode Demo - Tanpa API Key]";
-                        console.warn("SINX: Variabel lingkungan SINX_API tidak ditemukan. Berjalan di Mode Demo UI.");
-                    }
-
-                } catch (err) {
-                    alert('Sinx membutuhkan akses mikrofon untuk membantu Anda, Sir.');
-                    console.error(err);
-                }
-            } else {
-                // END CALL
-                isSinxActive = false;
-                idleBtn.classList.remove('hidden');
-                activeUI.classList.add('hidden');
-                
-                speakJarvis("Mematikan sistem, Sir.");
-                
-                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                    mediaRecorder.stop();
-                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                }
-                if (deepgramSocket) {
-                    deepgramSocket.close();
-                }
-            }
-        }
-
-        // Pre-load voices for Jarvis
-        if ('speechSynthesis' in window) {
-            speechSynthesis.onvoiceschanged = () => { speechSynthesis.getVoices(); };
-        }
+        // --- EXPORT TO WINDOW (UNTUK BUTTON ONCLICK DI HTML MODULE) ---
+        window.toggleView = toggleView;
+        window.renderHome = renderHome;
+        window.openCategory = openCategory;
+        window.openSubFolder = openSubFolder;
+        window.closeViewer = closeViewer;
+        window.toggleStartMenu = toggleStartMenu;
+        window.openViewer = openViewer;
+        window.toggleEasterEgg = toggleEasterEgg;
+        window.toggleProtocol = toggleProtocol;
+        window.playAudio = playAudio;
+        window.copyToClipboard = copyToClipboard;
 
     </script>
 </body>
