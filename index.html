@@ -5,38 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>174</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        base: '#ffffff',
-                        surface: '#f4f4f5',
-                        ink: '#000000',
-                        inkdim: '#52525b',
-                        line: '#000000',
-                        accent: '#000000', 
-                        error: '#dc2626'
+                        base: '#ffffff',       /* Pure white */
+                        surface: '#f9fafb',    /* Very light gray for subtle contrast */
+                        surfaceHov: '#f3f4f6', 
+                        ink: '#000000',        /* Pure black */
+                        inkdim: '#52525b',     /* Readable gray */
+                        line: '#000000',       /* Sharp black borders */
+                        error: '#dc2626'       /* Alert red */
                     },
                     fontFamily: {
-                        gothic: ['UnifrakturMaguntia', 'cursive'],
+                        times: ['"Times New Roman"', 'Times', 'serif'],
                         serif: ['Lora', 'serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     animation: {
-                        'scroll': 'scroll 30s linear infinite',
-                        'blink': 'blink 1s step-end infinite',
+                        'scroll': 'scroll 35s linear infinite',
+                        'blink': 'blink 1.5s step-end infinite',
                     },
                     keyframes: {
                         scroll: {
                             '0%': { transform: 'translateX(0)' },
-                            '100%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(-50%)' },
                         },
                         blink: {
                             '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0' },
+                            '50%': { opacity: '0.2' },
                         }
                     }
                 }
@@ -45,172 +45,185 @@
     </script>
 
     <style>
-        body { background-color: #ffffff; color: #000000; }
-        
-        /* Brutalist / Editorial Hover Styles */
-        .editorial-card {
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            position: relative;
+        body { 
+            background-color: #ffffff; 
+            color: #000000; 
+            -webkit-font-smoothing: antialiased;
         }
-        .editorial-card::after {
-            content: '';
-            position: absolute;
-            left: 0; bottom: 0;
-            width: 100%; height: 0;
-            background-color: #000;
-            transition: height 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: -1;
+        
+        /* Clean Editorial Hover Styles */
+        .editorial-card {
+            transition: all 0.2s ease-in-out;
+            position: relative;
+            background: #ffffff;
+            border: 1px solid #000000;
         }
         .editorial-card:hover {
-            color: #fff;
-        }
-        .editorial-card:hover::after {
-            height: 100%;
+            background: #000000;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.1);
         }
         .editorial-card:hover .card-text-dim {
-            color: #a1a1aa;
+            color: #a1a1aa; /* Lighter gray on hover */
         }
-        .editorial-card:hover .card-border {
-            border-color: #fff;
+        .editorial-card:hover .icon-arrow {
+            stroke: #ffffff;
         }
 
-        /* Minimalist Input Focus */
-        .input-focus:focus { outline: none; border-color: #000; box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); transform: translate(-2px, -2px); }
-        .input-focus { transition: all 0.2s ease; }
+        /* Input Focus */
+        .input-focus { 
+            transition: all 0.2s ease; 
+        }
+        .input-focus:focus { 
+            outline: none; 
+            box-shadow: inset 4px 4px 0px 0px rgba(0,0,0,0.05); 
+            background: #f9fafb;
+        }
 
-        /* Scrollbar styling */
+        /* Minimal Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #fff; border-left: 1px solid #000; }
-        ::-webkit-scrollbar-thumb { background: #000; }
-
-        /* Sharp Loader */
-        .loader { width: 16px; height: 16px; border: 2px solid #000; border-bottom-color: transparent; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar-track { background: #ffffff; border-left: 1px solid #e5e7eb; }
+        ::-webkit-scrollbar-thumb { background: #000000; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col font-mono selection:bg-ink selection:text-base overflow-x-hidden border-x-[12px] border-ink">
+<body class="min-h-screen flex flex-col font-mono selection:bg-ink selection:text-base overflow-x-hidden border-x-4 md:border-x-[12px] border-ink">
 
     <!-- === MAIN APP === -->
     <div id="app-shell" class="flex flex-col min-h-screen">
         
-        <!-- Marquee Ticker (Fixed Top) -->
-        <div class="fixed top-0 w-full z-50 bg-ink text-base border-b-4 border-line overflow-hidden py-1.5 flex items-center shadow-lg">
-            <div class="whitespace-nowrap animate-scroll text-[11px] font-mono uppercase tracking-wide">
-                Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="underline decoration-base underline-offset-2 hover:text-gray-400">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp; Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer.
+        <!-- Marquee Ticker -->
+        <div class="fixed top-0 w-full z-50 bg-base text-ink border-b border-line py-1.5 flex items-center shadow-sm">
+            <div class="whitespace-nowrap animate-scroll text-[10px] md:text-xs font-mono uppercase tracking-widest flex">
+                <span>
+                    Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="font-bold underline decoration-2 underline-offset-2 hover:text-gray-500 transition-colors">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp;
+                </span>
+                <span>
+                    Yo, for real, you think this magic just happens? Nah, the server's running on fumes and a prayer. You want to keep acing your exams? Then stop playing and slide some love to our <a href="https://saweria.co/beenspaceess" target="_blank" class="font-bold underline decoration-2 underline-offset-2 hover:text-gray-500 transition-colors">Saweria (yeah, click this shiny link)</a>. Don't be a ghost. Keep this joint alive. We ain't playin'. Your future self will thank you. Or not. Whatever. Just do it. This ain't a charity but it feels like one sometimes, you feel me? Keep the lights on, fam. &nbsp;&nbsp;&nbsp; /// &nbsp;&nbsp;&nbsp;
+                </span>
             </div>
         </div>
 
-        <!-- Main Header / Masthead -->
-        <header class="pt-20 px-6 border-b-[6px] border-line bg-base relative z-40">
-            <div class="max-w-6xl mx-auto pb-8 pt-12 flex flex-col items-center justify-center text-center">
-                <div class="font-mono text-xs uppercase tracking-[0.4em] mb-6 font-bold border border-ink px-4 py-1">
-                    Holly MF Platform
-                </div>
-                
-                <!-- NYT Style Gothic Logo -->
-                <h1 class="font-gothic text-7xl md:text-[9rem] leading-none text-ink select-none">
-                    174.
-                </h1>
-            </div>
-        </header>
-
-        <!-- Tool Bar -->
-        <nav class="border-b-4 border-line bg-base sticky top-8 z-30">
-            <div class="max-w-6xl mx-auto px-6 h-12 flex justify-between items-center">
+        <!-- System Top Bar -->
+        <nav class="border-b border-line bg-surface sticky top-6 md:top-8 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-12 flex justify-between items-center">
                 <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest font-bold">
                     <span class="animate-blink w-2 h-2 bg-ink block"></span>
                     <span id="system-status">SYSTEM IDLE</span>
                 </div>
-                <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest font-bold">
+                <div class="flex items-center gap-6 font-mono text-[10px] uppercase tracking-widest font-bold">
                     <button onclick="location.reload()" class="hover:underline underline-offset-4 decoration-2">INDEX</button>
-                    <button onclick="toggleView()" class="hover:underline underline-offset-4 decoration-2">TOGGLE LAYOUT</button>
+                    <button onclick="toggleView()" class="hover:underline underline-offset-4 decoration-2 flex items-center gap-2">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        <span class="hidden sm:inline">LAYOUT</span>
+                    </button>
                 </div>
             </div>
         </nav>
 
-        <!-- Main Content -->
-        <main class="flex-grow pb-32">
-            
-            <!-- MANDATORY DIRECTIVE (FIGHT CLUB RULE) -->
-            <div class="border-b-4 border-line bg-ink text-base py-12 px-6 relative overflow-hidden">
-                <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none select-none overflow-hidden">
-                    <span class="font-gothic text-[15rem] text-error whitespace-nowrap">RESTRICTED</span>
-                </div>
+        <!-- Redesigned Header: Title + Rules side-by-side -->
+        <header class="pt-16 pb-12 px-6 border-b border-line bg-base relative z-30">
+            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-end justify-between gap-10">
                 
-                <div class="max-w-3xl mx-auto text-center relative z-10">
-                    <div class="font-mono text-[10px] uppercase tracking-[0.4em] font-bold text-error mb-4 border border-error/30 inline-block px-3 py-1">
+                <!-- Left: Huge Title -->
+                <div class="text-center lg:text-left flex-shrink-0 w-full lg:w-auto">
+                    <div class="font-mono text-[10px] uppercase tracking-[0.4em] font-bold border border-ink px-4 py-1.5 inline-block mb-6 bg-surface">
+                        Holly MF Platform
+                    </div>
+                    <h1 class="font-times text-[6rem] sm:text-[8rem] md:text-[11rem] leading-none text-ink select-none tracking-tight">
+                        174.
+                    </h1>
+                </div>
+
+                <!-- Right: Mandatory Directive (Compact & Balanced) -->
+                <div class="w-full lg:max-w-md border border-ink p-5 md:p-6 bg-surface relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div class="absolute -top-3 left-4 bg-surface px-2 text-[10px] font-mono uppercase tracking-widest font-bold text-error border border-error">
                         Mandatory Directive
                     </div>
-                    <h2 class="font-serif text-3xl md:text-4xl font-bold uppercase tracking-wide mb-6">
-                        The First Rule
-                    </h2>
-                    <div class="font-mono text-sm md:text-base font-bold uppercase tracking-widest leading-relaxed space-y-4">
-                        <p>1. The first rule of the 174 Archive is: <br><span class="text-error underline decoration-2 underline-offset-4">You do not share the 174 Archive.</span></p>
-                        <p>2. The second rule of the 174 Archive is: <br><span class="text-error underline decoration-2 underline-offset-4">YOU DO NOT SHARE THE LINK TO THE 174 ARCHIVE.</span></p>
+                    
+                    <h2 class="font-serif text-xl font-bold uppercase mb-4 mt-2">The First Rule</h2>
+                    
+                    <div class="font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest leading-relaxed space-y-3">
+                        <p class="flex items-start gap-2">
+                            <span class="text-ink">1.</span> 
+                            <span>The first rule of the 174 Archive is: <br><span class="text-error border-b border-error">You do not share the Archive.</span></span>
+                        </p>
+                        <p class="flex items-start gap-2">
+                            <span class="text-ink">2.</span> 
+                            <span>The second rule of the 174 Archive is: <br><span class="text-error border-b border-error">YOU DO NOT SHARE THE LINK.</span></span>
+                        </p>
                     </div>
-                    <p class="font-mono text-xs uppercase tracking-widest text-gray-400 mt-8 font-bold max-w-xl mx-auto leading-loose border-t border-dashed border-gray-700 pt-6">
-                        If this transmission leaks to the public domain, the entire directory will be permanently purged. Do not compromise the network. Proceed with absolute discretion.
+                    
+                    <p class="font-mono text-[9px] uppercase tracking-widest text-inkdim mt-5 pt-4 border-t border-dashed border-ink/30 leading-loose">
+                        If this transmission leaks to the public domain, the entire directory will be permanently purged. Proceed with absolute discretion.
                     </p>
                 </div>
-            </div>
 
-            <!-- Search / Query Section -->
-            <div class="border-b-4 border-line bg-surface py-12 px-6">
-                <div class="max-w-3xl mx-auto">
-                    <div class="relative group">
-                        <label for="search-input" class="absolute -top-3 left-4 bg-surface px-2 text-[10px] font-mono uppercase tracking-widest font-bold">QUERY PARAMETER</label>
-                        <input type="text" id="search-input" placeholder="Enter classification code or title..." class="w-full bg-base border-4 border-line px-6 py-5 text-sm text-ink rounded-none input-focus font-mono placeholder-inkdim font-bold uppercase tracking-wider">
+            </div>
+        </header>
+
+        <!-- Search / Query Section -->
+        <div class="border-b border-line bg-surface py-8 md:py-12 px-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="relative group max-w-2xl">
+                    <label for="search-input" class="absolute -top-3 left-4 bg-surface px-2 text-[10px] font-mono uppercase tracking-widest font-bold z-10">QUERY PARAMETER</label>
+                    <input type="text" id="search-input" placeholder="Enter classification code or title..." class="w-full bg-base border border-ink px-6 py-4 text-sm md:text-base text-ink input-focus font-mono placeholder-inkdim font-bold uppercase tracking-wider relative z-0">
+                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-ink">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="max-w-6xl mx-auto px-6 pt-12">
+        <!-- Main Content Area -->
+        <main class="flex-grow pb-32 bg-base pt-10">
+            <div class="max-w-7xl mx-auto px-6">
+                
                 <!-- Grid Content -->
-                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-3 gap-0 border-t-4 border-l-4 border-line">
+                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     <!-- JS Injected Cards -->
                 </div>
-            </div>
 
-            <!-- Contact & Corrections Section -->
-            <div class="max-w-6xl mx-auto px-6 pt-20">
-                <div class="border-t-4 border-line pt-10 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                    <div class="max-w-md">
-                        <div class="font-mono text-[10px] uppercase tracking-widest font-bold mb-2 flex items-center gap-2">
+                <!-- Contact & Corrections Section -->
+                <div class="mt-24 border-t border-line pt-12 pb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 bg-surface p-8 md:p-10 border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div class="max-w-lg">
+                        <div class="font-mono text-[10px] uppercase tracking-widest font-bold mb-3 flex items-center gap-2">
                             <span class="w-2 h-2 bg-ink block"></span>
                             DIRECT TRANSMISSION
                         </div>
-                        <h3 class="font-serif text-3xl font-bold uppercase mb-3 leading-none">Corrections & Features</h3>
-                        <p class="font-mono text-[10px] uppercase tracking-widest text-inkdim font-bold leading-relaxed">
+                        <h3 class="font-serif text-2xl md:text-3xl font-bold uppercase mb-3 leading-none">Corrections & Features</h3>
+                        <p class="font-mono text-[10px] uppercase tracking-widest text-inkdim leading-relaxed">
                             Report anomalies, request features, or submit corrections directly to the administrators via secure lines.
                         </p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0">
-                        <a href="https://wa.me/6281372406462" target="_blank" class="px-8 py-4 border-4 border-line bg-base hover:bg-ink hover:text-base transition-all duration-300 text-center font-mono text-xs uppercase tracking-widest font-bold block">
+                        <a href="https://wa.me/6281372406462" target="_blank" class="px-6 py-4 border border-line bg-base hover:bg-ink hover:text-base transition-colors text-center font-mono text-xs uppercase tracking-widest font-bold block">
                             CALL THE ALCHEMIST
                         </a>
-                        <a href="https://wa.me/6281280702747" target="_blank" class="px-8 py-4 border-4 border-line bg-base hover:bg-ink hover:text-base transition-all duration-300 text-center font-mono text-xs uppercase tracking-widest font-bold block">
+                        <a href="https://wa.me/6281280702747" target="_blank" class="px-6 py-4 border border-line bg-base hover:bg-ink hover:text-base transition-colors text-center font-mono text-xs uppercase tracking-widest font-bold block">
                             CALL THE GRACE
                         </a>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </main>
 
         <!-- Mobile Bottom Action Bar -->
-        <div class="md:hidden fixed bottom-0 left-0 w-full z-40 bg-base border-t-4 border-line flex divide-x-4 divide-line font-mono text-[10px] uppercase tracking-widest font-bold">
-            <button onclick="location.reload()" class="flex-1 py-4 text-center hover:bg-ink hover:text-base transition-colors">
+        <div class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-base border-t border-line flex divide-x divide-line font-mono text-[10px] uppercase tracking-widest font-bold">
+            <button onclick="location.reload()" class="flex-1 py-4 text-center hover:bg-surface transition-colors active:bg-ink active:text-base">
                 INDEX
             </button>
-            <button onclick="toggleView()" class="flex-1 py-4 text-center hover:bg-ink hover:text-base transition-colors">
+            <button onclick="toggleView()" class="flex-1 py-4 text-center hover:bg-surface transition-colors active:bg-ink active:text-base">
                 LAYOUT
             </button>
         </div>
 
         <!-- Footer -->
-        <footer class="border-t-[6px] border-line bg-base py-16 mt-auto">
-            <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="font-gothic text-5xl">174.</div>
+        <footer class="border-t-[4px] border-line bg-surface py-12 md:py-16 mt-auto">
+            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="font-times text-5xl opacity-80">174.</div>
                 <div class="text-center md:text-right text-[10px] text-ink font-mono uppercase tracking-widest space-y-2 font-bold">
                     <div>&copy; 2026 THE 174 ARCHIVE. ALL PROTOCOLS OBSERVED.</div>
                     <div class="text-inkdim">MAINTAINED BY SIR YAEON & B$4BE!N</div>
@@ -237,9 +250,13 @@
         // === CONTENT LOGIC ===
         async function init() {
             sysStatus.innerText = "FETCHING DATA...";
+            
             try {
+                // Real API Fetch
                 const res = await fetch('/api/content?folder=kuis'); 
-                if (!res.ok) throw new Error("API Fetch failed");
+                if (!res.ok) {
+                    throw new Error("API Fetch failed with status: " + res.status);
+                }
                 const files = await res.json();
 
                 if (!files || files.length === 0) throw new Error("DIRECTORY EMPTY");
@@ -251,7 +268,7 @@
                     
                     let originalCat = parts[0].trim();
                     let cat = originalCat;
-                    const name = parts.slice(1).join(' ').replace('.html','').trim();
+                    const name = parts.slice(1).join(' ').replace('.html','').replace(/_/g, ' ').trim();
 
                     // Semester 1 Grouping Logic
                     if (['1.1', '1.2', '1.3', '1.4'].includes(cat)) {
@@ -260,7 +277,6 @@
 
                     if(!acc[cat]) acc[cat] = [];
                     
-                    // Prepend original category if grouped into Semester 1 for clarity
                     const displayName = cat === 'SEMESTER 1' ? `[${originalCat}] ${name}` : name;
                     
                     acc[cat].push({name: displayName, file: f.name, url: f.download_url});
@@ -268,14 +284,19 @@
                 }, {});
 
                 sysStatus.innerText = "SYSTEM ACTIVE";
+                sysStatus.previousElementSibling.classList.replace('bg-ink', 'bg-green-500'); 
+                
                 renderHome();
 
             } catch(e) {
                 sysStatus.innerText = "SYSTEM FAULT";
+                sysStatus.previousElementSibling.classList.replace('bg-ink', 'bg-error');
+                
+                grid.className = "grid grid-cols-1";
                 grid.innerHTML = `
-                    <div class="col-span-full text-center py-32 border-b-4 border-r-4 border-line bg-base">
-                        <p class="text-ink font-gothic text-4xl mb-4">Connection Terminated</p>
-                        <p class="text-ink font-mono text-xs uppercase tracking-widest font-bold">ERROR: ${e.message}</p>
+                    <div class="col-span-full text-center py-20 md:py-32 border border-line bg-surface">
+                        <p class="text-ink font-times text-4xl md:text-5xl mb-4">Connection Terminated</p>
+                        <p class="text-error font-mono text-[10px] uppercase tracking-widest font-bold border border-error inline-block px-4 py-2 bg-error/10">ERROR: ${e.message}</p>
                     </div>`;
             }
         }
@@ -283,45 +304,45 @@
         function renderHome(filter="") {
             grid.innerHTML = "";
             grid.className = isListView 
-                ? "grid grid-cols-1 border-t-4 border-l-4 border-line" 
-                : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t-4 border-l-4 border-line";
+                ? "grid grid-cols-1 gap-4" 
+                : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6";
             
             Object.keys(quizzes).sort().forEach(cat => {
                 if(filter && !cat.toLowerCase().includes(filter.toLowerCase())) return;
 
                 const isSecret = /secret/i.test(cat);
-                const name = cat.replace(/secret/i,'').trim();
+                const name = cat.replace(/secret/i,'').trim() || 'UNDEFINED';
                 const count = quizzes[cat].length;
                 
                 const card = document.createElement('div');
                 
                 if (isListView) {
                     // Minimal List View
-                    card.className = `group editorial-card bg-base border-r-4 border-b-4 border-line p-6 flex items-center justify-between cursor-pointer`;
+                    card.className = `group editorial-card p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between cursor-pointer`;
                     card.innerHTML = `
-                        <div class="flex items-center gap-8 w-full">
-                            <div class="font-mono text-xs font-bold w-12 card-text-dim text-inkdim">${isSecret ? 'SCT' : 'DIR'}</div>
-                            <h3 class="font-serif text-2xl font-bold w-1/3 truncate">${name}</h3>
-                            <div class="flex-grow border-b-2 border-dotted border-line card-border opacity-50"></div>
-                            <p class="text-xs font-mono font-bold">${count} FILES</p>
-                            <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[10px] uppercase font-bold ml-8 tracking-widest">ACCESS &rarr;</span>
+                        <div class="flex items-center gap-6 md:gap-8 w-full">
+                            <div class="font-mono text-[10px] font-bold w-8 card-text-dim tracking-widest ${isSecret ? 'text-error' : 'text-inkdim'}">${isSecret ? 'SCT' : 'DIR'}</div>
+                            <h3 class="font-serif text-lg md:text-xl font-bold w-1/2 md:w-1/3 truncate">${name}</h3>
+                            <div class="hidden md:block flex-grow border-b border-dotted border-line opacity-30 group-hover:border-base transition-colors"></div>
+                            <p class="text-[10px] font-mono font-bold tracking-widest px-4">${count} FILES</p>
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[10px] uppercase font-bold tracking-widest whitespace-nowrap hidden md:block">ACCESS &rarr;</span>
                         </div>
                     `;
                 } else {
-                    // Editorial Grid View
-                    card.className = `group editorial-card bg-base border-r-4 border-b-4 border-line p-8 cursor-pointer flex flex-col justify-between min-h-[220px] z-10`;
+                    // Clean Grid View
+                    card.className = `group editorial-card p-6 md:p-8 cursor-pointer flex flex-col justify-between min-h-[200px] md:min-h-[220px]`;
                     card.innerHTML = `
                         <div>
-                            <div class="flex justify-between items-start mb-6">
-                                <span class="text-[10px] font-mono uppercase tracking-widest font-bold ${isSecret ? 'text-error' : 'card-text-dim text-inkdim'}">
+                            <div class="flex justify-between items-start mb-6 font-mono text-[10px] uppercase tracking-widest font-bold">
+                                <span class="${isSecret ? 'text-error' : 'card-text-dim text-inkdim'}">
                                     ${isSecret ? '[ RESTRICTED ]' : '[ PUBLIC ]'}
                                 </span>
-                                <span class="text-[10px] font-mono font-bold border-2 border-line px-2 py-0.5 card-border">${count} VOL</span>
+                                <span class="border border-line px-2 py-0.5 bg-surface group-hover:bg-ink group-hover:border-base group-hover:text-base transition-colors">${count} VOL</span>
                             </div>
-                            <h3 class="text-3xl font-serif font-bold leading-tight decoration-2 underline-offset-4 group-hover:underline">${name}</h3>
+                            <h3 class="text-2xl md:text-3xl font-serif font-bold leading-tight group-hover:underline decoration-2 underline-offset-4">${name}</h3>
                         </div>
-                        <div class="mt-8 flex justify-end">
-                            <svg class="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                        <div class="mt-6 flex justify-end">
+                            <svg class="w-5 h-5 icon-arrow stroke-ink transform group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="square" stroke-linejoin="miter" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                         </div>
                     `;
                 }
@@ -338,33 +359,35 @@
 
         function openFolder(cat) {
             window.scrollTo({top:0, behavior:'smooth'});
-            const name = cat.replace(/secret/i,'').trim();
+            const name = cat.replace(/secret/i,'').trim() || 'SYS_DIR';
             
-            // Header Folder (Brutalist Style)
+            grid.className = "flex flex-col gap-4";
+            
+            // Header Folder
             grid.innerHTML = `
-                <div class="col-span-full border-r-4 border-b-4 border-line p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface">
+                <div class="border border-line p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface mb-4">
                     <div>
-                        <div class="text-[10px] font-mono uppercase tracking-widest font-bold mb-3">ACCESSING DIRECTORY</div>
-                        <h2 class="font-gothic text-5xl md:text-6xl uppercase leading-none">${name}</h2>
+                        <div class="text-[10px] font-mono uppercase tracking-[0.3em] font-bold text-inkdim mb-3 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-ink block"></span> ACTIVE DIRECTORY
+                        </div>
+                        <h2 class="font-times text-4xl md:text-6xl uppercase leading-none">${name}</h2>
                     </div>
-                    <button onclick="renderHome()" class="self-start md:self-auto font-mono text-xs uppercase font-bold border-2 border-line px-6 py-3 hover:bg-ink hover:text-base transition-colors flex items-center gap-2">
+                    <button onclick="renderHome()" class="self-start md:self-auto font-mono text-[10px] uppercase font-bold tracking-widest border border-line bg-base px-5 py-3 hover:bg-ink hover:text-base transition-colors flex items-center gap-2">
                         &larr; RETURN TO INDEX
                     </button>
                 </div>
             `;
-            
-            grid.className = "grid grid-cols-1 border-t-4 border-l-4 border-line";
 
             quizzes[cat].forEach(q => {
                 const item = document.createElement('a');
                 item.href = q.url !== "#" ? `kuis/${q.file}` : '#';
-                item.className = "group editorial-card border-r-4 border-b-4 border-line py-6 px-8 flex flex-col md:flex-row md:items-center justify-between cursor-pointer bg-base";
+                item.className = "group editorial-card py-5 px-6 md:px-8 flex flex-col md:flex-row md:items-center justify-between cursor-pointer";
                 item.innerHTML = `
-                    <div class="flex items-center gap-6">
-                        <div class="text-xs font-mono font-bold w-6 opacity-0 group-hover:opacity-100 transition-opacity">&rarr;</div>
-                        <div class="font-serif text-xl font-medium">${q.name}</div>
+                    <div class="flex items-center gap-4 md:gap-6">
+                        <div class="text-[10px] font-mono font-bold w-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0">&rarr;</div>
+                        <div class="font-serif text-lg md:text-xl font-medium">${q.name}</div>
                     </div>
-                    <div class="text-[10px] font-mono uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-4 md:mt-0 md:text-right">
+                    <div class="text-[10px] font-mono uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-3 md:mt-0 md:text-right card-text-dim">
                         DECRYPT FILE
                     </div>
                 `;
