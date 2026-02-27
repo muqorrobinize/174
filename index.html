@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>174.</title>
+    <title>174. | Classified Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
     
@@ -396,8 +396,8 @@
                     }
 
                     if(!acc[cat]) acc[cat] = [];
-                    // Handle url jika f.download_url tidak tersedia
-                    const fileUrl = f.download_url && f.download_url !== "#" ? f.download_url : `kuis/${f.name}`;
+                    // Penting: Gunakan rute relatif untuk menghindari masalah CORS/MIME pada Iframe
+                    const fileUrl = `kuis/${f.name}`;
                     acc[cat].push({ name, subCat: originalCat, file: f.name, url: fileUrl });
                     return acc;
                 }, {});
@@ -427,7 +427,7 @@
                     const musicFiles = await resMusic.json();
                     const targetAudio = musicFiles.find(f => f.name.endsWith('.mp3') || f.name.endsWith('.wav'));
                     if (targetAudio) {
-                        foundMusicUrl = targetAudio.download_url && targetAudio.download_url !== "#" ? targetAudio.download_url : `music/${targetAudio.name}`;
+                        foundMusicUrl = `music/${targetAudio.name}`;
                     }
                 }
             } catch(e) {
@@ -436,24 +436,22 @@
         }
 
         // === REALISTIC FOLDER GENERATOR ===
-        function createFolderHTML(title, count, isSecret, onClick) {
+        function createFolderHTML(title, count, isSecret) {
             const secretClasses = isSecret ? 'bg-error text-base border-error' : 'bg-surface border-line text-inkdim';
             const iconClasses = isSecret ? 'text-error' : 'text-ink';
             
             return `
-                <div class="group relative flex flex-col h-full cursor-pointer animate-slide-up hover:-translate-y-1 transition-transform duration-300" onclick="${onClick}">
-                    <div class="w-2/5 min-w-[100px] max-w-[140px] border-t border-l border-r rounded-t-xl px-3 py-1.5 flex items-center justify-between relative z-10 transition-colors duration-300 ${secretClasses} group-hover:bg-ink group-hover:text-base group-hover:border-ink">
-                        <span class="font-mono text-[9px] font-bold tracking-widest uppercase truncate">${isSecret ? 'RESTRICTED' : 'DIR_INDEX'}</span>
+                <div class="w-2/5 min-w-[100px] max-w-[140px] border-t border-l border-r rounded-t-xl px-3 py-1.5 flex items-center justify-between relative z-10 transition-colors duration-300 ${secretClasses} group-hover:bg-ink group-hover:text-base group-hover:border-ink">
+                    <span class="font-mono text-[9px] font-bold tracking-widest uppercase truncate">${isSecret ? 'RESTRICTED' : 'DIR_INDEX'}</span>
+                </div>
+                <div class="flex-1 bg-base border border-line rounded-b-2xl rounded-tr-2xl p-6 flex flex-col justify-between relative z-0 -mt-[1px] shadow-sm hover:shadow-xl group-hover:border-ink transition-all duration-300">
+                    <div>
+                        <h3 class="font-serif text-2xl font-semibold leading-tight text-ink group-hover:underline decoration-lineDark underline-offset-4">${title}</h3>
+                        <p class="font-mono text-[10px] text-inkdim mt-3 uppercase tracking-widest">${count} Entities</p>
                     </div>
-                    <div class="flex-1 bg-base border border-line rounded-b-2xl rounded-tr-2xl p-6 flex flex-col justify-between relative z-0 -mt-[1px] shadow-sm hover:shadow-xl group-hover:border-ink transition-all duration-300">
-                        <div>
-                            <h3 class="font-serif text-2xl font-semibold leading-tight text-ink group-hover:underline decoration-lineDark underline-offset-4">${title}</h3>
-                            <p class="font-mono text-[10px] text-inkdim mt-3 uppercase tracking-widest">${count} Entities</p>
-                        </div>
-                        <div class="mt-8 flex justify-end">
-                            <div class="w-8 h-8 rounded-full bg-surface border border-line flex items-center justify-center group-hover:bg-ink group-hover:border-ink transition-colors duration-300">
-                                <svg class="w-4 h-4 transition-colors ${iconClasses} group-hover:text-base" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </div>
+                    <div class="mt-8 flex justify-end">
+                        <div class="w-8 h-8 rounded-full bg-surface border border-line flex items-center justify-center group-hover:bg-ink group-hover:border-ink transition-colors duration-300">
+                            <svg class="w-4 h-4 transition-colors ${iconClasses} group-hover:text-base" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </div>
                     </div>
                 </div>
@@ -461,26 +459,24 @@
         }
 
         // === LIST ITEM GENERATOR ===
-        function createListItemHTML(title, meta, isSecret, onClick, isDocument = false) {
+        function createListItemHTML(title, meta, isSecret, isDocument = false) {
             const secretLabel = isSecret ? '<span class="text-[9px] font-mono text-error bg-error/10 px-2 py-0.5 rounded-sm">LOCKED</span>' : '';
             const actionText = isDocument ? 'ACCESS' : 'OPEN';
             
             return `
-                <div class="group bg-base border border-line rounded-2xl p-4 md:p-5 flex items-center justify-between cursor-pointer hover:border-ink hover:shadow-md transition-all duration-300 animate-slide-up" onclick="${onClick}">
-                    <div class="flex items-center gap-4 w-full pr-4">
-                        <div class="w-10 h-10 rounded-full bg-surface shrink-0 flex items-center justify-center group-hover:bg-ink group-hover:text-base transition-colors">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isDocument ? 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' : 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'}"></path></svg>
-                        </div>
-                        <div class="flex-grow min-w-0">
-                            <h3 class="font-serif text-base md:text-lg font-medium text-ink truncate group-hover:text-ink">${title}</h3>
-                            <div class="flex items-center gap-2 mt-1">
-                                <p class="font-mono text-[9px] text-inkdim uppercase tracking-widest">${meta}</p>
-                                ${secretLabel}
-                            </div>
+                <div class="flex items-center gap-4 w-full pr-4">
+                    <div class="w-10 h-10 rounded-full bg-surface shrink-0 flex items-center justify-center group-hover:bg-ink group-hover:text-base transition-colors">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isDocument ? 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' : 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'}"></path></svg>
+                    </div>
+                    <div class="flex-grow min-w-0">
+                        <h3 class="font-serif text-base md:text-lg font-medium text-ink truncate group-hover:text-ink">${title}</h3>
+                        <div class="flex items-center gap-2 mt-1">
+                            <p class="font-mono text-[9px] text-inkdim uppercase tracking-widest">${meta}</p>
+                            ${secretLabel}
                         </div>
                     </div>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[9px] font-bold uppercase tracking-widest text-ink shrink-0 hidden sm:block">${actionText} &rarr;</span>
                 </div>
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[9px] font-bold uppercase tracking-widest text-ink shrink-0 hidden sm:block">${actionText} &rarr;</span>
             `;
         }
 
@@ -503,14 +499,24 @@
                 const name = cat.replace(/secret/i,'').trim() || 'UNDEFINED';
                 const count = quizzes[cat].length;
                 
-                const clickAction = isSecret ? `alert('ACCESS DENIED: CLEARANCE LEVEL INSUFFICIENT.')` : `openCategory('${cat}')`;
-
                 const wrapper = document.createElement('div');
-                wrapper.innerHTML = isListView 
-                    ? createListItemHTML(name, `${count} Directories`, isSecret, clickAction)
-                    : createFolderHTML(name, count, isSecret, clickAction);
                 
-                grid.appendChild(wrapper.firstElementChild);
+                if (isListView) {
+                    wrapper.className = "group bg-base border border-line rounded-2xl p-4 md:p-5 flex items-center justify-between cursor-pointer hover:border-ink hover:shadow-md transition-all duration-300 animate-slide-up";
+                    wrapper.innerHTML = createListItemHTML(name, `${count} Directories`, isSecret);
+                } else {
+                    wrapper.className = "group relative flex flex-col h-full cursor-pointer animate-slide-up hover:-translate-y-1 transition-transform duration-300";
+                    wrapper.innerHTML = createFolderHTML(name, count, isSecret);
+                }
+                
+                // Aman dari Error Syntax Spasi/Kutip
+                wrapper.onclick = (e) => {
+                    e.preventDefault();
+                    if (isSecret) alert('ACCESS DENIED: CLEARANCE LEVEL INSUFFICIENT.'); 
+                    else openCategory(cat); 
+                };
+
+                grid.appendChild(wrapper);
             });
         }
 
@@ -543,14 +549,22 @@
 
             Object.keys(subGroups).sort().forEach(subCat => {
                 const count = subGroups[subCat].length;
-                const clickAction = `openSubFolder('${cat}', '${subCat}')`;
-
                 const wrapper = document.createElement('div');
-                wrapper.innerHTML = isListView 
-                    ? createListItemHTML(subCat, `${count} Files`, false, clickAction)
-                    : createFolderHTML(subCat, count, false, clickAction);
                 
-                grid.appendChild(wrapper.firstElementChild);
+                if (isListView) {
+                    wrapper.className = "group bg-base border border-line rounded-2xl p-4 md:p-5 flex items-center justify-between cursor-pointer hover:border-ink hover:shadow-md transition-all duration-300 animate-slide-up";
+                    wrapper.innerHTML = createListItemHTML(subCat, `${count} Files`, false);
+                } else {
+                    wrapper.className = "group relative flex flex-col h-full cursor-pointer animate-slide-up hover:-translate-y-1 transition-transform duration-300";
+                    wrapper.innerHTML = createFolderHTML(subCat, count, false);
+                }
+
+                wrapper.onclick = (e) => {
+                    e.preventDefault();
+                    openSubFolder(cat, subCat);
+                };
+                
+                grid.appendChild(wrapper);
             });
         }
 
@@ -579,16 +593,21 @@
                 const fileUrl = q.url;
                 const isAudio = q.file.endsWith('.mp3') || q.file.endsWith('.wav');
                 
-                let clickAction = '';
-                if(isAudio) {
-                     clickAction = `playAudio('${fileUrl}')`;
-                } else if (fileUrl !== '#') {
-                     clickAction = `openViewer('${fileUrl}', '${q.name}')`;
-                }
-                
                 const wrapper = document.createElement('div');
-                wrapper.innerHTML = createListItemHTML(q.name, isAudio ? 'Audio File' : `Document 0${index+1}`, false, clickAction, !isAudio);
-                grid.appendChild(wrapper.firstElementChild);
+                wrapper.className = "group bg-base border border-line rounded-2xl p-4 md:p-5 flex items-center justify-between cursor-pointer hover:border-ink hover:shadow-md transition-all duration-300 animate-slide-up";
+                wrapper.innerHTML = createListItemHTML(q.name, isAudio ? 'Audio File' : `Document 0${index+1}`, false, !isAudio);
+                
+                // Mencegah error syntax jika file memiliki spasi atau kutip
+                wrapper.onclick = (e) => {
+                    e.preventDefault();
+                    if(isAudio) {
+                        playAudio(fileUrl);
+                    } else if (fileUrl !== '#') {
+                        openViewer(fileUrl, q.name);
+                    }
+                };
+
+                grid.appendChild(wrapper);
             });
         }
 
