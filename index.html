@@ -266,24 +266,30 @@
                     const parts = f.name.split('_');
                     if(parts.length < 2) return acc;
                     
-                    let originalCat = parts[0].trim();
+                    let originalCat = parts[0].trim(); // Berfungsi sebagai Sub-Folder (misal: "1.1", "Network")
                     let cat = originalCat;
                     const name = parts.slice(1).join(' ').replace('.html','').replace(/_/g, ' ').trim();
 
                     // Dynamic Semester Grouping Logic
-                    // Matches numbers followed by a dot (e.g., "1.", "2.", "3.")
+                    // Cocokkan angka diikuti titik (misal: "1.", "2.")
                     const semesterMatch = originalCat.match(/^(\d+)\./);
+                    
                     if (semesterMatch) {
                         cat = `SEMESTER ${semesterMatch[1]}`;
+                    } else if (!cat.toLowerCase().includes('secret')) {
+                        // Jika tidak diawali nomor dan bukan rahasia, masuk OTHER
+                        cat = 'OTHER';
                     }
 
                     if(!acc[cat]) acc[cat] = [];
                     
-                    // Prepend original category if grouped into any Semester for clarity
-                    const isSemesterCat = cat.startsWith('SEMESTER');
-                    const displayName = isSemesterCat ? `[${originalCat}] ${name}` : name;
+                    acc[cat].push({
+                        name: name, 
+                        subCat: originalCat, // Disimpan untuk dikelompokkan nanti di dalam folder
+                        file: f.name, 
+                        url: f.download_url
+                    });
                     
-                    acc[cat].push({name: displayName, file: f.name, url: f.download_url});
                     return acc;
                 }, {});
 
@@ -312,7 +318,14 @@
                 : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6";
             
             Object.keys(quizzes).sort().forEach(cat => {
-                if(filter && !cat.toLowerCase().includes(filter.toLowerCase())) return;
+                
+                // Enhanced Search: Filter melalui nama Kategori Utama, Sub-Folder, ATAU Nama File
+                const matchesFilter = quizzes[cat].some(q => 
+                    q.name.toLowerCase().includes(filter.toLowerCase()) || 
+                    q.subCat.toLowerCase().includes(filter.toLowerCase())
+                ) || cat.toLowerCase().includes(filter.toLowerCase());
+
+                if(filter && !matchesFilter) return;
 
                 const isSecret = /secret/i.test(cat);
                 const name = cat.replace(/secret/i,'').trim() || 'UNDEFINED';
@@ -365,11 +378,11 @@
             window.scrollTo({top:0, behavior:'smooth'});
             const name = cat.replace(/secret/i,'').trim() || 'SYS_DIR';
             
-            grid.className = "flex flex-col gap-4";
+            grid.className = "flex flex-col gap-3";
             
-            // Header Folder
+            // Header Folder Utama
             grid.innerHTML = `
-                <div class="border border-line p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface mb-4">
+                <div class="border border-line p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface mb-2">
                     <div>
                         <div class="text-[10px] font-mono uppercase tracking-[0.3em] font-bold text-inkdim mb-3 flex items-center gap-2">
                             <span class="w-1.5 h-1.5 bg-ink block"></span> ACTIVE DIRECTORY
@@ -382,20 +395,46 @@
                 </div>
             `;
 
-            quizzes[cat].forEach(q => {
-                const item = document.createElement('a');
-                item.href = q.url !== "#" ? `kuis/${q.file}` : '#';
-                item.className = "group editorial-card py-5 px-6 md:px-8 flex flex-col md:flex-row md:items-center justify-between cursor-pointer";
-                item.innerHTML = `
-                    <div class="flex items-center gap-4 md:gap-6">
-                        <div class="text-[10px] font-mono font-bold w-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0">&rarr;</div>
-                        <div class="font-serif text-lg md:text-xl font-medium">${q.name}</div>
-                    </div>
-                    <div class="text-[10px] font-mono uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-3 md:mt-0 md:text-right card-text-dim">
-                        DECRYPT FILE
-                    </div>
+            // Kelompokkan file berdasarkan Sub-Folder (subCat)
+            const subGroups = quizzes[cat].reduce((acc, q) => {
+                const sCat = q.subCat || 'UNCATEGORIZED';
+                if(!acc[sCat]) acc[sCat] = [];
+                acc[sCat].push(q);
+                return acc;
+            }, {});
+
+            // Render setiap Sub-Folder
+            Object.keys(subGroups).sort().forEach(subCat => {
+                
+                // Render Judul Sub-Folder (seperti separator)
+                const subTitle = document.createElement('div');
+                subTitle.className = "mt-6 mb-2 flex items-center gap-3";
+                subTitle.innerHTML = `
+                    <div class="h-[1px] w-6 bg-inkdim opacity-30"></div>
+                    <h3 class="font-mono text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-inkdim">${subCat}</h3>
+                    <div class="h-[1px] flex-grow bg-inkdim opacity-20"></div>
                 `;
-                grid.appendChild(item);
+                grid.appendChild(subTitle);
+
+                // Render Item / File di dalam Sub-Folder tersebut
+                subGroups[subCat].forEach(q => {
+                    const item = document.createElement('a');
+                    item.href = q.url !== "#" ? `kuis/${q.file}` : '#';
+                    
+                    // Tambahan margin kiri (ml-4 md:ml-8) untuk indentasi layaknya struktur folder asli
+                    item.className = "group editorial-card py-4 px-6 md:px-8 flex flex-col md:flex-row md:items-center justify-between cursor-pointer ml-4 md:ml-8";
+                    
+                    item.innerHTML = `
+                        <div class="flex items-center gap-4 md:gap-6">
+                            <div class="text-[10px] font-mono font-bold w-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0">&rarr;</div>
+                            <div class="font-serif text-lg md:text-xl font-medium">${q.name}</div>
+                        </div>
+                        <div class="text-[10px] font-mono uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-3 md:mt-0 md:text-right card-text-dim">
+                            DECRYPT FILE
+                        </div>
+                    `;
+                    grid.appendChild(item);
+                });
             });
         }
 
