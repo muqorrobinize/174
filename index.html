@@ -367,27 +367,30 @@
                 card.onclick = (e) => { 
                     e.preventDefault(); 
                     if (isSecret) alert('ACCESS DENIED: CLEARANCE LEVEL INSUFFICIENT.'); 
-                    else openFolder(cat); 
+                    else openCategory(cat); 
                 };
                 
                 grid.appendChild(card);
             });
         }
 
-        function openFolder(cat) {
+        function openCategory(cat) {
             window.scrollTo({top:0, behavior:'smooth'});
-            const name = cat.replace(/secret/i,'').trim() || 'SYS_DIR';
+            const catName = cat.replace(/secret/i,'').trim() || 'SYS_DIR';
             
-            grid.className = "flex flex-col gap-3";
+            // Re-apply grid classes specific for cards rendering
+            grid.className = isListView 
+                ? "grid grid-cols-1 gap-4" 
+                : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6";
             
             // Header Folder Utama
             grid.innerHTML = `
-                <div class="border border-line p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface mb-2">
+                <div class="col-span-full border border-line p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface mb-2">
                     <div>
                         <div class="text-[10px] font-mono uppercase tracking-[0.3em] font-bold text-inkdim mb-3 flex items-center gap-2">
                             <span class="w-1.5 h-1.5 bg-ink block"></span> ACTIVE DIRECTORY
                         </div>
-                        <h2 class="font-times text-4xl md:text-6xl uppercase leading-none">${name}</h2>
+                        <h2 class="font-times text-4xl md:text-6xl uppercase leading-none">${catName}</h2>
                     </div>
                     <button onclick="renderHome()" class="self-start md:self-auto font-mono text-[10px] uppercase font-bold tracking-widest border border-line bg-base px-5 py-3 hover:bg-ink hover:text-base transition-colors flex items-center gap-2">
                         &larr; RETURN TO INDEX
@@ -403,38 +406,91 @@
                 return acc;
             }, {});
 
-            // Render setiap Sub-Folder
+            // Render setiap Sub-Folder sebagai folder/kartu yang bisa diklik
             Object.keys(subGroups).sort().forEach(subCat => {
+                const count = subGroups[subCat].length;
                 
-                // Render Judul Sub-Folder (seperti separator)
-                const subTitle = document.createElement('div');
-                subTitle.className = "mt-6 mb-2 flex items-center gap-3";
-                subTitle.innerHTML = `
-                    <div class="h-[1px] w-6 bg-inkdim opacity-30"></div>
-                    <h3 class="font-mono text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-inkdim">${subCat}</h3>
-                    <div class="h-[1px] flex-grow bg-inkdim opacity-20"></div>
-                `;
-                grid.appendChild(subTitle);
-
-                // Render Item / File di dalam Sub-Folder tersebut
-                subGroups[subCat].forEach(q => {
-                    const item = document.createElement('a');
-                    item.href = q.url !== "#" ? `kuis/${q.file}` : '#';
-                    
-                    // Tambahan margin kiri (ml-4 md:ml-8) untuk indentasi layaknya struktur folder asli
-                    item.className = "group editorial-card py-4 px-6 md:px-8 flex flex-col md:flex-row md:items-center justify-between cursor-pointer ml-4 md:ml-8";
-                    
-                    item.innerHTML = `
-                        <div class="flex items-center gap-4 md:gap-6">
-                            <div class="text-[10px] font-mono font-bold w-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0">&rarr;</div>
-                            <div class="font-serif text-lg md:text-xl font-medium">${q.name}</div>
-                        </div>
-                        <div class="text-[10px] font-mono uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-3 md:mt-0 md:text-right card-text-dim">
-                            DECRYPT FILE
+                const card = document.createElement('div');
+                
+                if (isListView) {
+                    card.className = `group editorial-card p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between cursor-pointer`;
+                    card.innerHTML = `
+                        <div class="flex items-center gap-6 md:gap-8 w-full">
+                            <div class="font-mono text-[10px] font-bold w-8 card-text-dim tracking-widest text-inkdim">SUB</div>
+                            <h3 class="font-serif text-lg md:text-xl font-bold w-1/2 md:w-1/3 truncate">${subCat}</h3>
+                            <div class="hidden md:block flex-grow border-b border-dotted border-line opacity-30 group-hover:border-base transition-colors"></div>
+                            <p class="text-[10px] font-mono font-bold tracking-widest px-4">${count} FILES</p>
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[10px] uppercase font-bold tracking-widest whitespace-nowrap hidden md:block">OPEN &rarr;</span>
                         </div>
                     `;
-                    grid.appendChild(item);
-                });
+                } else {
+                    card.className = `group editorial-card p-6 md:p-8 cursor-pointer flex flex-col justify-between min-h-[160px] md:min-h-[180px]`;
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start mb-6 font-mono text-[10px] uppercase tracking-widest font-bold">
+                                <span class="card-text-dim text-inkdim">[ SUB-DIRECTORY ]</span>
+                                <span class="border border-line px-2 py-0.5 bg-surface group-hover:bg-ink group-hover:border-base group-hover:text-base transition-colors">${count} VOL</span>
+                            </div>
+                            <h3 class="text-2xl font-serif font-bold leading-tight group-hover:underline decoration-2 underline-offset-4">${subCat}</h3>
+                        </div>
+                        <div class="mt-6 flex justify-end">
+                            <svg class="w-5 h-5 icon-arrow stroke-ink transform group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="square" stroke-linejoin="miter" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                        </div>
+                    `;
+                }
+
+                // Klik sub-folder untuk membuka file di dalamnya
+                card.onclick = (e) => { 
+                    e.preventDefault(); 
+                    openSubFolder(cat, subCat); 
+                };
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function openSubFolder(cat, subCat) {
+            window.scrollTo({top:0, behavior:'smooth'});
+            const catName = cat.replace(/secret/i,'').trim() || 'SYS_DIR';
+            
+            // Ubah grid untuk mode list (karena ini menampilkan dokumen langsung)
+            grid.className = "flex flex-col gap-3";
+            
+            // Header Sub-Folder
+            grid.innerHTML = `
+                <div class="border border-line p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface mb-2">
+                    <div>
+                        <div class="text-[10px] font-mono uppercase tracking-[0.3em] font-bold text-inkdim mb-3 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-ink block"></span> ${catName} / SUB-DIRECTORY
+                        </div>
+                        <h2 class="font-times text-3xl md:text-5xl uppercase leading-none">${subCat}</h2>
+                    </div>
+                    <button onclick="openCategory('${cat}')" class="self-start md:self-auto font-mono text-[10px] uppercase font-bold tracking-widest border border-line bg-base px-5 py-3 hover:bg-ink hover:text-base transition-colors flex items-center gap-2">
+                        &larr; BACK TO ${catName}
+                    </button>
+                </div>
+            `;
+
+            // Ambil semua file yang ada di dalam sub-folder spesifik ini
+            const items = quizzes[cat].filter(q => (q.subCat || 'UNCATEGORIZED') === subCat);
+
+            // Render Item / File di dalam Sub-Folder tersebut
+            items.forEach(q => {
+                const item = document.createElement('a');
+                item.href = q.url !== "#" ? `kuis/${q.file}` : '#';
+                
+                item.className = "group editorial-card py-4 px-6 md:px-8 flex flex-col md:flex-row md:items-center justify-between cursor-pointer";
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-4 md:gap-6">
+                        <div class="text-[10px] font-mono font-bold w-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0">&rarr;</div>
+                        <div class="font-serif text-lg md:text-xl font-medium">${q.name}</div>
+                    </div>
+                    <div class="text-[10px] font-mono uppercase tracking-[0.2em] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-3 md:mt-0 md:text-right card-text-dim">
+                        DECRYPT FILE
+                    </div>
+                `;
+                grid.appendChild(item);
             });
         }
 
