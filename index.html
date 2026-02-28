@@ -4,6 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>174. | Classified Archive</title>
+    
+    <!-- === PATCH FOR ELEVENLABS WIDGET === -->
+    <script>
+        /**
+         * ElevenLabs Patch:
+         * Menangani error "Cannot assign to read only property 'getUserMedia'".
+         * Kita membuat objek tiruan (mock) yang membungkus navigator.mediaDevices asli
+         * namun memperbolehkan penulisan properti agar widget eksternal bisa berjalan.
+         */
+        (function() {
+            try {
+                if (window.navigator && window.navigator.mediaDevices) {
+                    const originalMediaDevices = window.navigator.mediaDevices;
+                    const mockMediaDevices = {};
+
+                    // Salin properti dan bind fungsi agar konteks 'this' tidak hilang
+                    for (const prop in originalMediaDevices) {
+                        try {
+                            if (typeof originalMediaDevices[prop] === 'function') {
+                                mockMediaDevices[prop] = originalMediaDevices[prop].bind(originalMediaDevices);
+                            } else {
+                                mockMediaDevices[prop] = originalMediaDevices[prop];
+                            }
+                        } catch (e) {}
+                    }
+
+                    // Pastikan metode utama terdefinisi meskipun berada di prototype
+                    const essentialMethods = ['getUserMedia', 'enumerateDevices', 'getDisplayMedia', 'getSupportedConstraints'];
+                    essentialMethods.forEach(method => {
+                        if (typeof originalMediaDevices[method] === 'function' && !mockMediaDevices[method]) {
+                            mockMediaDevices[method] = originalMediaDevices[method].bind(originalMediaDevices);
+                        }
+                    });
+
+                    // Redefinisikan navigator.mediaDevices dengan objek mock yang writable
+                    Object.defineProperty(window.navigator, 'mediaDevices', {
+                        value: mockMediaDevices,
+                        configurable: true,
+                        enumerable: true,
+                        writable: true
+                    });
+                }
+            } catch (err) {
+                console.warn("ElevenLabs Audio Patch failed:", err);
+            }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
     
@@ -115,19 +163,18 @@
 
     <!-- === THE FIRST RULE MODAL (Floating Protocol) === -->
     <div id="protocol-modal" class="fixed inset-0 z-[300] bg-ink/60 backdrop-blur-sm flex items-center justify-center p-5 transition-opacity duration-500">
-        <div class="bg-base border border-line rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-pop-in relative overflow-hidden">
-            <!-- Pola background -->
+        <div class="bg-base border border-line rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-pop-in relative overflow-hidden text-center">
             <div class="absolute inset-0 bg-[radial-gradient(rgb(var(--c-line))_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none"></div>
             
             <div class="relative z-10">
-                <div class="flex items-center gap-3 mb-6 border-b border-line pb-4">
-                    <div class="p-1.5 bg-error/10 rounded-lg">
-                        <svg class="w-5 h-5 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <div class="flex flex-col items-center mb-6 border-b border-line pb-4">
+                    <div class="p-2 bg-error/10 rounded-full mb-3">
+                        <svg class="w-6 h-6 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
-                    <h2 class="font-serif text-xl md:text-2xl font-bold uppercase tracking-widest text-ink">Mandatory Protocol</h2>
+                    <h2 class="font-serif text-2xl font-bold uppercase tracking-widest text-ink">Mandatory Protocol</h2>
                 </div>
                 
-                <div class="font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest leading-relaxed space-y-5 text-inkdim mb-8">
+                <div class="font-mono text-[10px] md:text-xs font-bold uppercase tracking-widest leading-relaxed space-y-5 text-inkdim mb-8 text-left">
                     <p class="flex items-start gap-3">
                         <span class="text-ink shrink-0 bg-surface px-2 py-0.5 rounded">01</span> 
                         <span class="mt-0.5">The first rule of the 174 Archive is: <br><span class="text-error border-b border-error/30 pb-0.5">You do not share the Archive.</span></span>
@@ -147,7 +194,6 @@
 
     <!-- === DOCUMENT VIEWER OVERLAY === -->
     <div id="viewer-overlay" class="fixed inset-0 pt-[5rem] z-[100] bg-base hidden flex-col transition-all duration-300">
-        <!-- Barisan informasi kecil di atas iframe agar tidak menutupi desain -->
         <div class="absolute top-8 left-0 right-0 h-12 bg-base/90 backdrop-blur-md border-b border-line flex justify-between items-center px-5 z-10 pointer-events-none">
             <span class="font-mono text-[9px] font-bold uppercase tracking-widest text-inkdim flex items-center gap-2">
                 <span class="w-1.5 h-1.5 bg-error rounded-full animate-blink"></span>
@@ -157,94 +203,77 @@
         <iframe id="viewer-frame" class="w-full h-full flex-grow border-none relative z-0" src=""></iframe>
     </div>
 
-    <!-- === FLOATING ACTION BUTTON & MENUS (Selalu Tersedia) === -->
+    <!-- === FLOATING ACTION BUTTON & MENUS === -->
     <div class="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[200]">
         
-        <!-- Chat Bubble (Muncul sesekali tiap 1 menit) -->
-        <div id="saweria-bubble" class="absolute bottom-[4rem] right-0 w-[220px] bg-base border border-line p-3 rounded-2xl rounded-br-sm shadow-[0_10px_30px_rgba(0,0,0,0.1)] text-[9px] font-mono text-inkdim opacity-0 translate-y-4 transition-all duration-500 pointer-events-none z-[190]">
-            <span class="text-error font-bold block mb-1">SYS_MSG:</span>
+        <!-- Chat Bubble (Setiap 1 Menit) -->
+        <div id="saweria-bubble" class="absolute bottom-[4.5rem] right-0 w-[220px] bg-base border border-line p-4 rounded-2xl rounded-br-sm shadow-2xl text-[10px] font-mono text-inkdim opacity-0 translate-y-4 transition-all duration-500 pointer-events-none z-[190]">
+            <span class="text-error font-bold block mb-1">SYS_MESSAGE:</span>
             Yo, server ain't free fam! Slide some love to <span class="text-ink font-bold">Saweria</span> or this whole thing goes poof!
         </div>
 
         <!-- Menu Panel (Compact OS Control Center Style) -->
         <div id="start-menu-panel" class="absolute bottom-[4.5rem] right-0 w-[85vw] max-w-[240px] bg-base/80 backdrop-blur-2xl border border-line shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-3xl menu-closed transition-all duration-300 origin-bottom-right flex flex-col overflow-hidden z-[210]">
             
-            <!-- System Header -->
-            <div class="px-4 py-3 flex justify-between items-center bg-base/50 border-b border-line shrink-0">
+            <div class="px-5 py-4 flex justify-between items-center bg-base/50 border-b border-line shrink-0">
                 <span class="font-mono text-[9px] font-bold uppercase tracking-widest text-ink">Control Center</span>
-                <div class="flex gap-1">
-                    <div class="w-1.5 h-1.5 rounded-full bg-error"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-blink"></div>
+                <div class="flex gap-1.5">
+                    <div class="w-2 h-2 rounded-full bg-error"></div>
+                    <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-blink"></div>
                 </div>
             </div>
             
-            <!-- Compact App Grid -->
-            <div class="grid grid-cols-4 gap-2 p-3 bg-surface/30 border-b border-line shrink-0">
-                <!-- Home -->
-                <button onclick="location.reload()" class="group flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-base hover:bg-ink hover:text-base border border-line shadow-sm transition-all text-inkdim">
+            <div class="grid grid-cols-4 gap-2.5 p-4 bg-surface/30 border-b border-line shrink-0">
+                <button onclick="location.reload()" class="flex flex-col items-center justify-center p-2 rounded-xl bg-base border border-line hover:bg-ink hover:text-base transition-all text-inkdim">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 </button>
-                <!-- Rules -->
-                <button onclick="toggleProtocol(true); toggleStartMenu();" class="group flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-base hover:bg-ink hover:text-base border border-line shadow-sm transition-all text-inkdim">
+                <button onclick="toggleProtocol(true); toggleStartMenu();" class="flex flex-col items-center justify-center p-2 rounded-xl bg-base border border-line hover:bg-ink hover:text-base transition-all text-inkdim">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                 </button>
-                <!-- Party -->
-                <button onclick="toggleEasterEgg(); toggleStartMenu();" class="group flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-base hover:bg-ink hover:text-base border border-line shadow-sm transition-all text-inkdim">
+                <button onclick="toggleEasterEgg(); toggleStartMenu();" class="flex flex-col items-center justify-center p-2 rounded-xl bg-base border border-line hover:bg-ink hover:text-base transition-all text-inkdim">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 </button>
-                <!-- Share -->
-                <button onclick="copyToClipboard();" class="group flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-base hover:bg-ink hover:text-base border border-line shadow-sm transition-all text-inkdim">
+                <button onclick="copyToClipboard();" class="flex flex-col items-center justify-center p-2 rounded-xl bg-base border border-line hover:bg-ink hover:text-base transition-all text-inkdim">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                 </button>
-                <!-- Terminal (Dummy feature) -->
-                <button onclick="alert('Terminal access denied. Guest mode active.');" class="group flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-base hover:bg-ink hover:text-base border border-line shadow-sm transition-all text-inkdim">
+                <button onclick="alert('Access restricted to guest.');" class="flex flex-col items-center justify-center p-2 rounded-xl bg-base border border-line hover:bg-ink hover:text-base transition-all text-inkdim">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 </button>
-                <!-- GitHub -->
-                <a href="https://github.com/muqorrobinize/174" target="_blank" class="group flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-base hover:bg-ink hover:text-base border border-line shadow-sm transition-all text-inkdim">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg>
-                </a>
-                <!-- Support -->
-                <a href="https://wa.me/6281372406462" target="_blank" class="group flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-base hover:bg-ink hover:text-base border border-line shadow-sm transition-all text-inkdim">
+                <a href="https://wa.me/6281372406462" target="_blank" class="flex flex-col items-center justify-center p-2 rounded-xl bg-base border border-line hover:bg-ink hover:text-base transition-all text-inkdim">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </a>
-                <!-- Donate -->
-                <a href="https://saweria.co/beenspaceess" target="_blank" class="group flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-error/10 hover:bg-error hover:text-base border border-error/20 shadow-sm transition-all text-error">
+                <a href="https://saweria.co/beenspaceess" target="_blank" class="flex flex-col items-center justify-center p-2 rounded-xl bg-error/10 border border-error/20 hover:bg-error hover:text-white transition-all text-error">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                 </a>
             </div>
 
-            <!-- List File Direktori Aktif -->
-            <div class="px-4 py-2 font-mono text-[8px] text-inkdim uppercase font-bold tracking-widest bg-base/80 border-b border-line flex justify-between items-center shrink-0">
+            <div class="px-5 py-2 font-mono text-[8px] text-inkdim uppercase font-bold tracking-widest bg-base/80 border-b border-line flex justify-between items-center shrink-0">
                 <span>Active Directory</span>
                 <span class="w-1 h-1 bg-ink rounded-full"></span>
             </div>
             
-            <div class="p-2 max-h-[25vh] overflow-y-auto bg-base custom-scrollbar" id="start-menu-file-list">
+            <div class="p-2 max-h-[20vh] overflow-y-auto bg-base custom-scrollbar" id="start-menu-file-list">
                 <div class="p-3 text-center text-[9px] text-inkdim border border-dashed border-line rounded-lg mx-1 my-1">No active folder opened.</div>
             </div>
             
-            <!-- Close Document Button -->
             <div class="p-3 bg-base border-t border-line shrink-0" id="close-viewer-container" style="display: none;">
-                <button onclick="closeViewer()" class="w-full text-center font-mono text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-xl bg-ink text-base hover:bg-error hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <button onclick="closeViewer()" class="w-full text-center font-mono text-[9px] font-bold uppercase tracking-widest py-3 rounded-xl bg-ink text-base hover:bg-error hover:shadow-lg transition-all flex items-center justify-center gap-2">
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     CLOSE DOC
                 </button>
             </div>
         </div>
 
-        <!-- Floating FAB -->
-        <button onclick="toggleStartMenu()" class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-ink text-base flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all relative group border-[3px] border-base z-[220]">
-            <span class="font-times text-xl md:text-2xl font-bold italic tracking-tighter pr-0.5 pointer-events-none">174</span>
-            <div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-error rounded-full border-2 border-base"></div>
+        <button onclick="toggleStartMenu()" class="w-16 h-16 rounded-full bg-ink text-base flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all relative group border-[3px] border-base z-[220]">
+            <span class="font-times text-2xl font-bold italic tracking-tighter pr-0.5 pointer-events-none">174</span>
+            <div class="absolute -top-1 -right-1 w-4 h-4 bg-error rounded-full border-2 border-base"></div>
         </button>
     </div>
 
     <!-- === MAIN APP === -->
     <div id="app-shell" class="flex flex-col min-h-screen">
         
-        <!-- Sleek Marquee Ticker -->
         <div class="fixed top-0 left-0 right-0 z-[150] h-8 bg-ink text-base flex items-center overflow-hidden border-b border-ink">
             <div class="whitespace-nowrap animate-scroll text-[10px] font-mono uppercase tracking-[0.2em] flex items-center font-medium opacity-90">
                 <span>
@@ -256,7 +285,6 @@
             </div>
         </div>
 
-        <!-- System Navigation (Sticky) -->
         <nav class="sticky top-8 z-40 bg-base/80 backdrop-blur-md border-b border-line mt-8 transition-colors duration-500">
             <div class="max-w-6xl mx-auto px-5 h-12 flex justify-between items-center">
                 <div class="flex items-center gap-2 font-mono text-[9px] uppercase tracking-widest font-bold text-inkdim">
@@ -267,8 +295,6 @@
                 <div class="flex items-center gap-6 font-mono text-[9px] uppercase tracking-widest font-bold">
                     <button onclick="location.reload()" class="hover:text-ink transition-colors">INDEX</button>
                     <button onclick="toggleProtocol(true)" class="hover:text-ink transition-colors">PROTOCOL</button>
-                    
-                    <!-- Support Dropdown -->
                     <div class="relative group">
                         <button class="hover:text-ink transition-colors flex items-center gap-1 py-4">
                             SUPPORT <svg class="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -278,42 +304,29 @@
                             <a href="https://wa.me/6281280702747" target="_blank" class="px-4 py-3 hover:bg-surface transition-colors">CALL THE GRACE</a>
                         </div>
                     </div>
-                    
-                    <!-- Donate Direct -->
-                    <a href="https://saweria.co/beenspaceess" target="_blank" class="text-error hover:text-ink transition-colors hidden sm:block">
-                        DONATE
-                    </a>
+                    <a href="https://saweria.co/beenspaceess" target="_blank" class="text-error hover:text-ink transition-colors hidden sm:block font-bold">DONATE</a>
                 </div>
             </div>
         </nav>
 
-        <!-- Redesigned Vertical Header (Minimal & Centered) -->
         <header class="pt-16 pb-12 px-5 border-b border-line bg-surface/30 flex flex-col items-center justify-center text-center relative overflow-hidden transition-colors duration-500">
             <div class="absolute inset-0 bg-[radial-gradient(rgb(var(--c-line))_1px,transparent_1px)] [background-size:20px_20px] opacity-30 pointer-events-none"></div>
             
             <div class="relative z-10 flex flex-col items-center">
-                <span class="font-mono text-[10px] md:text-xs tracking-[0.6em] uppercase text-inkdim font-bold mb-[-12px] md:mb-[-16px] ml-3 select-none">
-                    the
-                </span>
-                <h1 onclick="toggleEasterEgg()" class="font-times text-[7rem] md:text-[12rem] lg:text-[14rem] leading-none text-ink tracking-tighter select-none cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform duration-300 drop-shadow-sm">
-                    174
-                </h1>
-                <span class="font-mono text-[10px] md:text-xs tracking-[0.6em] uppercase text-inkdim font-bold mt-[-8px] md:mt-[-16px] ml-3 select-none">
-                    archive
-                </span>
+                <span class="font-mono text-[10px] md:text-xs tracking-[0.6em] uppercase text-inkdim font-bold mb-[-12px] md:mb-[-16px] ml-3 select-none">the</span>
+                <h1 onclick="toggleEasterEgg()" class="font-times text-[7rem] md:text-[12rem] lg:text-[14rem] leading-none text-ink tracking-tighter select-none cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform duration-300 drop-shadow-sm">174</h1>
+                <span class="font-mono text-[10px] md:text-xs tracking-[0.6em] uppercase text-inkdim font-bold mt-[-8px] md:mt-[-16px] ml-3 select-none">archive</span>
             </div>
         </header>
 
-        <!-- Modern Search Area -->
         <div class="py-6 px-5 border-b border-line bg-base sticky top-[5rem] z-30 shadow-sm transition-colors duration-500">
             <div class="max-w-6xl mx-auto flex flex-col sm:flex-row gap-3">
                 <div class="relative flex-grow">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-inkdim" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="text" id="search-input" placeholder="Search parameters, subjects, or documents..." class="w-full bg-surface border border-line rounded-full pl-10 pr-4 py-3 text-sm text-ink input-sleek font-mono placeholder-inkdim/60">
+                    <input type="text" id="search-input" placeholder="Search archive..." class="w-full bg-surface border border-line rounded-full pl-10 pr-4 py-3 text-sm text-ink input-sleek font-mono placeholder-inkdim/60">
                 </div>
-                
                 <button onclick="toggleView()" class="shrink-0 bg-base border border-line rounded-full px-5 py-3 text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-surface transition-colors flex items-center justify-center gap-2">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                     <span>Layout</span>
@@ -321,17 +334,13 @@
             </div>
         </div>
 
-        <!-- Main Dynamic Content Area -->
         <main class="flex-grow pb-40 pt-8 px-5 bg-surface/20 transition-colors duration-500">
             <div class="max-w-6xl mx-auto">
-                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-                    <!-- Folders injected here -->
-                </div>
+                <div id="grid-wrapper" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8"></div>
             </div>
         </main>
 
-        <!-- Minimalist Footer (Sempit) -->
-        <footer class="border-t border-line bg-surface py-5 mt-auto transition-colors duration-500 relative z-10">
+        <footer class="border-t border-line bg-surface py-6 mt-auto transition-colors duration-500 relative z-10">
             <div class="max-w-6xl mx-auto px-5 flex justify-between items-center gap-2">
                 <div class="font-times text-xl text-inkdim">174.</div>
                 <div class="font-mono text-[8px] sm:text-[9px] uppercase tracking-widest text-inkdim/80 text-right">
@@ -339,7 +348,6 @@
                 </div>
             </div>
         </footer>
-
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
@@ -361,19 +369,13 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             init();
-            
-            // Aturan Pertama (Protocol) selalu muncul di awal
             toggleProtocol(true);
-
-            // Jalankan Chat Bubble Saweria secara berkala (Setiap 1 menit = 60000ms)
             setInterval(showSaweriaBubble, 60000); 
         });
 
         // === FETCH API ===
         async function init() {
             sysStatus.innerText = "FETCHING_DATA...";
-            
-            // 1. Fetch data dari folder Kuis (API Path Asli)
             try {
                 const res = await fetch('/api/content?folder=kuis'); 
                 if (!res.ok) throw new Error("API Fetch failed");
@@ -383,384 +385,164 @@
                 quizzes = files.filter(f => f.name.endsWith('.html') || f.name.endsWith('.mp3') || f.name.endsWith('.wav')).reduce((acc, f) => {
                     const parts = f.name.split('_');
                     if(parts.length < 2) return acc;
-                    
                     let originalCat = parts[0].trim(); 
                     let cat = originalCat;
                     const name = parts.slice(1).join(' ').replace(/\.(html|mp3|wav)$/i,'').replace(/_/g, ' ').trim();
-
                     const semesterMatch = originalCat.match(/^(\d+)\./);
-                    if (semesterMatch) {
-                        cat = `SEMESTER ${semesterMatch[1]}`;
-                    } else if (!cat.toLowerCase().includes('secret')) {
-                        cat = 'OTHER';
-                    }
-
+                    if (semesterMatch) cat = `SEMESTER ${semesterMatch[1]}`;
+                    else if (!cat.toLowerCase().includes('secret')) cat = 'OTHER';
                     if(!acc[cat]) acc[cat] = [];
-                    // Penting: Gunakan rute relatif untuk menghindari masalah CORS/MIME pada Iframe
-                    const fileUrl = `kuis/${f.name}`;
-                    acc[cat].push({ name, subCat: originalCat, file: f.name, url: fileUrl });
+                    acc[cat].push({ name, subCat: originalCat, file: f.name, url: `kuis/${f.name}` });
                     return acc;
                 }, {});
 
                 sysStatus.innerText = "SYS_ONLINE";
                 renderHome();
-
             } catch(e) {
                 sysStatus.innerText = "SYS_ERROR";
                 document.getElementById('status-indicator').classList.replace('bg-green-500', 'bg-error');
-                
-                grid.className = "grid grid-cols-1";
-                grid.innerHTML = `
-                    <div class="w-full max-w-lg mx-auto text-center py-20 animate-slide-up">
-                        <div class="w-16 h-16 mx-auto bg-error/10 text-error rounded-full flex items-center justify-center mb-4">
-                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                        <h2 class="font-serif text-2xl font-bold mb-2">Connection Terminated</h2>
-                        <p class="font-mono text-[10px] text-inkdim bg-surface p-3 rounded-lg inline-block border border-line">ERROR: ${e.message}</p>
-                    </div>`;
+                grid.innerHTML = `<p class="text-center py-20 font-mono">ERROR: ${e.message}</p>`;
             }
 
-            // 2. Fetch khusus Music secara diam-diam (API Path Asli)
             try {
                 const resMusic = await fetch('/api/content?folder=music');
                 if (resMusic.ok) {
                     const musicFiles = await resMusic.json();
                     const targetAudio = musicFiles.find(f => f.name.endsWith('.mp3') || f.name.endsWith('.wav'));
-                    if (targetAudio) {
-                        foundMusicUrl = `music/${targetAudio.name}`;
-                    }
+                    if (targetAudio) foundMusicUrl = `music/${targetAudio.name}`;
                 }
-            } catch(e) {
-                console.log("Folder music tidak ditemukan. Memakai lagu cadangan.");
-            }
+            } catch(e) {}
         }
 
-        // === REALISTIC FOLDER GENERATOR ===
-        function createFolderHTML(title, count, isSecret) {
-            const secretClasses = isSecret ? 'bg-error text-base border-error' : 'bg-surface border-line text-inkdim';
-            const iconClasses = isSecret ? 'text-error' : 'text-ink';
-            
-            return `
-                <div class="w-2/5 min-w-[100px] max-w-[140px] border-t border-l border-r rounded-t-xl px-3 py-1.5 flex items-center justify-between relative z-10 transition-colors duration-300 ${secretClasses} group-hover:bg-ink group-hover:text-base group-hover:border-ink">
-                    <span class="font-mono text-[9px] font-bold tracking-widest uppercase truncate">${isSecret ? 'RESTRICTED' : 'DIR_INDEX'}</span>
-                </div>
-                <div class="flex-1 bg-base border border-line rounded-b-2xl rounded-tr-2xl p-6 flex flex-col justify-between relative z-0 -mt-[1px] shadow-sm hover:shadow-xl group-hover:border-ink transition-all duration-300">
-                    <div>
-                        <h3 class="font-serif text-2xl font-semibold leading-tight text-ink group-hover:underline decoration-lineDark underline-offset-4">${title}</h3>
-                        <p class="font-mono text-[10px] text-inkdim mt-3 uppercase tracking-widest">${count} Entities</p>
-                    </div>
-                    <div class="mt-8 flex justify-end">
-                        <div class="w-8 h-8 rounded-full bg-surface border border-line flex items-center justify-center group-hover:bg-ink group-hover:border-ink transition-colors duration-300">
-                            <svg class="w-4 h-4 transition-colors ${iconClasses} group-hover:text-base" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // === LIST ITEM GENERATOR ===
-        function createListItemHTML(title, meta, isSecret, isDocument = false) {
-            const secretLabel = isSecret ? '<span class="text-[9px] font-mono text-error bg-error/10 px-2 py-0.5 rounded-sm">LOCKED</span>' : '';
-            const actionText = isDocument ? 'ACCESS' : 'OPEN';
-            
-            return `
-                <div class="flex items-center gap-4 w-full pr-4">
-                    <div class="w-10 h-10 rounded-full bg-surface shrink-0 flex items-center justify-center group-hover:bg-ink group-hover:text-base transition-colors">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isDocument ? 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' : 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'}"></path></svg>
-                    </div>
-                    <div class="flex-grow min-w-0">
-                        <h3 class="font-serif text-base md:text-lg font-medium text-ink truncate group-hover:text-ink">${title}</h3>
-                        <div class="flex items-center gap-2 mt-1">
-                            <p class="font-mono text-[9px] text-inkdim uppercase tracking-widest">${meta}</p>
-                            ${secretLabel}
-                        </div>
-                    </div>
-                </div>
-                <span class="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[9px] font-bold uppercase tracking-widest text-ink shrink-0 hidden sm:block">${actionText} &rarr;</span>
-            `;
-        }
-
-        // === RENDER HOME ===
+        // === RENDER LOGIC ===
         function renderHome(filter="") {
             grid.innerHTML = "";
-            grid.className = isListView 
-                ? "flex flex-col gap-3" 
-                : "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 lg:gap-10 pt-4"; 
+            grid.className = isListView ? "flex flex-col gap-3" : "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 pt-4"; 
             
             Object.keys(quizzes).sort().forEach(cat => {
-                const matchesFilter = quizzes[cat].some(q => 
-                    q.name.toLowerCase().includes(filter.toLowerCase()) || 
-                    q.subCat.toLowerCase().includes(filter.toLowerCase())
-                ) || cat.toLowerCase().includes(filter.toLowerCase());
-
+                const matchesFilter = quizzes[cat].some(q => q.name.toLowerCase().includes(filter.toLowerCase())) || cat.toLowerCase().includes(filter.toLowerCase());
                 if(filter && !matchesFilter) return;
 
                 const isSecret = /secret/i.test(cat);
                 const name = cat.replace(/secret/i,'').trim() || 'UNDEFINED';
                 const count = quizzes[cat].length;
-                
                 const wrapper = document.createElement('div');
                 
                 if (isListView) {
-                    wrapper.className = "group bg-base border border-line rounded-2xl p-4 md:p-5 flex items-center justify-between cursor-pointer hover:border-ink hover:shadow-md transition-all duration-300 animate-slide-up";
-                    wrapper.innerHTML = createListItemHTML(name, `${count} Directories`, isSecret);
+                    wrapper.className = "group bg-base border border-line rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-ink transition-all";
+                    wrapper.innerHTML = `<div class="font-serif">${name} (${count} Dir)</div>`;
                 } else {
-                    wrapper.className = "group relative flex flex-col h-full cursor-pointer animate-slide-up hover:-translate-y-1 transition-transform duration-300";
-                    wrapper.innerHTML = createFolderHTML(name, count, isSecret);
+                    wrapper.className = "group flex flex-col cursor-pointer transition-transform hover:-translate-y-1";
+                    wrapper.innerHTML = `
+                        <div class="w-1/3 bg-surface border-t border-l border-r rounded-t-xl px-3 py-1 font-mono text-[8px] border-line group-hover:bg-ink group-hover:text-base group-hover:border-ink transition-colors">${isSecret ? 'SCT' : 'DIR'}</div>
+                        <div class="bg-base border border-line rounded-b-2xl rounded-tr-2xl p-6 shadow-sm group-hover:border-ink transition-all">
+                            <h3 class="font-serif text-xl font-bold">${name}</h3>
+                            <p class="font-mono text-[9px] text-inkdim uppercase mt-2">${count} Entities</p>
+                        </div>`;
                 }
-                
-                // Aman dari Error Syntax Spasi/Kutip
-                wrapper.onclick = (e) => {
-                    e.preventDefault();
-                    if (isSecret) alert('ACCESS DENIED: CLEARANCE LEVEL INSUFFICIENT.'); 
-                    else openCategory(cat); 
-                };
-
+                wrapper.onclick = () => isSecret ? alert('Denied.') : openCategory(cat);
                 grid.appendChild(wrapper);
             });
         }
 
         function openCategory(cat) {
             window.scrollTo({top:0, behavior:'smooth'});
-            const catName = cat.replace(/secret/i,'').trim() || 'SYS_DIR';
-            
-            grid.className = isListView 
-                ? "flex flex-col gap-3" 
-                : "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 lg:gap-10"; 
-            
-            grid.innerHTML = `
-                <div class="col-span-full mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-up">
-                    <div>
-                        <div class="font-mono text-[9px] uppercase tracking-widest text-inkdim mb-1">Index / ${catName}</div>
-                        <h2 class="font-serif text-3xl font-semibold">${catName} Sub-Directories</h2>
-                    </div>
-                    <button onclick="renderHome()" class="self-start md:self-auto px-5 py-2.5 bg-base border border-line rounded-xl shadow-sm hover:border-ink font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
-                        &larr; Back
-                    </button>
-                </div>
-            `;
-
+            grid.innerHTML = `<div class="col-span-full flex justify-between items-center mb-6"><h2 class="font-serif text-2xl">${cat}</h2><button onclick="renderHome()" class="px-4 py-2 bg-surface rounded-full text-[10px] font-bold">&larr; BACK</button></div>`;
             const subGroups = quizzes[cat].reduce((acc, q) => {
                 const sCat = q.subCat || 'UNCATEGORIZED';
                 if(!acc[sCat]) acc[sCat] = [];
                 acc[sCat].push(q);
                 return acc;
             }, {});
-
             Object.keys(subGroups).sort().forEach(subCat => {
-                const count = subGroups[subCat].length;
                 const wrapper = document.createElement('div');
-                
-                if (isListView) {
-                    wrapper.className = "group bg-base border border-line rounded-2xl p-4 md:p-5 flex items-center justify-between cursor-pointer hover:border-ink hover:shadow-md transition-all duration-300 animate-slide-up";
-                    wrapper.innerHTML = createListItemHTML(subCat, `${count} Files`, false);
-                } else {
-                    wrapper.className = "group relative flex flex-col h-full cursor-pointer animate-slide-up hover:-translate-y-1 transition-transform duration-300";
-                    wrapper.innerHTML = createFolderHTML(subCat, count, false);
-                }
-
-                wrapper.onclick = (e) => {
-                    e.preventDefault();
-                    openSubFolder(cat, subCat);
-                };
-                
+                wrapper.className = "bg-base border border-line rounded-2xl p-6 cursor-pointer hover:border-ink transition-all";
+                wrapper.innerHTML = `<h3 class="font-serif text-lg font-bold">${subCat}</h3><p class="font-mono text-[9px] text-inkdim">${subGroups[subCat].length} Files</p>`;
+                wrapper.onclick = () => openSubFolder(cat, subCat);
                 grid.appendChild(wrapper);
             });
         }
 
         function openSubFolder(cat, subCat) {
             window.scrollTo({top:0, behavior:'smooth'});
-            const catName = cat.replace(/secret/i,'').trim() || 'SYS_DIR';
-            
-            activeSubFolderFiles = quizzes[cat].filter(q => (q.subCat || 'UNCATEGORIZED') === subCat);
+            activeSubFolderFiles = quizzes[cat].filter(q => q.subCat === subCat);
             activeSubFolderTitle = subCat;
-
-            grid.className = "flex flex-col gap-3"; 
-            
-            grid.innerHTML = `
-                <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-up">
-                    <div>
-                        <div class="font-mono text-[9px] uppercase tracking-widest text-inkdim mb-1">Index / ${catName} / ${subCat}</div>
-                        <h2 class="font-serif text-3xl font-semibold">${subCat} Documents</h2>
-                    </div>
-                    <button onclick="openCategory('${cat}')" class="self-start md:self-auto px-5 py-2.5 bg-base border border-line rounded-xl shadow-sm hover:border-ink font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
-                        &larr; Back
-                    </button>
-                </div>
-            `;
-
-            activeSubFolderFiles.forEach((q, index) => {
-                const fileUrl = q.url;
-                const isAudio = q.file.endsWith('.mp3') || q.file.endsWith('.wav');
-                
+            grid.innerHTML = `<div class="col-span-full flex justify-between items-center mb-6"><h2 class="font-serif text-2xl">${subCat}</h2><button onclick="openCategory('${cat}')" class="px-4 py-2 bg-surface rounded-full text-[10px] font-bold">&larr; BACK</button></div>`;
+            activeSubFolderFiles.forEach(q => {
                 const wrapper = document.createElement('div');
-                wrapper.className = "group bg-base border border-line rounded-2xl p-4 md:p-5 flex items-center justify-between cursor-pointer hover:border-ink hover:shadow-md transition-all duration-300 animate-slide-up";
-                wrapper.innerHTML = createListItemHTML(q.name, isAudio ? 'Audio File' : `Document 0${index+1}`, false, !isAudio);
-                
-                // Mencegah error syntax jika file memiliki spasi atau kutip
-                wrapper.onclick = (e) => {
-                    e.preventDefault();
-                    if(isAudio) {
-                        playAudio(fileUrl);
-                    } else if (fileUrl !== '#') {
-                        openViewer(fileUrl, q.name);
-                    }
-                };
-
+                wrapper.className = "bg-base border border-line rounded-2xl p-4 cursor-pointer hover:border-ink transition-all mb-2";
+                wrapper.innerHTML = `<div class="font-serif">${q.name}</div>`;
+                wrapper.onclick = () => q.file.endsWith('.mp3') ? playAudio(q.url) : openViewer(q.url, q.name);
                 grid.appendChild(wrapper);
             });
         }
 
-        // --- UTILS ---
-        function toggleView() { 
-            isListView = !isListView; 
-            const searchVal = searchInput.value;
-            renderHome(searchVal); 
-        }
-        
-        searchInput.oninput = (e) => {
-            renderHome(e.target.value);
-        };
+        // === UTILS ===
+        function toggleView() { isListView = !isListView; renderHome(searchInput.value); }
+        searchInput.oninput = (e) => renderHome(e.target.value);
+        function copyToClipboard() { navigator.clipboard.writeText(window.location.href).then(() => alert("URL Copied!")); }
 
-        function copyToClipboard() {
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                alert("URL System berhasil disalin ke Clipboard!");
-                toggleStartMenu();
-            }).catch(err => {
-                console.error('Gagal menyalin text: ', err);
-            });
-        }
-
-        // === EASTER EGG (Party Mode) ===
         function toggleEasterEgg() {
             isPartyMode = !isPartyMode;
             if(isPartyMode) {
                 document.body.classList.add('party-mode');
-                document.getElementById('status-indicator').classList.replace('bg-green-500', 'bg-yellow-400');
-                sysStatus.innerText = "SYS_OVERRIDE";
-                
-                // Gunakan audio dari folder music jika ada
                 partyAudio.src = foundMusicUrl || musicUrlFallback;
-                partyAudio.play().catch(e => console.log('Audio error:', e));
-
+                partyAudio.play();
+                sysStatus.innerText = "SYS_OVERRIDE";
             } else {
                 document.body.classList.remove('party-mode');
-                document.getElementById('status-indicator').classList.replace('bg-yellow-400', 'bg-green-500');
-                sysStatus.innerText = "SYS_ACTIVE";
                 partyAudio.pause();
-                partyAudio.currentTime = 0;
+                sysStatus.innerText = "SYS_ACTIVE";
             }
         }
 
-        function playAudio(url) {
-            partyAudio.src = url;
-            partyAudio.play();
-            alert("Memutar audio dari direktori...");
-        }
+        function playAudio(url) { partyAudio.src = url; partyAudio.play(); }
 
-        // === PROTOCOL MODAL & SAWERIA BUBBLE ===
         function toggleProtocol(show) {
             const modal = document.getElementById('protocol-modal');
-            if(show) {
-                modal.classList.remove('hidden');
-                setTimeout(() => modal.classList.remove('opacity-0'), 10);
-            } else {
-                modal.classList.add('opacity-0');
-                setTimeout(() => modal.classList.add('hidden'), 500);
-            }
+            if(show) { modal.classList.remove('hidden'); setTimeout(() => modal.classList.remove('opacity-0'), 10); }
+            else { modal.classList.add('opacity-0'); setTimeout(() => modal.classList.add('hidden'), 500); }
         }
 
         function showSaweriaBubble() {
             const bubble = document.getElementById('saweria-bubble');
-            const menu = document.getElementById('start-menu-panel');
-            
-            // Tampilkan hanya jika start menu tertutup
-            if(bubble && menu.classList.contains('menu-closed')) {
-                bubble.classList.remove('opacity-0');
-                bubble.classList.remove('translate-y-4');
-                bubble.classList.add('translate-y-0');
-                
-                // Sembunyikan kembali setelah 6 detik
-                setTimeout(() => {
-                    bubble.classList.remove('translate-y-0');
-                    bubble.classList.add('translate-y-4');
-                    bubble.classList.add('opacity-0');
-                }, 6000);
+            if(bubble && document.getElementById('start-menu-panel').classList.contains('menu-closed')) {
+                bubble.classList.remove('opacity-0', 'translate-y-4');
+                setTimeout(() => bubble.classList.add('opacity-0', 'translate-y-4'), 8000);
             }
         }
 
-        // === IN-APP VIEWER & START MENU LOGIC ===
-        function openViewer(url, currentFileName) {
+        function openViewer(url, name) {
             document.getElementById('viewer-frame').src = url;
-            const overlay = document.getElementById('viewer-overlay');
-            overlay.classList.remove('hidden');
-            overlay.classList.add('flex');
-            
-            // Sembunyikan scroll halaman utama di background
-            document.body.style.overflow = 'hidden'; 
-            
+            document.getElementById('viewer-overlay').classList.remove('hidden');
+            document.getElementById('viewer-overlay').classList.add('flex');
+            document.body.style.overflow = 'hidden';
             document.getElementById('close-viewer-container').style.display = 'block';
-            
-            const panel = document.getElementById('start-menu-panel');
-            panel.classList.remove('menu-open');
-            panel.classList.add('menu-closed');
-            
-            buildStartMenu(currentFileName);
+            buildStartMenu(name);
         }
 
-        function buildStartMenu(activeFileName) {
-            const isViewerOpen = !document.getElementById('viewer-overlay').classList.contains('hidden');
+        function buildStartMenu(activeName) {
             const container = document.getElementById('start-menu-file-list');
-            
             if(activeSubFolderFiles.length > 0) {
                 container.innerHTML = '';
-                
                 activeSubFolderFiles.forEach(q => {
-                    const isActive = q.name === activeFileName;
-                    const fileUrl = q.url;
-                    const isAudio = q.file.endsWith('.mp3') || q.file.endsWith('.wav');
-                    
+                    const isActive = q.name === activeName;
                     const btn = document.createElement('button');
-                    btn.className = `w-full text-left font-mono text-[9px] uppercase px-3 py-2.5 rounded-xl mb-1 transition-all flex items-center gap-2.5 ${isActive ? 'bg-ink text-base shadow-md' : 'hover:bg-line bg-surface/50 border border-transparent hover:border-lineDark'}`;
-                    
-                    if (isActive) {
-                        btn.innerHTML = `<span class="w-1.5 h-1.5 bg-error rounded-full animate-blink shrink-0"></span> <span class="truncate leading-tight">${q.name}</span>`;
-                    } else {
-                        btn.innerHTML = `<span class="w-1.5 h-1.5 border border-inkdim rounded-full shrink-0"></span> <span class="truncate text-inkdim leading-tight">${q.name}</span>`;
-                        btn.onclick = () => {
-                            if(isAudio) {
-                                playAudio(fileUrl);
-                            } else {
-                                if(isViewerOpen) {
-                                    document.getElementById('viewer-frame').src = fileUrl;
-                                    buildStartMenu(q.name); 
-                                } else {
-                                    openViewer(fileUrl, q.name);
-                                }
-                            }
-                            toggleStartMenu(); 
-                        };
-                    }
-                    
+                    btn.className = `w-full text-left font-mono text-[9px] uppercase px-3 py-2 rounded-xl mb-1 flex items-center gap-2 ${isActive ? 'bg-ink text-base' : 'bg-surface/50'}`;
+                    btn.innerHTML = `<span class="w-1 h-1 ${isActive ? 'bg-error animate-blink' : 'bg-inkdim'} rounded-full"></span><span class="truncate">${q.name}</span>`;
+                    btn.onclick = () => {
+                        if(q.file.endsWith('.mp3')) playAudio(q.url);
+                        else { document.getElementById('viewer-frame').src = q.url; buildStartMenu(q.name); }
+                    };
                     container.appendChild(btn);
                 });
-            } else {
-                container.innerHTML = `<div class="p-3 text-center text-[9px] text-inkdim border border-dashed border-line rounded-xl mx-1 my-1">No active folder opened.</div>`;
             }
         }
 
         function toggleStartMenu() {
             const panel = document.getElementById('start-menu-panel');
-            
             if(panel.classList.contains('menu-closed')) {
-                // Saat panel dibuka, sembunyikan chat bubble paksa agar tidak bentrok
-                const bubble = document.getElementById('saweria-bubble');
-                bubble.classList.add('opacity-0');
-                
-                if(document.getElementById('viewer-overlay').classList.contains('hidden')){
-                    document.getElementById('close-viewer-container').style.display = 'none';
-                    buildStartMenu(""); 
-                }
+                document.getElementById('saweria-bubble').classList.add('opacity-0');
                 panel.classList.remove('menu-closed');
                 panel.classList.add('menu-open');
             } else {
@@ -770,31 +552,24 @@
         }
 
         function closeViewer() {
-            const overlay = document.getElementById('viewer-overlay');
-            overlay.classList.add('hidden');
-            overlay.classList.remove('flex');
-            
-            const panel = document.getElementById('start-menu-panel');
-            panel.classList.remove('menu-open');
-            panel.classList.add('menu-closed');
-            
-            setTimeout(() => { document.getElementById('viewer-frame').src = ''; }, 300);
-            document.body.style.overflow = ''; 
+            document.getElementById('viewer-overlay').classList.add('hidden');
+            document.getElementById('viewer-overlay').classList.remove('flex');
+            document.body.style.overflow = '';
+            document.getElementById('start-menu-panel').classList.add('menu-closed');
+            setTimeout(() => document.getElementById('viewer-frame').src = '', 300);
         }
 
-        // --- EXPORT TO WINDOW ---
         window.toggleView = toggleView;
-        window.renderHome = renderHome;
         window.openCategory = openCategory;
         window.openSubFolder = openSubFolder;
         window.closeViewer = closeViewer;
         window.toggleStartMenu = toggleStartMenu;
-        window.openViewer = openViewer;
         window.toggleEasterEgg = toggleEasterEgg;
         window.toggleProtocol = toggleProtocol;
-        window.playAudio = playAudio;
         window.copyToClipboard = copyToClipboard;
-
     </script>
+
+    <elevenlabs-convai agent-id="agent_2301kj2bse7xfkyt7z51xthe9c5m"></elevenlabs-convai>
+    <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 </body>
 </html>
