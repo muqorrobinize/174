@@ -3,548 +3,877 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FISIOLOGI ARVENA</title>
+    <title>Identify ARVENA</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --life-force-bg: #1a0000;
-            --life-force-red: #990000;
-            --life-force-crimson: #cc2200;
-            --life-force-orange: #ff4500;
+            --venous-dark: #021114;
+            --venous-teal: #06343b;
+            --venous-light: #0d6b77;
+            --venous-cyan: #15b0c4;
         }
-
+        
         body {
             font-family: 'Montserrat', sans-serif;
-            background: var(--life-force-bg);
-            color: #f8f8f8;
-            margin: 0;
+            background-color: var(--venous-dark);
+            color: white;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* Gradient Mesh Animation */
-        .gradient-mesh {
+        /* Gradient Mesh Animation Effect */
+        .mesh-bg {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -1;
-            background: radial-gradient(circle at 10% 20%, var(--life-force-red) 0%, transparent 45%),
-                        radial-gradient(circle at 90% 80%, var(--life-force-crimson) 0%, transparent 45%),
-                        radial-gradient(circle at 50% 50%, #4a0000 0%, transparent 50%),
-                        radial-gradient(circle at 80% 10%, var(--life-force-orange) 0%, transparent 35%);
-            background-size: 200% 200%;
-            animation: meshMove 12s ease infinite alternate;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--venous-dark) 0%, #031c21 100%);
         }
-
-        @keyframes meshMove {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
-
-        .floating-icon {
+        .blob {
             position: absolute;
-            font-size: 4rem;
-            opacity: 0.08;
-            pointer-events: none;
-            animation: float 15s infinite ease-in-out;
+            filter: blur(90px);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 12s infinite ease-in-out alternate;
         }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--venous-teal); }
+        .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--venous-light); animation-delay: -4s; animation-direction: alternate-reverse;}
+        .blob-3 { top: 40%; left: 20%; width: 40vw; height: 40vw; background: #084852; animation-duration: 18s; }
+        .blob-4 { bottom: 20%; left: 60%; width: 35vw; height: 35vw; background: var(--venous-cyan); opacity: 0.3; animation-delay: -8s; }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(15deg); }
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(10%, 15%) scale(1.1); }
         }
 
+        /* Glassmorphism Styles */
         .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        .title-doctor {
-            font-weight: 900;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            padding: 10px 20px;
-            border-radius: 12px;
-            display: inline-block;
-            margin-bottom: 15px;
+        .glass-btn {
+            background: rgba(21, 176, 196, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(21, 176, 196, 0.3);
+            transition: all 0.3s ease;
+        }
+        .glass-btn:hover {
+            background: rgba(21, 176, 196, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(21, 176, 196, 0.5);
         }
 
-        .musthofa-style { background: linear-gradient(90deg, #cc2200, transparent); border-left: 6px solid #fff; }
-        .susi-style { background: linear-gradient(270deg, #0066cc, transparent); border-right: 6px solid #fff; text-align: right; width: 100%; }
-
-        /* Flashcard Logic */
-        .card-container { perspective: 1200px; }
-        .card {
-            width: 100%; height: 420px;
-            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Flashcard Styles */
+        .flashcard-scene {
+            perspective: 1500px;
+            width: 100%;
+            height: 400px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
             transform-style: preserve-3d;
             cursor: pointer;
             position: relative;
         }
-        .card.flipped { transform: rotateY(180deg); }
-        .card-face {
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
             position: absolute;
-            width: 100%; height: 100%;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 40px; border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem;
+            text-align: center;
         }
-        .card-back { transform: rotateY(180deg); background: rgba(20, 0, 0, 0.8); border: 2px solid var(--life-force-orange); }
-
-        .btn-active { background: var(--life-force-crimson) !important; color: white !important; box-shadow: 0 0 20px rgba(204, 34, 0, 0.4); }
-
-        .nav-return {
-            position: fixed;
-            top: 25px; left: 25px;
-            z-index: 100;
-            transition: all 0.3s ease;
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: rgba(6, 52, 59, 0.95);
+            border: 1px solid rgba(21, 176, 196, 0.5);
+            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.6);
+            overflow-y: auto;
         }
-        .nav-return:hover { transform: translateX(-5px); filter: brightness(1.2); }
 
-        .citation-tag {
-            font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.3);
-            font-style: italic;
-            margin-top: 8px;
-            display: block;
+        /* Fade Animation for View Transition */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: var(--venous-light); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--venous-cyan); }
     </style>
 </head>
 <body>
 
-    <div class="gradient-mesh"></div>
-
-    <!-- Floating Background Icons -->
-    <div class="floating-icon" style="top: 10%; left: 5%;">🫀</div>
-    <div class="floating-icon" style="top: 60%; left: 85%; animation-delay: 3s;">🫁</div>
-    <div class="floating-icon" style="top: 80%; left: 15%; animation-delay: 6s;">🩸</div>
-    <div class="floating-icon" style="top: 30%; left: 75%; animation-delay: 1s;">🩺</div>
-
-    <!-- Return Button -->
-    <div id="return-btn" class="nav-return hidden" onclick="goHome()">
-        <div class="glass p-3 flex items-center space-x-3 cursor-pointer">
-            <i data-lucide="chevron-left" class="w-6 h-6 text-white"></i>
-            <span class="text-xs font-black uppercase tracking-widest">Menu Utama</span>
-        </div>
+    <!-- Gradient Mesh Background -->
+    <div class="mesh-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
     </div>
 
-    <div class="container mx-auto px-4 py-16 relative z-10 min-h-screen">
-        <!-- Main Landing -->
-        <div id="landing-view">
-            <header class="text-center mb-20 animate-in fade-in zoom-in duration-700">
-                <h1 class="text-6xl md:text-8xl font-black mb-4 tracking-tighter text-white drop-shadow-2xl">FISIOLOGI ARVENA</h1>
-                <div class="w-32 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent mx-auto mb-4"></div>
-                <p class="text-gray-400 font-bold uppercase tracking-[0.4em] text-xs">Medical Cardiorespiratory Hub</p>
-            </header>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <div onclick="showView('ringkasan')" class="glass p-12 cursor-pointer hover:bg-white/10 transition group text-center border-b-4 border-red-600">
-                    <i data-lucide="book-open-check" class="w-12 h-12 mx-auto mb-6 opacity-40 group-hover:opacity-100 transition duration-500"></i>
-                    <h3 class="text-3xl font-black mb-3 uppercase tracking-tight">Ringkasan</h3>
-                    <p class="text-[10px] opacity-30 uppercase font-bold tracking-widest">Core Medical Theory</p>
-                </div>
-                <div onclick="showView('kuis')" class="glass p-12 cursor-pointer hover:bg-white/10 transition group text-center border-b-4 border-crimson-600">
-                    <i data-lucide="brain" class="w-12 h-12 mx-auto mb-6 opacity-40 group-hover:opacity-100 transition duration-500"></i>
-                    <h3 class="text-3xl font-black mb-3 uppercase tracking-tight">Kuis</h3>
-                    <p class="text-[10px] opacity-30 uppercase font-bold tracking-widest">Knowledge Testing</p>
-                </div>
-                <div onclick="showView('training')" class="glass p-12 cursor-pointer hover:bg-white/10 transition group text-center border-b-4 border-orange-600">
-                    <i data-lucide="zap" class="w-12 h-12 mx-auto mb-6 opacity-40 group-hover:opacity-100 transition duration-500"></i>
-                    <h3 class="text-3xl font-black mb-3 uppercase tracking-tight">Training</h3>
-                    <p class="text-[10px] opacity-30 uppercase font-bold tracking-widest">Real-time Feedback</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dynamic Content -->
-        <div id="dynamic-content" class="hidden"></div>
+    <!-- Main Container -->
+    <div id="app" class="relative z-10 w-full min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+        <!-- Content gets injected here by JavaScript -->
     </div>
 
     <script>
-        // --- DATASET 60 SOAL UNIK ---
-        const questionPool = [
-            // KELISTRIKAN & MEKANISME JANTUNG (1-20)
-            { q: "Apa inisiator kelistrikan utama jantung yang normal dan berapa ritme intrinsiknya?", a: "Sinoatrial (SA) Node (80-100 bpm)", desc: "SA Node berfungsi sebagai pacemaker primer karena laju depolarisasi spontan tertinggi (80-100 denyut/menit). Jika gagal, AV Node akan mengambil alih.", options: ["SA Node (80-100 bpm)", "AV Node (40-60 bpm)", "Bundle of His (20-40 bpm)", "Purkinje (15-30 bpm)", "Bachmann Bundle (60-80 bpm)"], source: "PPT 6, 12 - Fungsi Kelistrikan Jantung" },
-            { q: "Bagian manakah dari sistem konduksi yang menunda impuls agar ventrikel terisi darah secara penuh sebelum kontraksi?", a: "Atrioventrikular (AV) Node", desc: "AV Node berfungsi menunda konduksi impuls dari atrium ke ventrikel (sekitar 0.1 detik) guna memberikan waktu bagi ventrikel terisi penuh oleh darah.", options: ["SA Node", "Serabut Purkinje", "Bundle of His", "Atrioventrikular (AV) Node", "Tractus Internodal"], source: "PPT 6, 12 - Fungsi Kelistrikan Jantung" },
-            { q: "Gelombang P pada Elektrokardiogram (EKG) merepresentasikan peristiwa fisiologis apa?", a: "Depolarisasi Atrium", desc: "Gelombang P menandakan proses depolarisasi otot atrium yang segera diikuti oleh kontraksi atrium.", options: ["Repolarisasi Ventrikel", "Depolarisasi Atrium", "Depolarisasi Ventrikel", "Repolarisasi Atrium", "Kontraksi Isovolumetrik"], source: "PPT 6, 12 - Fungsi Kelistrikan Jantung" },
-            { q: "Kompleks QRS pada EKG merupakan indikator kelistrikan dari...", a: "Depolarisasi Ventrikel", desc: "Kompleks QRS mencerminkan depolarisasi ventrikel yang masif karena massa otot ventrikel yang besar, menutupi repolarisasi atrium.", options: ["Repolarisasi Ventrikel", "Depolarisasi Ventrikel", "Depolarisasi Atrium", "Relaksasi Ventrikel", "Jeda AV Node"], source: "PPT 6, 12 - Fungsi Kelistrikan Jantung" },
-            { q: "Stimulasi saraf simpatis pada jantung akan melepaskan Norepinefrin yang memiliki efek utama berupa?", a: "Meningkatkan denyut jantung dan kekuatan kontraksi", desc: "Norepinefrin memperpendek waktu repolarisasi dan mempercepat depolarisasi spontan, meningkatkan Heart Rate dan Stroke Volume.", options: ["Menurunkan denyut jantung", "Memperlambat konduksi AV Node", "Meningkatkan denyut jantung dan kekuatan kontraksi", "Menyebabkan vasodilatasi koroner saja", "Menurunkan Cardiac Output"], source: "PPT 6, 12 - Fungsi Kelistrikan Jantung" },
-            { q: "Refleks Bainbridge pada jantung merespons terhadap peningkatan apa?", a: "Volume cairan dan peregangan atrium kanan", desc: "Refleks Bainbridge (Atrial reflex) dipicu oleh peningkatan Aliran Balik Vena (Venous Return) yang meregangkan atrium kanan, mempercepat denyut jantung.", options: ["Tekanan parsial Oksigen", "Tekanan Darah Aorta", "Volume cairan dan peregangan atrium kanan", "Penurunan pH darah", "Kadar kalsium intraseluler"], source: "PPT 6, 12 - Fungsi Kelistrikan Jantung" },
-            { q: "Secara mekanis, bunyi jantung pertama ('Lubb' / S1) diakibatkan oleh peristiwa apa?", a: "Penutupan katup Atrioventrikular (Mitral & Trikuspid)", desc: "Bunyi S1 terjadi persis pada permulaan fase Sistol Ventrikel, mencegah aliran balik darah ke atrium.", options: ["Penutupan katup Atrioventrikular (Mitral & Trikuspid)", "Penutupan katup Semilunar (Aorta & Pulmonal)", "Pembukaan mendadak katup Aorta", "Fase relaksasi isovolumetrik", "Aliran deras ke ventrikel saat diastol"], source: "PPT 1 - Mekanisme Kerja Jantung" },
-            { q: "Bunyi jantung kedua ('Dupp' / S2) menandakan akhir dari sistol ventrikel, yang disebabkan oleh?", a: "Penutupan katup Semilunar (Aorta & Pulmonal)", desc: "S2 terjadi ketika tekanan ventrikel turun di bawah tekanan aorta/arteri pulmonalis, menutup katup semilunar.", options: ["Pembukaan katup Atrioventrikular", "Penutupan katup Semilunar (Aorta & Pulmonal)", "Kontraksi Atrium", "Relaksasi Atrium", "Penutupan katup Bikuspidalis"], source: "PPT 1 - Mekanisme Kerja Jantung" },
-            { q: "Fase di mana tekanan ventrikel meningkat drastis tapi semua katup jantung tertutup rapat disebut?", a: "Kontraksi Isovolumetrik", desc: "Fase kontraksi isovolumetrik terjadi setelah katup AV menutup namun tekanan belum cukup tinggi untuk membuka katup semilunar. Volume tetap.", options: ["Relaksasi Isovolumetrik", "Ejeksi Ventrikel Cepat", "Kontraksi Isovolumetrik", "Pengisian Ventrikel Pasif", "Sistol Atrium"], source: "PPT 1 - Mekanisme Kerja Jantung" },
-            { q: "Curah Jantung (Cardiac Output / CO) dihitung menggunakan rumus apa?", a: "Heart Rate (HR) x Stroke Volume (SV)", desc: "CO adalah total darah yang dipompa jantung per menit, merupakan perkalian dari denyut per menit dengan volume per denyut.", options: ["Heart Rate (HR) x Stroke Volume (SV)", "End Diastolic Volume - End Systolic Volume", "Tekanan Sistolik / Tekanan Diastolik", "Preload x Afterload", "Stroke Volume / End Diastolic Volume"], source: "PPT 1 - Mekanisme Kerja Jantung" },
-            { q: "Sesuai Hukum Frank-Starling, semakin besar pengisian darah ke ventrikel saat diastol (Preload), maka...", a: "Stroke Volume akan meningkat karena regangan otot jantung yang optimal", desc: "Hukum Starling: jantung memompa darah yang kembali kepadanya. Peningkatan EDV meregangkan sarkomer otot jantung ke panjang optimal untuk kontraksi lebih kuat.", options: ["Stroke Volume akan menurun drastis", "Stroke Volume akan meningkat karena regangan otot jantung yang optimal", "Heart rate akan langsung menurun", "Afterload akan meningkat tajam", "Kontraktilitas akan dihambat"], source: "PPT 1 - Mekanisme Kerja Jantung" },
-            { q: "Faktor Afterload mengacu pada apa dalam mekanika jantung?", a: "Tahanan atau resistensi vaskuler yang harus dilawan ventrikel untuk menyemprotkan darah", desc: "Afterload sebagian besar ditentukan oleh tekanan darah arteri perifer dan resistensi pembuluh darah yang harus dilewati.", options: ["Volume darah di akhir diastol", "Tahanan atau resistensi vaskuler yang harus dilawan ventrikel untuk menyemprotkan darah", "Kapasitas vena menampung darah", "Kecepatan depolarisasi SA node", "Tekanan osmotik di dalam plasma darah"], source: "PPT 1 - Mekanisme Kerja Jantung" },
-            { q: "Sistem saraf otonom parasimpatis (Nervus Vagus) menurunkan denyut jantung melalui penglepasan neurotransmiter apa?", a: "Asetilkolin (ACh)", desc: "ACh membuka kanal kalium dan memperlambat laju depolarisasi pada SA Node, sehingga memperlambat heart rate.", options: ["Epinefrin", "Asetilkolin (ACh)", "Norepinefrin", "Dopamin", "Glutamat"], source: "PPT 6, 12 - Fungsi Kelistrikan Jantung" },
-            { q: "Di manakah letak Baroreseptor utama pengatur tekanan darah secara refleks?", a: "Sinus Karotis dan Arkus Aorta", desc: "Sensor tekanan ini mendeteksi regangan vaskuler akibat perubahan tekanan darah dan mengirim sinyal ke medula oblongata.", options: ["Ventrikel Kanan dan Kiri", "Sinus Karotis dan Arkus Aorta", "Vena Cava Superior", "Medulla Oblongata", "Hipotalamus"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Respons kardiovaskular jika terjadi Hemoragik (perdarahan hebat) yang menurunkan tekanan darah secara mendadak adalah?", a: "Vasokonstriksi perifer dan takikardia simpatis", desc: "Tubuh merespon hipotensi akut dengan meningkatkan tonus simpatis untuk menyempitkan pembuluh darah dan mempercepat denyut jantung.", options: ["Vasodilatasi perifer massif", "Vasokonstriksi perifer dan takikardia simpatis", "Penurunan aktivitas ginjal secara permanen", "Stimulasi parasimpatis dominan", "Penurunan kontraktilitas otot jantung"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Sebagian besar volume darah pada orang dewasa (60-65%) disimpan di bagian sirkulasi mana saat istirahat?", a: "Sistem Vena (Vena Sistemik)", desc: "Vena berfungsi sebagai reservoir (penampung) darah utama karena elastisitas dan kapasitasnya yang besar.", options: ["Jantung", "Sistem Arteri", "Sistem Kapiler", "Sistem Vena (Vena Sistemik)", "Arteri Pulmonalis"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Hormon yang memicu produksi sel darah merah saat terjadi hipoksia jaringan adalah?", a: "Eritropoietin (EPO)", desc: "EPO dilepaskan oleh ginjal dan merangsang sumsum tulang untuk mempercepat eritropoiesis.", options: ["Aldosteron", "Angiotensin II", "Renin", "Eritropoietin (EPO)", "Anti-Diuretik Hormone (ADH)"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Hormon yang dilepaskan otot jantung saat terjadi peregangan diastolik berlebihan untuk membuang cairan adalah?", a: "ANP (Atrial Natriuretic Peptide)", desc: "ANP/BNP menstimulasi ginjal membuang Na+ dan air (diuresis) sehingga volume dan tekanan darah turun.", options: ["ANP (Atrial Natriuretic Peptide)", "ADH (Anti-Diuretic Hormone)", "Aldosteron", "Angiotensin II", "Kortisol"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Enzim Renin dilepaskan oleh ginjal sebagai respons terhadap?", a: "Penurunan tekanan darah / perfusi ginjal", desc: "Renin mengaktifkan jalur Angiotensinogen menjadi Angiotensin I, yang kemudian diubah jadi Angiotensin II untuk menaikkan TD.", options: ["Peningkatan tekanan darah / hipervolemia", "Penurunan tekanan darah / perfusi ginjal", "Peningkatan oksigenasi darah", "Stimulasi nervus vagus", "Peregangan otot jantung"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Angiotensin II memiliki peran sangat kuat dalam sistem kardiovaskular sebagai?", a: "Vasokonstriktor paling poten dan stimulan pelepasan Aldosteron", desc: "Angiotensin II langsung menyempitkan arteriola dan merangsang kelenjar adrenal menahan natrium via Aldosteron.", options: ["Vasodilator perifer utama", "Vasokonstriktor paling poten dan stimulan pelepasan Aldosteron", "Penghambat reabsorpsi cairan di ginjal", "Inhibitor saraf simpatis", "Stimulator sekresi ANP"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-
-            // TRANSPORTASI & VASKULER (21-35)
-            { q: "Pada Hukum Starling Kapiler, perpindahan cairan kembali masuk (reabsorpsi) ke dalam pembuluh darah di ujung vena bergantung pada?", a: "Tekanan Osmotik Koloid Plasma (BCOP)", desc: "Tekanan Osmotik Koloid Plasma (BCOP) yang dihasilkan oleh protein (Albumin) bertugas menarik cairan agar kembali masuk ke vena kapiler.", options: ["Tekanan Osmotik Koloid Plasma (BCOP)", "Tekanan Hidrostatik Kapiler", "Tekanan Hidrostatik Interstisial", "Tekanan Parsial Oksigen", "Penurunan Tekanan Vena Sentral"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Gaya yang dominan mendorong cairan filtrasi KELUAR dari kapiler menuju ruang interstisial di ujung arteriol adalah?", a: "Tekanan Hidrostatik Darah (CHP)", desc: "Tekanan darah fisik yang dihasilkan dari curah jantung mendorong cairan melewati celah sel endotel kapiler.", options: ["Tekanan Hidrostatik Darah (CHP)", "Tekanan Osmotik Koloid Jaringan", "Tekanan Osmotik Koloid Plasma", "Tekanan Limfatik", "Pompa otot rangka"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Jika kadar albumin plasma darah menurun drastis (hipoalbuminemia), apa komplikasi cairan yang terjadi?", a: "Edema perifer masif", desc: "Tanpa albumin, Tekanan Osmotik Koloid Plasma turun drastis, sehingga cairan yang keluar ke jaringan gagal diserap kembali.", options: ["Dehidrasi jaringan", "Peningkatan reabsorpsi kapiler", "Edema perifer masif", "Hipertensi pulmonal", "Penurunan tekanan hidrostatik"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Arteri manakah di dalam tubuh yang bertugas mengatur 'resistance' (tahanan perifer total) paling dominan?", a: "Arteriola", desc: "Arteriola memiliki otot polos yang tebal di dindingnya dan ukurannya paling krusial mengatur distribusi darah lokal dan TPR.", options: ["Aorta", "Vena Cava", "Kapiler", "Arteriola", "Venula"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Saat olahraga, peningkatan metabolisme otot (Asam Laktat, CO2) menyebabkan sfingter prekapiler mengalami?", a: "Vasodilatasi lokal (membuka lebar)", desc: "Metabolit aktif dan asidosis lokal langsung memicu pelebaran pembuluh darah otot (autoregulasi) agar O2 masuk maksimal.", options: ["Vasokonstriksi lokal", "Penutupan total (iskemia)", "Vasodilatasi lokal (membuka lebar)", "Peningkatan resistensi perifer ganda", "Trombosis mikrovaskuler"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Sirkulasi paru-paru (pulmonal) memiliki karakteristik tekanan yang unik dibandingkan sirkulasi sistemik, yaitu?", a: "Tekanan hidrostatik rendah, memprioritaskan difusi gas", desc: "Sirkulasi pulmonal tekanan rendah mencegah filtrasi cairan ke dalam alveolus (mencegah edema paru) dan melambatkan aliran agar O2 bisa difusi maksimal.", options: ["Tekanan hidrostatik sangat tinggi", "Tekanan onkotik nol", "Tekanan hidrostatik rendah, memprioritaskan difusi gas", "Identik dengan tekanan aorta", "Didominasi oleh resistensi tinggi"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Pembuluh kapiler merupakan struktur vital karena fungsi utamanya adalah?", a: "Satu-satunya tempat terjadinya pertukaran nutrisi, gas, dan limbah", desc: "Kapiler hanya terdiri dari selapis endotel pipih yang ideal untuk difusi gas pasif dan transpor nutrisi.", options: ["Mendistribusikan darah ke seluruh organ tanpa kebocoran", "Satu-satunya tempat terjadinya pertukaran nutrisi, gas, dan limbah", "Menyimpan 60% cadangan darah", "Memompa darah secara peristaltik", "Mengatur denyut jantung lokal"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Hormon Antidiuretik (ADH / Vasopresin) merespons kondisi apa dan apa efeknya?", a: "Merespons osmolaritas plasma tinggi dengan menahan air di ginjal", desc: "ADH dari neurohipofisis mencegah kehilangan air melalui urin, sehingga meningkatkan volume darah dan TD.", options: ["Merespons volume darah tinggi dengan membuang air", "Merespons osmolaritas plasma tinggi dengan menahan air di ginjal", "Merespons hipoksia dengan memproduksi sel darah", "Merespons peregangan atrium dengan vasodilatasi", "Merespons inflamasi kapiler"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Jika terjadi hiperkapnia (kadar CO2 tinggi di jaringan otak), pembuluh darah serebral akan berespons dengan?", a: "Vasodilatasi kuat", desc: "Otak sangat sensitif terhadap pH. Peningkatan CO2 menurunkan pH, memicu pembuluh darah otak melebar untuk membuang CO2 berlebih.", options: ["Vasokonstriksi kuat", "Vasodilatasi kuat", "Tidak ada perubahan", "Menutup total aliran darah", "Membentuk bekuan sementara"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Refleks pengembalian vena (Venous Return) menuju jantung dari bagian bawah tubuh dibantu oleh mekanisme apa?", a: "Pompa otot rangka dan katup vena satu arah", desc: "Vena di kaki melawan gravitasi dengan bantuan kontraksi otot betis (pompa otot) dan katup yang mencegah aliran darah merosot turun.", options: ["Hanya bergantung pada viskositas darah", "Pompa otot rangka dan katup vena satu arah", "Denyutan aorta abdominalis", "Tekanan hidrostatik jaringan yang tinggi", "Hanya bergantung pada daya hisap ventrikel kanan"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Viskositas darah sebagian besar ditentukan oleh?", a: "Rasio sel darah merah terhadap volume plasma (Hematokrit)", desc: "Semakin tinggi hematokrit (sel darah merah padat), semakin kental darah, semakin besar resistensi perifer yang membebani jantung.", options: ["Kadar trombosit dalam darah", "Rasio sel darah merah terhadap volume plasma (Hematokrit)", "Kadar ion natrium plasma", "Kadar albumin plasma murni", "Tingkat tekanan parsial oksigen"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Tahanan Perifer Total (TPR) adalah hambatan terhadap aliran darah. Jika terjadi vasokonstriksi arteriola massif, maka TPR akan?", a: "Meningkat tajam, menyebabkan tekanan darah arteri naik", desc: "Menyempitnya pembuluh darah meningkatkan resistensi eksponensial terhadap aliran, menyebabkan beban tekanan di belakangnya (arteri) naik drastis.", options: ["Menurun tajam, menyebabkan tekanan darah turun", "Meningkat tajam, menyebabkan tekanan darah arteri naik", "Tidak berubah jika cardiac output tetap", "Hanya mempengaruhi curah jantung parsial", "Meningkatkan filtrasi kapiler secara merata"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Saat terjadi dehidrasi berat, konsentrasi osmotik plasma tinggi merangsang pelepasan hormon apa?", a: "Anti-Diuretik Hormone (ADH)", desc: "ADH langsung dirilis pituitari untuk memaksa ginjal menahan air murni agar plasma tidak makin pekat.", options: ["Eritropoietin (EPO)", "Anti-Diuretik Hormone (ADH)", "Natriuretic Peptides (ANP)", "Asetilkolin", "Adrenalin"], source: "PPT 3, 4 - Pengaturan Tekanan Darah" },
-            { q: "Aliran darah tubuh paling stabil dan dilindungi kuat agar alirannya nyaris konstan adalah ke organ?", a: "Otak", desc: "Aliran darah ke otak dipertahankan sangat stabil (sekitar 750 ml/menit) melalui mekanisme autoregulasi kuat untuk mencegah kerusakan saraf iskemik.", options: ["Kulit", "Otot Rangka", "Ginjal", "Otak", "Sistem Pencernaan"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Perpindahan bahan gizi (Nutrien, Asam Amino, Glukosa) dari kapiler ke sel jaringan utamanya terjadi melalui mekanisme?", a: "Difusi menembus celah interseluler dan membran endotel", desc: "Partikel kecil terlarut air bergerak pasif mengikuti gradien konsentrasinya dari darah ke interstisial.", options: ["Transpor aktif menggunakan ATP besar-besaran", "Pompa Na+/K+ di membran eritrosit", "Difusi menembus celah interseluler dan membran endotel", "Endositosis makrofag kapiler", "Osmosis balik yang dibantu albumin"], source: "PPT 18 - Fungsi Transportasi" },
-
-            // RESPIRASI ANATOMI & FISIOLOGI GAS (36-50)
-            { q: "Secara fungsional, Area 'Anatomical Dead Space' (Ruang Mati Anatomi) terdapat pada struktur?", a: "Zona Konduksi (Hidung sampai Bronkiolus Terminalis)", desc: "Bagian ini hanya mengalirkan, menyaring, dan melembapkan udara, TIDAK ada pertukaran gas sama sekali.", options: ["Alveolus", "Duktus Alveolaris", "Zona Konduksi (Hidung sampai Bronkiolus Terminalis)", "Zona Respirasi ujung", "Membran Pleura"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Substansi aktif permukaan yang berfungsi menurunkan tegangan permukaan cairan pada alveolus agar tidak kolaps adalah?", a: "Surfaktan", desc: "Surfaktan disekresikan oleh sel Pneumosit Tipe II paru-paru, sangat penting menstabilkan alveolus saat ekspirasi.", options: ["Mukus / Lendir", "Surfaktan", "Bikarbonat", "Enzim Karbonik Anhidrase", "Histamin"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Sebagian besar Oksigen (98%) diangkut dari paru ke jaringan perifer dalam bentuk?", a: "Terikat pada besi (Heme) di Hemoglobin", desc: "Oksigen sangat sulit larut dalam air/plasma murni (hanya 2%). Sisanya terikat reversibel membentuk Oksihemoglobin.", options: ["Terlarut bebas dalam plasma plasma", "Terikat pada besi (Heme) di Hemoglobin", "Dalam bentuk ion Superoksida", "Terikat pada rantai Asam Amino Hb", "Dikonversi menjadi air di kapiler"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Bagaimana mayoritas Karbondioksida (60%) diangkut dari jaringan tubuh menuju paru-paru?", a: "Diangkut dalam bentuk Ion Bikarbonat (HCO3-)", desc: "CO2 + H2O diubah oleh karbonik anhidrase di sel darah merah menjadi ion bikarbonat (HCO3-) yang sangat stabil di plasma.", options: ["Diangkut dalam bentuk Ion Bikarbonat (HCO3-)", "Diikat oleh zat besi Heme", "Terlarut murni dalam plasma darah", "Diubah seluruhnya menjadi Asam Karbonat", "Menempel pada protein albumin"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Sebagian Karbondioksida (30%) diangkut menempel secara langsung pada protein globin Hemoglobin. Bentuk ikatan ini disebut?", a: "Karbaminohemoglobin", desc: "CO2 berikatan dengan gugus asam amino pada rantai globin (bukan di posisi heme besi tempat O2 menempel).", options: ["Oksihemoglobin", "Karboksihemoglobin", "Methemoglobin", "Karbaminohemoglobin", "Ion Bikarbonat"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Berdasarkan Efek Bohr, faktor apa yang menyebabkan kurva disosiasi Oksihemoglobin bergeser ke KANAN (afinitas O2 turun)?", a: "Peningkatan kadar CO2, Suhu, dan Penurunan pH", desc: "Kurva yang bergeser ke KANAN menandakan Hemoglobin (Hb) mulai 'melepaskan' daya cengkeramnya terhadap Oksigen, menguntungkan otot yang sedang aktif.", options: ["Peningkatan kadar CO2, Suhu, dan Penurunan pH", "Penurunan suhu lingkungan dan Alkalosis", "Penurunan 2,3-DPG dan Peningkatan pH", "Hanya bergantung pada penurunan pO2", "Peningkatan konsentrasi Bikarbonat"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Volume udara masuk dan keluar paru-paru dalam satu siklus pernapasan normal tanpa paksaan (sekitar 500 ml) disebut?", a: "Volume Tidal (VT)", desc: "Volume Tidal adalah ukuran pernapasan basal kita saat istirahat santai.", options: ["Volume Residu (RV)", "Volume Tidal (VT)", "Kapasitas Vital (VC)", "Kapasitas Paru Total (TLC)", "Volume Cadangan Inspirasi"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Volume udara yang tetap mengendap di dalam paru-paru bahkan setelah ekspirasi (menghembuskan napas) sekuat tenaga disebut?", a: "Volume Residu (RV)", desc: "Sisa udara sekitar 1200ml ini mustahil dikeluarkan, berfungsi vital menjaga alveolus agar tidak lengket/kolaps total.", options: ["Volume Residu (RV)", "Volume Tidal (VT)", "Kapasitas Vital (VC)", "Volume Cadangan Ekspirasi (ERV)", "Kapasitas Residu Fungsional (FRC)"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Volume maksimal udara yang bisa dihembuskan keluar secara paksa setelah kita menarik napas secara maksimal pula dinamakan?", a: "Kapasitas Vital (Vital Capacity / VC)", desc: "Kapasitas Vital adalah penjumlahan dari Volume Cadangan Inspirasi + Volume Tidal + Volume Cadangan Ekspirasi.", options: ["Kapasitas Paru Total (TLC)", "Kapasitas Residu Fungsional (FRC)", "Kapasitas Vital (Vital Capacity / VC)", "Volume Residu (RV)", "Volume Tidal Cadangan"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Kapasitas Residu Fungsional (FRC) adalah jumlah udara yang ada di paru pada akhir ekspirasi normal. Terdiri dari gabungan volume apa?", a: "Volume Cadangan Ekspirasi + Volume Residu", desc: "FRC adalah cadangan pasif. Saat istirahat, kita bernapas di atas batas FRC ini.", options: ["Volume Tidal + Volume Residu", "Volume Cadangan Inspirasi + Volume Tidal", "Volume Cadangan Ekspirasi + Volume Residu", "Kapasitas Vital + Volume Residu", "Volume Tidal + Volume Cadangan Ekspirasi"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Di manakah letak Pusat Pernapasan Ritmik (Pusat Kontrol Respirasi) utama di susunan saraf pusat?", a: "Medula Oblongata dan Pons", desc: "Batang otak memiliki grup respirasi dorsal dan ventral (medula) serta pneumotaksik/apneustik (pons) pengatur otomatis napas.", options: ["Korteks Serebri", "Hipotalamus", "Cerebellum", "Medula Oblongata dan Pons", "Thalamus"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Stimulus kimiawi paling kuat yang mendominasi aktivasi kemoreseptor sentral di otak untuk memacu hiperventilasi adalah?", a: "Peningkatan pCO2 arteri yang membentuk ion Hidrogen (H+) di cairan serebrospinal", desc: "Kemoreseptor sentral buta terhadap oksigen. Ia sangat peka mendeteksi CO2 yang menembus sawar darah otak lalu berubah wujud jadi asam (H+).", options: ["Penurunan ekstrim Oksigen arteri (pO2)", "Peningkatan Asam Laktat di sirkulasi otot", "Peningkatan pCO2 arteri yang membentuk ion Hidrogen (H+) di cairan serebrospinal", "Penurunan drastis Glukosa darah", "Peningkatan Bikarbonat ginjal"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Kemoreseptor perifer (terletak di badan Karotis dan Arkus Aorta) berfungsi sebagai cadangan darurat jika terjadi?", a: "Penurunan Oksigen (pO2) arteri secara drastis (Hipoksia berat < 60 mmHg)", desc: "Hanya saat Oksigen turun sangat gawat barulah reseptor perifer menendang laju napas naik tajam sebagai refleks penyelamatan.", options: ["Peningkatan Oksigen (pO2) drastis", "Penurunan drastis glukosa murni", "Peningkatan pH darah menjadi sangat Basa", "Penurunan Oksigen (pO2) arteri secara drastis (Hipoksia berat < 60 mmHg)", "Penurunan ringan PCO2 arteri"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Apa dampak pergeseran kurva disosiasi oksihemoglobin ke arah KIRI terhadap transpor Oksigen?", a: "Hemoglobin mengikat Oksigen sangat kuat, sulit melepaskannya ke jaringan", desc: "Keadaan alkalosis, suhu dingin, atau PCO2 rendah akan menggeser kurva ke kiri, sangat baik mengikat O2 di paru tapi buruk saat melepasnya ke organ.", options: ["Hemoglobin sangat mudah melepaskan Oksigen ke jaringan", "Hemoglobin berhenti mengikat Oksigen", "Hemoglobin mengikat Oksigen sangat kuat, sulit melepaskannya ke jaringan", "Terjadi pertukaran Oksigen dengan Karbondioksida di darah", "Jumlah Volume Tidal akan langsung meningkat tajam"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-            { q: "Efek Haldane secara fungsional merujuk pada fenomena fisiologis apa di paru-paru?", a: "Peningkatan pengikatan Oksigen oleh Hemoglobin memaksa pelepasan Karbondioksida", desc: "Di kapiler paru, O2 yang masuk tinggi, membuat Hb membuang CO2 agar bisa berikatan dengan Oksigen (kebalikan efek Bohr).", options: ["Peningkatan PCO2 memaksa pelepasan Oksigen", "Penurunan suhu mengurangi transpor CO2", "Peningkatan pengikatan Oksigen oleh Hemoglobin memaksa pelepasan Karbondioksida", "Penurunan pH memicu asidosis metabolik", "Peningkatan Bikarbonat memicu alkalosis respiratori"], source: "PPT 8, 9 - Fisiologi Respirasi" },
-
-            // OLAHRAGA & MEKANIKA EKSTRIM (51-60)
-            { q: "Parameter fisiologis terbaik untuk menilai kapasitas kardiorespirasi dan kerja maksimal aerobik pada atlet adalah?", a: "Konsumsi Oksigen Maksimal (VO2 Max)", desc: "VO2 Max adalah metrik puncak yang menilai kemampuan tubuh menghirup, mendistribusi, dan mengkonsumsi O2 murni per menit di tingkat sel otot.", options: ["Konsumsi Oksigen Maksimal (VO2 Max)", "Curah Jantung Maksimal (Max CO)", "Kapasitas Vital Paru-paru", "Stroke Volume (Isi Sekuncup)", "Saturasi Oksigen Perifer"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Bagaimana adaptasi strategi bernapas atlet yang terlatih untuk menjaga 'Alveolar Ventilation' saat berolahraga berat?", a: "Meningkatkan ekstrim kedalaman napas (Volume Tidal) dengan sedikit peningkatan frekuensi", desc: "Atlet tahu napas dangkal yang sangat cepat (panting) hanya membuang udara di 'dead space'. Memperdalam tarikan (Tidal Volume) jauh lebih hemat energi dan menukar O2 maksimal.", options: ["Bernapas sangat dangkal namun frekuensi super cepat", "Meningkatkan ekstrim kedalaman napas (Volume Tidal) dengan sedikit peningkatan frekuensi", "Menahan napas (manuver Valsalva) secara periodik", "Hanya bernapas melalui hidung agar kelembapan terjaga", "Menurunkan volume residu secara permanen"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Sistem saraf otonom apakah yang mengambil alih kontrol mutlak saat dimulainya aktivitas olahraga intens (Fight or Flight)?", a: "Saraf Simpatis", desc: "Simpatis melepaskan Adrenalin dan Noradrenalin, memacu Jantung (taki), melebarkan bronkus, memecah glikogen, dan memvasokonstriksi splanknik.", options: ["Saraf Parasimpatis", "Saraf Somatik Volunter", "Saraf Simpatis", "Pleksus Enterik Pencernaan", "Nervus Vagus dominan"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Sumber energi (bahan bakar metabolik) utama untuk olahraga intens dan sangat berat dalam durasi pendek (sprint) adalah?", a: "Karbohidrat (Glikolisis Anaerob/Aerob)", desc: "Glikogen otot dapat dipecah secara cepat (meski anaerob jadi laktat) untuk menyediakan lonjakan ATP masif dalam waktu singkat.", options: ["Asam Amino (Protein otot)", "Asam Lemak Bebas murni", "Keton Bodies", "Karbohidrat (Glikolisis Anaerob/Aerob)", "Garam dan Elektrolit"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Saat olahraga durasi panjang dan konstan (lari maraton moderat), bahan bakar apakah yang kontribusinya bergeser menjadi makin penting?", a: "Lemak (Asam Lemak / Oksidasi Beta)", desc: "Tubuh menyimpan deposit lemak raksasa. Setelah glikogen menipis, oksidasi lemak mengambil alih suplai ATP yang konstan dan irit untuk jangka panjang.", options: ["Protein darah struktural", "Asam Laktat Anaerobik", "Lemak (Asam Lemak / Oksidasi Beta)", "Karbondioksida murni", "Hanya Glukosa murni saja"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Pada individu normal yang sehat, faktor kardiorespirasi manakah yang BUKAN menjadi 'pembatas (limit factor)' utama saat olahraga maksimal?", a: "Sistem ventilasi mekanik paru-paru dan difusi gas", desc: "Kapasitas pompa Jantung dan aliran Oksigen ke otot yang akan 'menyerah' duluan. Paru-paru normal selalu punya kapasitas berlebih (oversupply).", options: ["Kapasitas pompa ventrikel jantung (Cardiac Output)", "Ekstraksi oksigen secara lokal oleh serat otot", "Laju suplai sirkulasi pembuluh darah", "Sistem ventilasi mekanik paru-paru dan difusi gas", "Ketahanan metabolisme asam laktat"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Respons adaptasi kardiovaskular saat berolahraga ekstrem akan melipatgandakan Curah Jantung (Cardiac Output). Aliran darah ekstra ini secara masif diarahkan/didistribusikan ke mana?", a: "Otot Rangka (Skeletal Muscle)", desc: "Melalui vasodilatasi lokal pembuluh darah otot, hingga 85% curah jantung dialihkan ke otot yang bekerja keras.", options: ["Sistem Pencernaan dan Ginjal", "Organ Hati dan Limpa", "Otot Rangka (Skeletal Muscle)", "Kulit seluruh permukaan secara eksklusif", "Hanya menuju otak dan sumsum tulang"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Ketika Anda baru saja memulai olahraga moderat, secara mengejutkan tekanan PCO2 dan PO2 di dalam arteri sistemik akan?", a: "Tetap Konstan (Normal / Dipertahankan ketat)", desc: "Ini adalah keajaiban regulasi. Sistem kemoreseptor sangat canggih sehingga peningkatan ventilasi paru-paru persis menyeimbangkan sisa O2 dan CO2 otot, menjaga level di pembuluh darah tetap 'stabil' meskipun produksi CO2 gila-gilaan.", options: ["PCO2 akan meroket tinggi dan PO2 anjlok", "Oksigen arteri akan kosong seketika", "PCO2 akan hilang sepenuhnya dari darah", "Tetap Konstan (Normal / Dipertahankan ketat)", "Menyebabkan asidosis respiratorik letal murni"], source: "PPT 19 - Mekanika Kardiorespirasi" },
-            { q: "Peningkatan aktivitas pemompaan jantung saat olahraga juga dibantu secara drastis oleh pengembalian vena (Venous Return). Mekanisme pembantu terkuatnya adalah?", a: "Kontraksi Otot Rangka dan Peningkatan Ritme Napas (Pompa Toraks)", desc: "Otot kaki yang berlari memeras vena dalam. Tarikan napas dalam bertindak bak penyedot vakum (Thoracic Pump) yang menarik aliran darah vena kembali ke bilik kanan jantung.", options: ["Perlemahan sfingter kapiler semata", "Kontraksi Otot Rangka dan Peningkatan Ritme Napas (Pompa Toraks)", "Penurunan tonus vena sistemik (Venodilatasi)", "Gravitasi bumi akibat posisi berdiri", "Peningkatan filtrasi ginjal secara lokal"], source: "PPT 18 - Fungsi Transportasi" },
-            { q: "Molekul energi kimia universal yang dihasilkan dari glikolisis dan fosforilasi oksidatif untuk bahan bakar mekanik kontraksi otot adalah?", a: "ATP (Adenosine Triphosphate)", desc: "Tanpa ATP, jembatan silang aktin-miosin pada sarkomer otot rangka tidak bisa bekerja/melepaskan ikatannya.", options: ["GTP (Guanosine Triphosphate)", "Asam Laktat Murni", "Creatine Phosphate secara eksklusif permanen", "Glikogen belum terpecah", "ATP (Adenosine Triphosphate)"], source: "PPT 19 - Mekanika Kardiorespirasi" }
+        // --- DATA Q&A (Pretest & Posttest) ---
+        const qaData = [
+            {
+                q: "Rata-rata tekanan darah dipengaruhi langsung oleh:",
+                options: [
+                    "Curah jantung dan total resistensi perifer",
+                    "Curah jantung dan stroke volume",
+                    "Jari-jari dan panjang pembuluh",
+                    "Darah balik dan pompa respirasi",
+                    "Saraf otonom"
+                ],
+                ans: 0
+            },
+            {
+                q: "Curah jantung (CO) dapat dicari melalui perhitungan:",
+                options: [
+                    "TPR x SP",
+                    "SV x HR",
+                    "Lama Waktu x 100",
+                    "Diastole x Sistole",
+                    "VCE + VR"
+                ],
+                ans: 1
+            },
+            {
+                q: "Pada Uji Korotkoff, tekanan diastole mulai ditentukan saat bunyi ada di fase/urutan:",
+                options: ["1", "2", "3", "4", "5"],
+                ans: 4
+            },
+            {
+                q: "Faktor yang memengaruhi kontrol vasokontriktor lokal menurut data kuis:",
+                options: [
+                    "Pompa respirasi",
+                    "Aliran darah",
+                    "Simpatis-parasimpatis",
+                    "Katup jantung",
+                    "Jari-jari pembuluh darah"
+                ],
+                ans: 2
+            },
+            {
+                q: "Volume udara yang masih berada di paru setelah ekspirasi maksimal disebut?",
+                options: [
+                    "Volume tidal",
+                    "Volume cadangan inspirasi",
+                    "Kapasitas vital",
+                    "Volume residu",
+                    "Kapasitas paru total"
+                ],
+                ans: 3
+            },
+            {
+                q: "Pernyataan A: Bunyi hilang saat tekanan manset dibawah tekanan diastolik. Pernyataan B: Menjadi aliran laminar. Hubungannya?",
+                options: [
+                    "A benar, B salah, tidak berhubungan",
+                    "A salah, B benar, tidak berhubungan",
+                    "A benar, B benar, Berhubungan",
+                    "A benar, B benar, tidak berhubungan",
+                    "A salah, B salah, Berhubungan"
+                ],
+                ans: 2
+            },
+            {
+                q: "Faktor vaskular yang mempengaruhi aliran darah, KECUALI:",
+                options: [
+                    "Gerakan pompa jantung",
+                    "Volume darah",
+                    "Viskositas darah",
+                    "Denyut jantung",
+                    "Elastisitas dinding pembuluh"
+                ],
+                ans: 3
+            },
+            {
+                q: "Di bawah ini yang BUKAN termasuk indikasi pemeriksaan spirometri adalah:",
+                options: [
+                    "Batuk kronis > 40 tahun",
+                    "Riwayat penyakit paru",
+                    "Kardiovaskular tidak stabil",
+                    "Sakit dada",
+                    "Clubbing finger"
+                ],
+                ans: 2
+            },
+            {
+                q: "Seseorang memeriksa tekanan darahnya dan mendapatkan nilai 130/85 mmHg. Interpretasinya adalah:",
+                options: [
+                    "Normal",
+                    "Elevated",
+                    "Hipertensi Stage 2",
+                    "Hipertensi darurat",
+                    "Hipertensi Stage 1"
+                ],
+                ans: 4
+            },
+            {
+                q: "Kapasitas residu fungsional (KRF) didapatkan dari penjumlahan:",
+                options: [
+                    "Volume Cadangan Ekspirasi + Volume Residu",
+                    "Volume Cadangan Inspirasi + Volume Tidal",
+                    "Kapasitas Vital + Volume Residu",
+                    "Volume Tidal + Volume Cadangan Ekspirasi",
+                    "Volume Inspirasi + Ekspirasi"
+                ],
+                ans: 0
+            }
         ];
 
-        let quizData = [...questionPool]; // 60 SOAL MURNI UNIK
+        // --- DATA FLASHCARDS ---
+        const flashcardData = [
+            {
+                front: "Sebutkan 3 faktor utama yang mempengaruhi akurasi pengukuran tekanan darah!",
+                back: "1. Berbicara / mendengar aktif (Naik 10/10 mmHg)<br>2. Menahan kencing (Naik 15/10 mmHg)<br>3. Manset terlalu kecil atau terhalang pakaian"
+            },
+            {
+                front: "Bagaimana Klasifikasi Tekanan Darah menurut pedoman AHA/JNC?",
+                back: "<ul class='list-disc list-inside text-left inline-block text-sm md:text-base'><li><strong>Normal:</strong> < 120 dan < 80</li><li><strong>Elevated:</strong> 120-129 dan < 80</li><li><strong>Stage 1:</strong> 130-139 atau 80-89</li><li><strong>Stage 2:</strong> ≥ 140 atau ≥ 90</li><li><strong>Krisis Hipertensi:</strong> > 180 dan/atau > 120</li></ul>"
+            },
+            {
+                front: "Apa pengertian dari Spirometri?",
+                back: "Pemeriksaan untuk <strong>mengukur volume udara dan aliran/kecepatan udara</strong> yang dihirup dan dihembuskan oleh paru-paru, guna mendeteksi gangguan fungsi pernapasan (obstruksi/restriksi)."
+            },
+            {
+                front: "Sebutkan Siklus Pemeriksaan SVC (Kapasitas Vital Paru)!",
+                back: "Start &rarr; Bernapas biasa &rarr; Beep &rarr; <strong>Ekspirasi maksimal</strong> &rarr; <strong>Inspirasi maksimal</strong> &rarr; <strong>Ekspirasi maksimal</strong> &rarr; Napas biasa (3x) &rarr; Stop."
+            },
+            {
+                front: "Sebutkan Siklus Pemeriksaan FVC (Kapasitas Vital Paksa)!",
+                back: "Start &rarr; <strong>Inspirasi maksimal</strong> &rarr; <strong>Ekspirasi maksimal secara kuat dan dipaksa</strong> (selama minimal 6 detik) &rarr; Stop."
+            },
+            {
+                front: "Apa saja Kontraindikasi dari pemeriksaan Spirometri?",
+                back: "<ul class='list-disc list-inside text-left inline-block text-sm'><li>Hemoptisis (Batuk Darah)</li><li>Pneumotoraks</li><li>Status kardiovaskular tidak stabil</li><li>Infark miokard & Emboli paru</li><li>Aneurisma serebri/toraks</li><li>Pasca bedah mata & Kecemasan (mual/vertigo)</li></ul>"
+            },
+            {
+                front: "Sebutkan Kriteria Acceptability & Reproducibility Spirometri!",
+                back: "<strong>Acceptability:</strong><br>1. Permulaan uji baik hingga selesai.<br>2. Ekspirasi min 6 detik.<br>3. Grafik puncak bebas artefak.<br><br><strong>Reproducibility:</strong><br>Dilakukan 3x percobaan, selisih 2 nilai FVC & FEV1 terbesar <5% atau <100mL."
+            },
+            {
+                front: "Jelaskan fase-fase bunyi Korotkoff!",
+                back: "<strong>Fase 1:</strong> Tajam, tapping (Sistolik)<br><strong>Fase 2:</strong> Lebih lembut<br><strong>Fase 3:</strong> Nyaring dan lebih keras<br><strong>Fase 4:</strong> Lembut, seperti teredam<br><strong>Fase 5:</strong> Hilang / terdapat aliran laminar (Diastolik)"
+            },
+            {
+                front: "Bagaimana interpretasi nilai Indeks 50 pada Harvard Step Test?",
+                back: "<strong class='text-red-300 text-2xl'>Kesanggupan Kurang</strong><br><br><span class='text-sm'>(< 55 jika memakai cara lambat, atau < 50 jika memakai cara cepat).</span>"
+            },
+            {
+                front: "Jelaskan mekanisme Valsava Maneuver terhadap Tekanan Darah!",
+                back: "Ekspirasi paksa dengan glotis tertutup &rarr; Tekanan intratoraks naik &rarr; Aliran balik vena terhambat &rarr; Volume darah ke jantung turun (CO turun) &rarr; Tekanan Darah Menurun."
+            }
+        ];
 
+        // --- STATE MANAGEMENT ---
         let state = {
-            view: 'home',
-            answers: new Array(60).fill(null),
-            ringkasanMode: 'ringkas'
+            view: 'home', 
+            quizIndex: 0,
+            quizScore: 0,
+            quizAnswered: false,
+            flashcardIndex: 0,
+            flashcardFlipped: false
         };
 
-        function showView(view) {
-            state.view = view;
-            document.getElementById('landing-view').classList.add('hidden');
-            document.getElementById('return-btn').classList.remove('hidden');
-            const area = document.getElementById('dynamic-content');
-            area.classList.remove('hidden');
-            renderContent();
-            lucide.createIcons();
+        const appContainer = document.getElementById('app');
+
+        // --- RENDER FUNCTIONS ---
+        function render() {
+            appContainer.innerHTML = ''; 
+            const wrapper = document.createElement('div');
+            wrapper.className = 'w-full max-w-5xl w-full fade-in flex flex-col items-center justify-center mx-auto';
+
+            switch (state.view) {
+                case 'home': wrapper.innerHTML = renderHome(); break;
+                case 'materi': wrapper.innerHTML = renderMateri(); break;
+                case 'extract': wrapper.innerHTML = renderExtract(); break;
+                case 'ringkasan': wrapper.innerHTML = renderRingkasan(); break;
+                case 'penjelasan': wrapper.innerHTML = renderPenjelasan(); break;
+                case 'training': wrapper.innerHTML = renderTraining(); break;
+                case 'adventure': wrapper.innerHTML = renderAdventure(); break;
+                case 'war': wrapper.innerHTML = renderWar(); break;
+                case 'sandisk': wrapper.innerHTML = renderSandisk(); break;
+                case 'war-result': wrapper.innerHTML = renderWarResult(); break;
+            }
+            appContainer.appendChild(wrapper);
+            attachEventListeners();
         }
 
-        function goHome() {
-            state.view = 'home';
-            state.answers = new Array(60).fill(null);
-            document.getElementById('landing-view').classList.remove('hidden');
-            document.getElementById('return-btn').classList.add('hidden');
-            document.getElementById('dynamic-content').classList.add('hidden');
+        function setView(newView) {
+            state.view = newView;
+            if(newView === 'training' || newView === 'war') {
+                state.quizIndex = 0;
+                state.quizScore = 0;
+                state.quizAnswered = false;
+            }
+            if(newView === 'sandisk') {
+                state.flashcardIndex = 0;
+                state.flashcardFlipped = false;
+            }
+            render();
         }
 
-        function renderContent() {
-            const area = document.getElementById('dynamic-content');
-            area.innerHTML = '';
-            if(state.view === 'ringkasan') renderRingkasan(area);
-            if(state.view === 'kuis') renderKuisMenu(area);
-            if(state.view === 'training') renderTraining(area, 0);
-        }
-
-        // --- SUB-MENU RENDERS ---
-
-        function renderRingkasan(container) {
-            const isLengkap = state.ringkasanMode === 'lengkap';
-            container.innerHTML = `
-                <div class="max-w-5xl mx-auto animate-in slide-in-from-bottom-8 duration-700">
-                    <div class="flex justify-center space-x-4 mb-10">
-                        <button onclick="switchRMode('ringkas')" class="glass px-6 py-2 text-xs font-black uppercase ${!isLengkap ? 'btn-active' : ''}">Mode Ringkasan</button>
-                        <button onclick="switchRMode('lengkap')" class="glass px-6 py-2 text-xs font-black uppercase ${isLengkap ? 'btn-active' : ''}">Penjelasan Lengkap</button>
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-12 mb-20">
-                        <!-- MUSTHOFA SECTION -->
-                        <div class="glass p-10 border-l-8 border-red-600">
-                            <h2 class="title-doctor musthofa-style text-3xl">Dr. Musthofa: Kardiovaskular & Transport</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-gray-200">
-                                <div>
-                                    <h4 class="font-black text-red-500 uppercase text-xs mb-3">Mekanisme Pompa & Siklus Jantung</h4>
-                                    <p class="text-sm leading-relaxed">
-                                        ${!isLengkap ? 
-                                        'Jantung bekerja melalui koordinasi sistolik (kontraksi/ejeksi) dan diastolik (relaksasi/pengisian). Perpindahan darah dipicu oleh gradien tekanan dan dijamin satu arah oleh empat katup utama (AV & Semilunar). Curah Jantung (CO) adalah produk dari Heart Rate dan Stroke Volume.' : 
-                                        'Siklus jantung diawali dari Potensial Aksi di SA Node. Tekanan ventrikel yang meningkat melampaui tekanan atrium menutup katup AV (S1). Fase kontraksi isovolumetrik berlanjut hingga tekanan ventrikel membuka katup semilunar untuk ejeksi. Stroke Volume (SV) diatur secara intrinsik oleh mekanisme Frank-Starling (preload) dan ekstrinsik oleh kontraktilitas serta afterload. Peningkatan afterload secara mekanis menurunkan Stroke Volume.'}
-                                    </p>
-                                    <span class="citation-tag">Sumber: PPT 1 - Mekanisme Kerja Jantung & PPT 6, 12 - Fungsi Kelistrikan</span>
-                                </div>
-                                <div>
-                                    <h4 class="font-black text-red-500 uppercase text-xs mb-3">Regulasi Tekanan Darah & Cairan</h4>
-                                    <p class="text-sm leading-relaxed">
-                                        ${!isLengkap ? 
-                                        'Tekanan darah arteri diatur secara neural (refleks baroreseptor) dan hormonal. Sistem vena menampung 60-65% volume darah sebagai reservoir. Perpindahan cairan di kapiler bergantung pada keseimbangan tekanan hidrostatik dan onkotik plasma.' : 
-                                        'Regulasi TD melibatkan Baroreseptor di Sinus Karotis dan Arkus Aorta yang memberikan umpan balik ke Medulla. Respon hormonal meliputi rilis ADH (menahan air), Angiotensin II (vasokonstriksi kuat), dan Eritropoietin (EPO) saat hipoksia. Di tingkat kapiler, Tekanan Hidrostatik mendorong filtrasi keluar, sementara Tekanan Osmotik Koloid (Onkotik) yang dihasilkan protein plasma (Albumin) menarik cairan kembali ke lumen.'}
-                                    </p>
-                                    <span class="citation-tag">Sumber: PPT 3, 4 - Pengaturan TD & PPT 18 - Fungsi Transportasi</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- SUSI SECTION -->
-                        <div class="glass p-10 border-r-8 border-blue-600">
-                            <h2 class="title-doctor susi-style text-3xl">Dr. Susi: Mekanika & Fisiologi Respirasi</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-gray-200 text-right">
-                                <div class="order-2 md:order-1">
-                                    <h4 class="font-black text-blue-500 uppercase text-xs mb-3">Dinamika Ventilasi & Transpor Gas</h4>
-                                    <p class="text-sm leading-relaxed">
-                                        ${!isLengkap ? 
-                                        'Respirasi bertujuan menyediakan O2 dan membuang CO2. Zona konduksi (hidung-trakea) menyaring udara, sementara alveolus menjadi tempat difusi. Transpor O2 mayoritas terikat Hemoglobin, sedangkan CO2 mayoritas dalam bentuk ion Bikarbonat.' : 
-                                        'Struktur pernapasan dibagi menjadi Zona Konduksi (Dead Space) dan Zona Respirasi (Difusi). Difusi gas di membran alveol-kapiler bersifat pasif mengikuti gradien tekanan parsial. Afinitas Hemoglobin terhadap O2 dipengaruhi oleh suhu, pH, dan pCO2 (Efek Bohr). Peningkatan metabolit di jaringan menggeser kurva disosiasi ke kanan untuk mempermudah pelepasan oksigen. CO2 diangkut sebagai Bikarbonat (60%), Karbamino-Hb (30%), dan terlarut (10%).'}
-                                    </p>
-                                    <span class="citation-tag">Sumber: PPT 8, 9 - Fisiologi Respirasi</span>
-                                </div>
-                                <div class="order-1 md:order-2">
-                                    <h4 class="font-black text-blue-400 uppercase text-xs mb-3">Integrasi Kardiorespirasi & Olahraga</h4>
-                                    <p class="text-sm leading-relaxed">
-                                        ${!isLengkap ? 
-                                        'Sistem pernapasan berkoordinasi dengan jantung di tingkat SSP (Pons & Medulla). Saat olahraga, VO2 Max mencerminkan kapasitas aerobik maksimal. Ventilasi meningkat untuk menjaga PCO2 normal dan meminimalisir asidosis laktat.' : 
-                                        'Koordinasi kardiorespirasi terjadi di batang otak, di mana stimulasi kemoreseptor oleh kenaikan PCO2 arteri memicu peningkatan ventilasi dan aktivitas simpatis jantung. Selama latihan fisik, VO2 Max (Maximal Oxygen Consumption) adalah indikator kebugaran terbaik. Atlet terlatih menjaga ventilasi alveolar dengan menaikkan Volume Tidal (kedalaman napas) daripada frekuensi pernapasan untuk efisiensi maksimal kerja pernapasan.'}
-                                    </p>
-                                    <span class="citation-tag">Sumber: PPT 19 - Mekanika Kardiorespirasi</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        // --- HTML TEMPLATES ---
+        function getHeader(title) {
+            return `
+                <div class="text-center mb-10 w-full mt-4">
+                    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-teal-200 to-cyan-400">
+                        ${title}
+                    </h1>
+                    <div class="h-1 w-24 bg-gradient-to-r from-teal-400 to-cyan-500 mx-auto rounded-full shadow-lg"></div>
                 </div>
             `;
         }
 
-        function switchRMode(mode) {
-            state.ringkasanMode = mode;
-            renderContent();
-        }
-
-        function renderKuisMenu(container) {
-            container.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-4xl mx-auto animate-in zoom-in-95 duration-500">
-                    <div onclick="startKuis('askteri')" class="glass p-14 cursor-pointer hover:bg-red-500/10 transition group text-center border-l-8 border-red-500">
-                        <h3 class="text-4xl font-black mb-3 text-red-500 uppercase tracking-tighter">ASKTERI</h3>
-                        <p class="text-[10px] uppercase opacity-40 font-black tracking-[0.2em]">60 Multiple Choice Questions</p>
-                    </div>
-                    <div onclick="startKuis('sandisk')" class="glass p-14 cursor-pointer hover:bg-blue-500/10 transition group text-center border-r-8 border-blue-500">
-                        <h3 class="text-4xl font-black mb-3 text-blue-500 uppercase tracking-tighter">SANDISK VENA</h3>
-                        <p class="text-[10px] uppercase opacity-40 font-black tracking-[0.2em]">Medical Flashcards</p>
-                    </div>
+        function renderHome() {
+            return `
+                ${getHeader('Identify ARVENA')}
+                <p class="text-lg md:text-xl text-teal-100 mb-10 text-center font-medium opacity-90">Sistem Eksplorasi Fisiologi Paru & Kardiovaskular</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
+                    <button data-view="materi" class="glass-btn rounded-2xl p-8 text-center flex flex-col items-center justify-center group h-64">
+                        <svg class="w-16 h-16 mb-4 text-teal-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <span class="text-2xl font-bold text-white tracking-wide">Mode Materi</span>
+                        <span class="text-sm text-teal-200 mt-2">Pelajari ringkasan dan penjelasan lengkap</span>
+                    </button>
+                    <button data-view="extract" class="glass-btn rounded-2xl p-8 text-center flex flex-col items-center justify-center group h-64">
+                        <svg class="w-16 h-16 mb-4 text-cyan-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        <span class="text-2xl font-bold text-white tracking-wide">Mode Extract</span>
+                        <span class="text-sm text-cyan-100 mt-2">Uji kemampuan dengan Kuis & Flashcards</span>
+                    </button>
                 </div>
             `;
         }
 
-        function startKuis(type) {
-            const area = document.getElementById('dynamic-content');
-            if(type === 'askteri') renderAskteri(area, 0);
-            else renderSandisk(area, 0);
-            lucide.createIcons();
-        }
-
-        // ASKTERI RENDERER
-        function renderAskteri(container, index) {
-            const q = quizData[index];
-            container.innerHTML = `
-                <div class="glass p-12 max-w-3xl mx-auto shadow-2xl border-t-2 border-red-500">
-                    <div class="flex justify-between items-center mb-10 border-b border-white/10 pb-5">
-                        <span class="text-xs font-black uppercase opacity-40 tracking-widest text-red-400">Askteri Mode</span>
-                        <span class="text-sm font-black bg-white/10 px-4 py-1 rounded-full">${index+1} / 60</span>
-                    </div>
-                    <h2 class="text-2xl font-black mb-10 leading-snug">${q.q}</h2>
-                    <div class="space-y-4">
-                        ${q.options.map((opt, i) => `
-                            <button onclick="handleAskteriSave(${index}, '${opt}')" class="w-full text-left glass p-6 hover:bg-white/10 transition border border-white/5 font-bold text-lg ${state.answers[index] === opt ? 'bg-white/20' : ''}">
-                                <span class="text-red-500 mr-5 font-black opacity-60">${String.fromCharCode(65+i)}</span> ${opt}
-                            </button>
-                        `).join('')}
-                    </div>
-                    <div class="flex justify-between mt-14 pt-8 border-t border-white/5">
-                        <button onclick="${index > 0 ? `renderAskteri(document.getElementById('dynamic-content'), ${index-1})` : `renderKuisMenu(document.getElementById('dynamic-content'))`}" class="text-xs font-black uppercase opacity-40 hover:opacity-100 transition">Kembali</button>
-                        ${index === 59 ? 
-                        `<button onclick="finishKuis()" class="bg-red-600 px-12 py-3 rounded-full font-black uppercase text-sm shadow-[0_0_30px_rgba(220,38,38,0.5)]">Hitung Skor</button>` :
-                        `<button onclick="renderAskteri(document.getElementById('dynamic-content'), ${index+1})" class="bg-white/10 px-12 py-3 rounded-full font-black uppercase text-sm hover:bg-white/20 transition">Lanjut</button>`}
-                    </div>
+        function renderMateri() {
+            return `
+                ${getHeader('Mode Materi')}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
+                    <button data-view="ringkasan" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-teal-100 block mb-2">Ringkasan</span>
+                        <span class="text-sm text-teal-300">Intisari penting dari modul & PPT</span>
+                    </button>
+                    <button data-view="penjelasan" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-cyan-100 block mb-2">Penjelasan Lengkap</span>
+                        <span class="text-sm text-cyan-300">Teori mendetail dan mekanisme fisiologi</span>
+                    </button>
                 </div>
+                <button data-view="home" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali ke Home</button>
             `;
         }
 
-        function handleAskteriSave(idx, val) {
-            state.answers[idx] = val;
-            renderAskteri(document.getElementById('dynamic-content'), idx);
+        function renderExtract() {
+            return `
+                ${getHeader('Mode Extract')}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
+                    <button data-view="training" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-teal-100 block mb-2">Mode Training</span>
+                        <span class="text-sm text-teal-300">Latihan Soal dengan feedback instan</span>
+                    </button>
+                    <button data-view="adventure" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-cyan-100 block mb-2">Mode Adventure</span>
+                        <span class="text-sm text-cyan-300">Masuk ke arena ujian dan ingatan</span>
+                    </button>
+                </div>
+                <button data-view="home" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali ke Home</button>
+            `;
         }
 
-        function finishKuis() {
-            let score = 0;
-            quizData.forEach((q, i) => { if(state.answers[i] === q.a) score++; });
-            const p = (score / 60) * 100;
-            let res = { t: "", e: "" };
+        function renderAdventure() {
+            return `
+                ${getHeader('Mode Adventure')}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
+                    <button data-view="war" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-teal-100 block mb-2">Arvena War</span>
+                        <span class="text-sm text-teal-300">Uji Pre/Post Test tanpa ampun (Skor di akhir)</span>
+                    </button>
+                    <button data-view="sandisk" class="glass-btn rounded-2xl p-6 text-center group">
+                        <span class="text-xl font-bold text-cyan-100 block mb-2">Sandisk Arvena</span>
+                        <span class="text-sm text-cyan-300">Mode Flashcard untuk hafalan cepat</span>
+                    </button>
+                </div>
+                <button data-view="extract" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali ke Extract</button>
+            `;
+        }
 
-            if(p <= 25) res = { t: "hypo oksigen tuh", e: "😵" };
-            else if(p <= 55) res = { t: "kamu kurang oksigen tuhh", e: "😮‍💨" };
-            else if(p <= 85) res = { t: "oksigen mu pas!", e: "😊" };
-            else res = { t: "over oksigen yess!", e: "🤩" };
+        // --- MATERI CONTENT ---
+        function renderRingkasan() {
+            return `
+                <div class="glass p-8 rounded-3xl w-full max-w-4xl mb-8 max-h-[70vh] overflow-y-auto">
+                    <h2 class="text-2xl font-bold text-teal-300 mb-4 border-b border-teal-500/30 pb-2">Ringkasan Fisiologi Blok 2.1</h2>
+                    <ul class="list-disc list-inside space-y-4 text-teal-50 leading-relaxed text-sm md:text-base">
+                        <li><strong class="text-cyan-200">Tekanan Darah (TD):</strong> Dipengaruhi langsung oleh Curah Jantung (CO) & Total Resistensi Perifer (TPR). Formula utama: <span class="text-teal-200 font-mono bg-teal-900/50 px-2 py-1 rounded">MAP = CO x TPR</span> dan <span class="text-teal-200 font-mono bg-teal-900/50 px-2 py-1 rounded">CO = SV x HR</span>.</li>
+                        <li><strong class="text-cyan-200">Faktor Vaskular TD:</strong> Dipengaruhi oleh pompa jantung, volume darah, viskositas darah, dan elastisitas pembuluh darah.</li>
+                        <li><strong class="text-cyan-200">Pengukuran Auskultasi (Korotkoff):</strong> Aliran laminar adalah aliran lurus normal (tanpa suara). Aliran turbulen memunculkan bunyi saat pembuluh tertekan sebagian. Fase 1 menandai Sistolik, Fase 5 (bunyi hilang) menandai Diastolik.</li>
+                        <li><strong class="text-cyan-200">Pengaruh Posisi & Aktivitas:</strong> Saat berdiri terjadi hipotensi ortostatik yang dikompensasi tubuh sehingga TD naik. Kerja otot/otak dan stress meningkatkan kebutuhan O2 dan memicu sekresi hormon yang menaikkan TD. Manuver Valsava (ekspirasi paksa tahan napas) menurunkan venous return sehingga TD sesaat menurun.</li>
+                        <li><strong class="text-cyan-200">Harvard Step Test:</strong> Mengukur kesanggupan kardiovaskular. Dipengaruhi oleh genetik, umur, jenis kelamin, aktivitas, lemak, rokok. Terdiri dari rumus lambat dan cepat. Indeks < 50 (Cara Cepat) diartikan kesanggupan kurang.</li>
+                        <li><strong class="text-cyan-200">Spirometri:</strong> Tes fungsi paru untuk menilai volume & kecepatan udara. Digunakan untuk membedakan kelainan obstruksi (PPOK, Asma -> FEV1/FVC turun < 75%) dan restriksi (Fibrosis -> FVC turun, rasio normal/tinggi). Kriteria pentingnya adalah <em>Acceptability</em> (awal baik, min 6 detik, tanpa artefak) dan <em>Reproducibility</em>.</li>
+                        <li><strong class="text-cyan-200">Kapasitas Residu Fungsional (KRF):</strong> Udara tersisa pasca ekspirasi normal. <span class="text-teal-200 font-mono bg-teal-900/50 px-2 py-1 rounded">KRF = VCE + VR</span>.</li>
+                    </ul>
+                </div>
+                <button data-view="materi" class="px-6 py-2 rounded-full border border-teal-500 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors">Kembali</button>
+            `;
+        }
 
-            const area = document.getElementById('dynamic-content');
-            area.innerHTML = `
-                <div class="glass p-16 text-center max-w-3xl mx-auto border-t-4 border-red-500">
-                    <div class="text-8xl mb-8">${res.e}</div>
-                    <h2 class="text-7xl font-black mb-2">${score} / 60</h2>
-                    <p class="text-2xl font-black text-red-500 uppercase tracking-[0.2em] mb-12">${res.t}</p>
+        function renderPenjelasan() {
+            return `
+                <div class="glass p-6 md:p-10 rounded-3xl w-full max-w-5xl mb-8 max-h-[80vh] overflow-y-auto">
+                    <h2 class="text-3xl font-extrabold text-teal-300 mb-6 border-b border-teal-500/30 pb-4 sticky top-0 bg-venous-dark/80 backdrop-blur-md z-10 pt-2">Penjelasan Lengkap Modul Fisiologi</h2>
                     
-                    <div class="space-y-6 text-left max-h-[400px] overflow-y-auto pr-6 custom-scroll mb-12">
-                        ${quizData.map((q, i) => `
-                            <div class="glass p-6 border-l-4 ${state.answers[i] === q.a ? 'border-blue-500' : 'border-red-500'} bg-white/5">
-                                <p class="text-sm font-black mb-2">${i+1}. ${q.q}</p>
-                                <div class="flex flex-wrap gap-x-4 gap-y-1 mb-2">
-                                    <span class="text-[10px] font-bold uppercase ${state.answers[i] === q.a ? 'text-blue-400' : 'text-red-400'}">Anda: ${state.answers[i] || 'KOSONG'}</span>
-                                    <span class="text-[10px] font-bold uppercase text-green-400">Kunci: ${q.a}</span>
+                    <div class="space-y-10 text-teal-50 leading-relaxed">
+                        
+                        <!-- BAGIAN 1: KARDIOVASKULAR -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">1</span> Kardiovaskular & Tekanan Darah</h3>
+                            <p class="mb-3">Tekanan darah arteri rata-rata (MAP) diatur ketat untuk perfusi organ. Faktor utamanya adalah:</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 mb-4">
+                                <li><strong>Cardiac Output (CO):</strong> Curah jantung (Volume kuncup x Denyut jantung). Dipengaruhi aliran balik vena, pompa respirasi, dan saraf otonom (simpatis/parasimpatis).</li>
+                                <li><strong>Total Peripheral Resistance (TPR):</strong> Resistensi perifer. Dipengaruhi jari-jari arteriol, panjang pembuluh, dan viskositas darah.</li>
+                            </ul>
+                            <p class="mb-4"><strong>Faktor vaskular spesifik:</strong> Gerakan pompa jantung, Volume darah, Viskositas darah (jumlah SDM), Elastisitas dinding pembuluh.</p>
+                            
+                            <div class="bg-teal-900/40 p-5 rounded-2xl border border-teal-500/30 shadow-lg">
+                                <h4 class="font-bold text-teal-300 mb-3 border-b border-teal-600/50 pb-2">Klasifikasi Tekanan Darah (AHA/JNC):</h4>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm text-left text-teal-50 mt-2">
+                                        <thead class="text-xs text-teal-200 uppercase bg-teal-950/50">
+                                            <tr>
+                                                <th class="px-4 py-3 rounded-tl-lg">Kategori</th>
+                                                <th class="px-4 py-3">Sistolik (mmHg)</th>
+                                                <th class="px-4 py-3 text-center"></th>
+                                                <th class="px-4 py-3 rounded-tr-lg">Diastolik (mmHg)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-teal-800/50">
+                                            <tr class="hover:bg-teal-800/20 transition-colors"><td class="px-4 py-3 text-green-300">Normal</td><td class="px-4 py-3">&lt; 120</td><td class="px-4 py-3 text-xs text-center text-teal-400">dan</td><td class="px-4 py-3">&lt; 80</td></tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors"><td class="px-4 py-3 text-yellow-300">Elevated</td><td class="px-4 py-3">120 - 129</td><td class="px-4 py-3 text-xs text-center text-teal-400">dan</td><td class="px-4 py-3">&lt; 80</td></tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors"><td class="px-4 py-3 text-orange-400">Stage 1</td><td class="px-4 py-3">130 - 139</td><td class="px-4 py-3 text-xs text-center text-teal-400">atau</td><td class="px-4 py-3">80 - 89</td></tr>
+                                            <tr class="hover:bg-teal-800/20 transition-colors"><td class="px-4 py-3 text-red-400">Stage 2</td><td class="px-4 py-3">&ge; 140</td><td class="px-4 py-3 text-xs text-center text-teal-400">atau</td><td class="px-4 py-3">&ge; 90</td></tr>
+                                            <tr class="bg-red-900/20 hover:bg-red-900/40 transition-colors"><td class="px-4 py-3 font-bold text-red-500">Krisis</td><td class="px-4 py-3 font-bold">&gt; 180</td><td class="px-4 py-3 text-xs text-center text-red-300">dan/atau</td><td class="px-4 py-3 font-bold">&gt; 120</td></tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <p class="text-[10px] opacity-40 italic">${q.desc}</p>
                             </div>
-                        `).join('')}
+                        </section>
+
+                        <!-- BAGIAN 2: AUSKULTASI & POSISI (NEW MERGED) -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">2</span> Auskultasi, Posisi & Aktivitas</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <strong class="text-teal-200 text-lg">Prinsip Aliran & Korotkoff</strong>
+                                    <p class="text-sm mt-1">Aliran laminar (lurus) tidak bersuara, terjadi jika pembuluh tidak tertekan (tekanan manset di bawah diastolik). Aliran turbulen terjadi saat manset menekan pembuluh (tekanan di antara sistolik dan diastolik). <strong>Fase 1:</strong> Tapping (Sistolik) &rarr; <strong>Fase 5:</strong> Silence/Aliran kembali laminar (Diastolik).</p>
+                                </div>
+
+                                <div class="bg-black/20 p-4 rounded-xl border-l-4 border-cyan-500">
+                                    <strong class="text-cyan-300 text-lg">Pengaruh Posisi Tubuh</strong>
+                                    <ul class="list-disc list-inside text-sm space-y-1 mt-2">
+                                        <li><strong>Berbaring:</strong> Aliran darah merata, sejajar jantung.</li>
+                                        <li><strong>Duduk:</strong> Punggung bersandar, kaki menggantung &rarr; tidak ada beban vaskular ekstra karena otot rileks.</li>
+                                        <li><strong>Berdiri:</strong> Timbul hipotensi ortostatik awal, dikompensasi tubuh (homeostasis) sehingga tekanan darah cenderung meningkat untuk melawan gravitasi.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-black/20 p-4 rounded-xl border-l-4 border-teal-500">
+                                    <strong class="text-teal-300 text-lg">Kerja Otot, Otak & Pernapasan</strong>
+                                    <ul class="list-disc list-inside text-sm space-y-1 mt-2">
+                                        <li><strong>Kerja Fisik/Otak & Stress:</strong> Kebutuhan suplai Oksigen meningkat, hormon stres rilis &rarr; Denyut Jantung naik &rarr; TD naik.</li>
+                                        <li><strong>Inspirasi:</strong> Tekanan intratoraks turun, abdomen naik &rarr; volume darah tersedot ke vena toraks & atrium kanan.</li>
+                                        <li><strong>Ekspirasi:</strong> Tekanan toraks naik &rarr; katup vena mencegah aliran balik (backflow).</li>
+                                        <li><strong>Manuver Valsava:</strong> Ekspirasi paksa dengan glotis tertutup &rarr; tekanan toraks sangat tinggi &rarr; aliran balik vena terhambat &rarr; TD sesaat menurun drastis.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- BAGIAN 3: KESANGGUPAN KARDIOVASKULAR (HARVARD STEP TEST) (NEW) -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">3</span> Kesanggupan Kardiovaskular (Harvard Step Test)</h3>
+                            <p class="mb-3">Kapasitas untuk kinerja fisik terampil dan pemulihan yang cepat. Diperkirakan dari besarnya perubahan denyut jantung dan kecepatannya kembali normal pasca-latihan.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-teal-900/30 p-4 rounded-xl shadow-inner border border-teal-500/20">
+                                    <strong class="text-teal-200">Faktor yang Memengaruhi:</strong>
+                                    <ul class="list-disc list-inside text-sm mt-2 text-teal-50">
+                                        <li>Genetik & Umur</li>
+                                        <li>Jenis Kelamin</li>
+                                        <li>Aktivitas Fisik</li>
+                                        <li>Komposisi Lemak Tubuh</li>
+                                        <li>Kebiasaan Merokok</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-teal-900/30 p-4 rounded-xl shadow-inner border border-teal-500/20">
+                                    <strong class="text-teal-200">Metode & Rumus (Bangku 33 cm):</strong>
+                                    <div class="text-sm mt-2 text-teal-50 space-y-2">
+                                        <p><strong>Cara Cepat:</strong><br><span class="font-mono bg-black/30 px-1">(Lama detik x 100) / (5.5 x Nadi 30" Pertama)</span></p>
+                                        <p><strong>Cara Lambat:</strong><br><span class="font-mono bg-black/30 px-1">(Lama detik x 100) / (2 x Total ke-3 Nadi 30")</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-cyan-100 bg-cyan-900/40 p-3 rounded-lg border border-cyan-500/30"><strong>Interpretasi Cara Cepat:</strong> &lt;50 (Kurang), 50-80 (Sedang), &gt;80 (Baik).</p>
+                        </section>
+
+                        <!-- BAGIAN 4: SPIROMETRI (UPDATED) -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">4</span> Pemeriksaan Spirometri</h3>
+                            <p class="mb-4 text-lg">Pemeriksaan mengukur volume dan aliran/kecepatan udara paru untuk mendeteksi gangguan pernapasan.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-teal-900/30 p-5 rounded-xl border border-teal-500/20 shadow-inner">
+                                    <strong class="text-teal-300 block mb-3 border-b border-teal-500/30 pb-1">✅ Indikasi (Beberapa):</strong>
+                                    <ul class="list-disc list-inside text-sm space-y-1 text-teal-50">
+                                        <li>Deteksi penyakit paru / Batuk kronik</li>
+                                        <li>Evaluasi perokok > 40 tahun</li>
+                                        <li>Penderajatan asma akut</li>
+                                        <li>Persiapan bedah / reseksi paru</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-red-900/20 p-5 rounded-xl border border-red-500/20 shadow-inner">
+                                    <strong class="text-red-300 block mb-3 border-b border-red-500/30 pb-1">❌ Kontraindikasi (Beberapa):</strong>
+                                    <ul class="list-disc list-inside text-sm space-y-1 text-red-100">
+                                        <li>Hemoptisis (batuk darah) / Pneumotoraks</li>
+                                        <li>Kardiovaskular tidak stabil / Infark / Emboli</li>
+                                        <li>Aneurisma & Pasca bedah mata</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-black/20 p-4 rounded-xl border-l-4 border-cyan-500 mb-4">
+                                <strong class="text-cyan-300 block mb-2">Kriteria Validitas Spirogram</strong>
+                                <ul class="list-disc list-inside text-sm space-y-1">
+                                    <li><strong>Acceptability:</strong> Awal uji baik, ekspirasi minimal 6 detik, puncak grafik jelas dan bebas artefak.</li>
+                                    <li><strong>Reproducibility:</strong> Dilakukan 3x, selisih 2 nilai FVC dan FEV1 terbesar &lt;5% atau &lt;100mL.</li>
+                                </ul>
+                            </div>
+                            
+                            <p class="text-sm font-mono text-teal-100 bg-teal-900/40 p-3 rounded-lg"><strong class="text-cyan-200">Siklus SVC:</strong> Napas biasa &rarr; Ekspirasi Max &rarr; Inspirasi Maks &rarr; Ekspirasi Maks &rarr; Napas biasa.<br><strong class="text-teal-200">Siklus FVC:</strong> Inspirasi Maks &rarr; Ekspirasi Maks Paksa (min. 6 detik).</p>
+                        </section>
+
+                        <!-- BAGIAN 5: RESPIRASI & VOLUME PARU -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-cyan-300 mb-3 flex items-center"><span class="bg-cyan-900/50 px-3 py-1 rounded-lg mr-3 text-cyan-400">5</span> Volume Paru & Interpretasi Gangguan</h3>
+                            <p class="mb-3">Nilai normal <span class="text-teal-200 font-bold">Laki-laki (L)</span> dan <span class="text-cyan-200 font-bold">Perempuan (P)</span> adalah:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <ul class="list-disc list-inside ml-4 space-y-2 text-sm bg-black/10 p-4 rounded-xl border border-teal-500/20">
+                                    <li><strong class="text-teal-200">Volume Tidal (VT):</strong> L/P ~500 mL</li>
+                                    <li><strong class="text-teal-200">Vol. Cad. Inspirasi (VCI):</strong> L: 3300 | P: 1900 mL</li>
+                                    <li><strong class="text-teal-200">Vol. Cad. Ekspirasi (VCE):</strong> L: 1000 | P: ~700 mL</li>
+                                    <li><strong class="text-teal-200">Volume Residu (VR):</strong> L: 1200 | P: ~1100 mL</li>
+                                </ul>
+                                <ul class="list-disc list-inside ml-4 space-y-2 text-sm bg-black/10 p-4 rounded-xl border border-teal-500/20">
+                                    <li><strong class="text-cyan-200">Kapasitas Inspirasi (KI):</strong> L: 3800 | P: 2400 mL</li>
+                                    <li><strong class="text-cyan-200">Kap. Residu Fungsional (KRF):</strong> L: 2200 | P: 1800 mL</li>
+                                    <li><strong class="text-cyan-200">Kapasitas Vital (KV):</strong> L: 4500-4800 | P: ~3100 mL</li>
+                                    <li><strong class="text-cyan-200">Kapasitas Paru Total (KPT):</strong> L: 6000 | P: ~4200 mL</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-red-900/10 p-4 rounded-xl border-l-4 border-red-500">
+                                <strong class="text-red-300">Interpretasi Kelainan Paru:</strong>
+                                <ul class="list-disc list-inside text-sm mt-2">
+                                    <li><strong>Obstruktif:</strong> Kesulitan menghembuskan udara (PPOK, Asma, Emfisema). Ditandai rasio FEV1/FVC &lt; 75%.</li>
+                                    <li><strong>Restriktif:</strong> Gangguan pengembangan / sulit menarik napas (Fibrosis, Efusi). Ditandai FVC rendah, rasio FEV1/FVC Normal/Tinggi.</li>
+                                </ul>
+                            </div>
+                        </section>
+
                     </div>
-                    <button onclick="goHome()" class="bg-white/10 px-14 py-4 rounded-full font-black uppercase text-xs hover:bg-white/20">Return Home</button>
                 </div>
+                <button data-view="materi" class="px-8 py-3 font-bold rounded-full bg-teal-700 text-white hover:bg-teal-600 shadow-lg hover:scale-105 transition-all">Tutup Penjelasan</button>
             `;
         }
 
-        // FLASHCARD RENDERER
-        function renderSandisk(container, index) {
-            const q = quizData[index];
-            container.innerHTML = `
-                <div class="max-w-2xl mx-auto flex flex-col items-center animate-in fade-in duration-500">
-                    <div class="card-container w-full mb-12">
-                        <div class="card" id="card-${index}" onclick="this.classList.toggle('flipped')">
-                            <!-- DEPAN -->
-                            <div class="card-face glass border-t-4 border-blue-500">
-                                <span class="text-[10px] font-black uppercase opacity-20 absolute top-8 tracking-[0.3em]">Flashcard Question</span>
-                                <h3 class="text-2xl font-black leading-tight px-6">${q.q}</h3>
-                                <p class="text-[10px] opacity-30 mt-12 italic uppercase tracking-widest font-bold">Tap to see Answer</p>
-                            </div>
-                            <!-- BELAKANG -->
-                            <div class="card-face card-back">
-                                <span class="text-[10px] font-black uppercase opacity-20 absolute top-8 tracking-[0.3em]">Core Answer</span>
-                                <h3 class="text-4xl font-black text-orange-400 mb-8 drop-shadow-lg text-center">${q.a}</h3>
-                                <div class="bg-black/40 p-6 rounded-2xl text-sm leading-relaxed text-gray-200 border border-white/5">
-                                    ${q.desc}
-                                </div>
-                                <span class="text-[9px] opacity-20 mt-8 font-bold">${q.source}</span>
-                            </div>
-                        </div>
+        // --- TRAINING MODE (With immediate feedback) ---
+        function renderTraining() {
+            if (state.quizIndex >= qaData.length) {
+                return `
+                    <div class="glass p-8 rounded-3xl text-center">
+                        <h2 class="text-3xl font-bold text-teal-300 mb-4">Sesi Training Selesai!</h2>
+                        <p class="text-lg text-teal-100 mb-8">Anda telah menjawab semua pertanyaan.</p>
+                        <button data-view="extract" class="px-8 py-3 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 font-bold shadow-lg hover:scale-105 transition-transform text-white">Kembali ke Menu</button>
                     </div>
-                    <div class="flex items-center space-x-14 glass px-10 py-4 rounded-full">
-                        <button onclick="${index > 0 ? `renderSandisk(document.getElementById('dynamic-content'), ${index-1})` : `renderKuisMenu(document.getElementById('dynamic-content'))`}" class="opacity-40 hover:opacity-100 transition hover:scale-125"><i data-lucide="arrow-left"></i></button>
-                        <span class="text-xs font-black tracking-widest opacity-30">${index+1} / 60</span>
-                        <button onclick="${index < 59 ? `renderSandisk(document.getElementById('dynamic-content'), ${index+1})` : `renderKuisMenu(document.getElementById('dynamic-content'))`}" class="opacity-40 hover:opacity-100 transition hover:scale-125"><i data-lucide="arrow-right"></i></button>
-                    </div>
-                </div>
-            `;
-            lucide.createIcons();
-        }
-
-        // TRAINING MODE RENDERER
-        function renderTraining(container, index) {
-            const q = quizData[index];
-            const isAns = state.answers[index] !== null;
-            const isUserCorrect = state.answers[index] === q.a;
-            
-            let explanationBoxStyle = "";
-            let explanationIcon = "";
-            let explanationTitleColor = "";
-            
-            if(isAns) {
-                if(isUserCorrect) {
-                    // Glowing Biru
-                    explanationBoxStyle = "bg-blue-900/30 border-l-8 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)]";
-                    explanationIcon = "✔️ TEPAT! -";
-                    explanationTitleColor = "text-blue-400 drop-shadow-md";
-                } else {
-                    // Glowing Merah
-                    explanationBoxStyle = "bg-red-900/30 border-l-8 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)]";
-                    explanationIcon = "❌ KURANG TEPAT! -";
-                    explanationTitleColor = "text-red-400 drop-shadow-md";
-                }
+                `;
             }
 
-            container.innerHTML = `
-                <div class="glass p-12 max-w-3xl mx-auto animate-in slide-in-from-right-8 duration-500 border-t-2 border-orange-500">
-                    <div class="flex justify-between items-center mb-10 border-b border-white/10 pb-5">
-                        <span class="text-xs font-black uppercase opacity-40 tracking-widest text-orange-400">Training Mode (Live Feedback)</span>
-                        <span class="text-sm font-black">${index+1} / 60</span>
+            const q = qaData[state.quizIndex];
+            let optionsHTML = q.options.map((opt, i) => `
+                <button class="opt-btn-train glass-btn w-full text-left p-4 rounded-xl mb-3 font-medium hover:bg-teal-500/20 transition-all border border-teal-500/30" data-idx="${i}">
+                    <span class="inline-block w-8 font-bold text-cyan-300">${String.fromCharCode(65 + i)}.</span> ${opt}
+                </button>
+            `).join('');
+
+            return `
+                <div class="w-full max-w-3xl">
+                    <div class="flex justify-between text-teal-300 mb-4 font-semibold text-sm">
+                        <span>Mode Training (Feedback Aktif)</span>
+                        <span>Soal ${state.quizIndex + 1} / ${qaData.length}</span>
                     </div>
-                    <h2 class="text-2xl font-black mb-10 leading-snug">${q.q}</h2>
-                    <div class="space-y-4">
-                        ${q.options.map((opt, i) => {
-                            let btnCls = "border-white/5 hover:bg-white/10 opacity-100";
-                            
-                            if(isAns) {
-                                if(opt === q.a) {
-                                    // Kunci Benar: GLOW BIRU
-                                    btnCls = "bg-blue-600/90 border-blue-400 shadow-[0_0_25px_rgba(59,130,246,0.9)] scale-[1.03] z-10 text-white";
-                                } else if(opt === state.answers[index]) {
-                                    // Jawaban User Salah: GLOW MERAH
-                                    btnCls = "bg-red-600/90 border-red-400 shadow-[0_0_25px_rgba(239,68,68,0.9)] scale-[1.03] z-10 text-white";
-                                } else {
-                                    // Sisa
-                                    btnCls = "opacity-20 grayscale border-white/5";
-                                }
-                            }
-
-                            return `
-                                <button onclick="saveTraining(${index}, '${opt}')" ${isAns ? 'disabled' : ''} class="w-full text-left glass p-6 transition-all duration-300 border font-bold text-lg ${btnCls}">
-                                    <span class="text-orange-500 mr-5 font-black ${isAns && (opt === q.a || opt === state.answers[index]) ? 'text-white' : ''}">${String.fromCharCode(65+i)}</span> ${opt}
-                                </button>
-                            `;
-                        }).join('')}
+                    <div class="glass p-8 rounded-3xl mb-6">
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-6 leading-relaxed">${q.q}</h3>
+                        <div>${optionsHTML}</div>
                     </div>
-
-                    ${isAns ? `
-                        <div class="mt-12 p-8 rounded-r-3xl animate-in fade-in zoom-in-95 duration-500 ${explanationBoxStyle}">
-                            <p class="text-[13px] font-black mb-3 uppercase tracking-wider ${explanationTitleColor}">
-                                ${explanationIcon} Penjelasan Evaluasi:
-                            </p>
-                            <p class="text-[15px] text-gray-100 font-medium leading-relaxed tracking-wide">${q.desc}</p>
-                            <p class="text-[9px] mt-6 opacity-40 font-black uppercase tracking-widest">${q.source}</p>
-                        </div>
-                    ` : ''}
-
-                    <div class="flex justify-between mt-12 pt-8 border-t border-white/5">
-                        <button onclick="${index > 0 ? `renderTraining(document.getElementById('dynamic-content'), ${index-1})` : ''}" class="opacity-40 uppercase font-black text-xs hover:opacity-100 transition ${index === 0 ? 'invisible' : ''}">Prev</button>
-                        <button onclick="${index < 59 ? `renderTraining(document.getElementById('dynamic-content'), ${index+1})` : ''}" class="bg-white/10 px-12 py-3 rounded-full font-black uppercase text-sm hover:bg-white/20 transition ${index === 59 ? 'invisible' : ''}">Next</button>
+                    <div class="flex justify-between items-center">
+                        <button data-view="extract" class="text-teal-400 hover:text-white font-medium">&larr; Berhenti</button>
+                        <button id="nextTrainBtn" class="hidden px-8 py-3 rounded-full bg-cyan-600 hover:bg-cyan-500 font-bold shadow-lg text-white transition-all">Selanjutnya &rarr;</button>
                     </div>
                 </div>
             `;
         }
 
-        function saveTraining(idx, val) {
-            state.answers[idx] = val;
-            renderTraining(document.getElementById('dynamic-content'), idx);
+        function handleTrainingOptionClick(idx, btnElement) {
+            if (state.quizAnswered) return;
+            state.quizAnswered = true;
+            
+            const q = qaData[state.quizIndex];
+            const buttons = document.querySelectorAll('.opt-btn-train');
+            
+            buttons.forEach(btn => {
+                const bIdx = parseInt(btn.getAttribute('data-idx'));
+                btn.classList.remove('hover:bg-teal-500/20');
+                if (bIdx === q.ans) {
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-bold bg-blue-600 border border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all";
+                } else if (bIdx === idx && idx !== q.ans) {
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-medium bg-red-600/80 border border-red-500 text-white transition-all";
+                } else {
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-medium glass-btn opacity-40 transition-all";
+                }
+            });
+
+            document.getElementById('nextTrainBtn').classList.remove('hidden');
         }
 
-        // Init Lucide
-        lucide.createIcons();
+        // --- ARVENA WAR MODE ---
+        function renderWar() {
+            if (state.quizIndex >= qaData.length) {
+                state.view = 'war-result';
+                return renderWarResult();
+            }
+
+            const q = qaData[state.quizIndex];
+            let optionsHTML = q.options.map((opt, i) => `
+                <button class="opt-btn-war glass-btn w-full text-left p-4 rounded-xl mb-3 font-medium hover:bg-teal-500/30 transition-all border border-teal-500/30" data-idx="${i}">
+                    <span class="inline-block w-8 font-bold text-cyan-300">${String.fromCharCode(65 + i)}.</span> ${opt}
+                </button>
+            `).join('');
+
+            return `
+                <div class="w-full max-w-3xl">
+                    <div class="flex justify-between text-teal-300 mb-4 font-semibold text-sm">
+                        <span class="text-red-300 font-bold uppercase tracking-widest">⚠️ Arvena War Active</span>
+                        <span>Stage ${state.quizIndex + 1} / ${qaData.length}</span>
+                    </div>
+                    <div class="glass border-red-900/30 p-8 rounded-3xl mb-6 shadow-[0_0_30px_rgba(255,0,0,0.05)]">
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-6 leading-relaxed">${q.q}</h3>
+                        <div>${optionsHTML}</div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button data-view="adventure" class="text-red-400 hover:text-white font-medium">&larr; Menyerah</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleWarOptionClick(idx, btnElement) {
+            if (state.quizAnswered) return;
+            state.quizAnswered = true;
+            
+            const q = qaData[state.quizIndex];
+            if (idx === q.ans) state.quizScore++;
+            
+            const buttons = document.querySelectorAll('.opt-btn-war');
+            buttons.forEach(btn => {
+                const bIdx = parseInt(btn.getAttribute('data-idx'));
+                btn.classList.remove('hover:bg-teal-500/30');
+                if (bIdx === idx) {
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-bold bg-teal-600 border border-teal-400 text-white transition-all";
+                } else {
+                    btn.className = "w-full text-left p-4 rounded-xl mb-3 font-medium glass-btn opacity-40 transition-all";
+                }
+            });
+
+            setTimeout(() => {
+                state.quizIndex++;
+                state.quizAnswered = false;
+                render();
+            }, 1000);
+        }
+
+        function renderWarResult() {
+            const percentage = Math.round((state.quizScore / qaData.length) * 100);
+            let message = "";
+            if (percentage === 100) message = "Sempurna! Pengetahuanmu tidak terbantahkan.";
+            else if (percentage >= 70) message = "Bagus sekali! Kesanggupan fisiologimu sangat kuat.";
+            else message = "Masih perlu belajar! Terus baca materi untuk menaklukkan ARVENA.";
+
+            return `
+                <div class="glass p-10 rounded-3xl text-center w-full max-w-2xl border-t-4 border-t-cyan-400">
+                    <h2 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-200 to-cyan-400 mb-2">BATTLE COMPLETE</h2>
+                    <p class="text-teal-200 mb-8 tracking-widest uppercase text-sm font-bold">Arvena War Result</p>
+                    
+                    <div class="text-7xl font-black text-white mb-4 drop-shadow-[0_0_20px_rgba(21,176,196,0.6)]">
+                        ${state.quizScore} <span class="text-3xl text-teal-400">/ ${qaData.length}</span>
+                    </div>
+                    
+                    <p class="text-xl text-cyan-100 mb-8 font-medium">${message}</p>
+                    
+                    <button data-view="adventure" class="px-8 py-3 rounded-full bg-gradient-to-r from-teal-600 to-cyan-600 font-bold shadow-lg hover:scale-105 transition-transform text-white">Kembali ke Base</button>
+                </div>
+            `;
+        }
+
+        // --- SANDISK ARVENA (FLASHCARDS) ---
+        function renderSandisk() {
+            const card = flashcardData[state.flashcardIndex];
+            const flipClass = state.flashcardFlipped ? 'is-flipped' : '';
+
+            return `
+                <div class="w-full max-w-3xl flex flex-col items-center">
+                    <div class="w-full flex justify-between text-teal-300 mb-4 font-semibold text-sm px-4">
+                        <span class="tracking-widest uppercase"><span class="text-cyan-400">&#128427;</span> Sandisk Arvena</span>
+                        <span>Card ${state.flashcardIndex + 1} / ${flashcardData.length}</span>
+                    </div>
+
+                    <div class="flashcard-scene mb-8" id="flashcard-scene">
+                        <div class="flashcard glass ${flipClass}" id="flashcard">
+                            
+                            <!-- BAGIAN DEPAN (SOAL) -->
+                            <div class="flashcard-face flashcard-front rounded-3xl px-8 md:px-12 flex flex-col">
+                                <span class="absolute top-5 left-5 text-xs font-bold text-teal-300 uppercase tracking-widest border border-teal-500/30 bg-teal-900/40 px-3 py-1 rounded shadow-sm">💡 Soal</span>
+                                
+                                <h3 class="text-2xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-md my-auto w-full">${card.front}</h3>
+                                
+                                <button class="mt-auto mx-auto flex items-center gap-2 px-6 py-3 rounded-full border-2 border-cyan-400 text-cyan-100 font-bold bg-cyan-900/60 shadow-[0_0_20px_rgba(21,176,196,0.4)] hover:bg-cyan-800 transition-all animate-pulse hover:animate-none group">
+                                    <span class="tracking-wide">LIHAT JAWABAN</span>
+                                    <svg class="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-3 3m0 0l-3-3m3 3V9"></path></svg>
+                                </button>
+                            </div>
+                            
+                            <!-- BAGIAN BELAKANG (JAWABAN) -->
+                            <div class="flashcard-face flashcard-back rounded-3xl px-8 md:px-12 flex flex-col justify-center">
+                                <span class="absolute top-5 right-5 text-xs font-bold text-cyan-300 uppercase tracking-widest border border-cyan-500/30 bg-cyan-900/60 px-3 py-1 rounded shadow-sm">📝 Jawaban</span>
+                                
+                                <div class="w-full text-center mt-6 my-auto">
+                                    <div class="text-lg md:text-xl font-medium text-cyan-50 leading-relaxed inline-block text-left w-full">${card.back}</div>
+                                </div>
+
+                                <button class="mt-auto mx-auto text-xs font-bold text-teal-300/80 hover:text-white uppercase tracking-widest border-b border-teal-500/50 pb-1">Tutup Jawaban &uarr;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full px-4 mt-2">
+                        <button id="prevFlashBtn" class="px-6 py-3 rounded-full border-2 border-teal-600 text-teal-300 hover:bg-teal-600 hover:text-white font-bold transition-colors disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-teal-300" ${state.flashcardIndex === 0 ? 'disabled' : ''}>&larr; SEBELUMNYA</button>
+                        
+                        <button data-view="adventure" class="text-sm font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-widest">EXIT</button>
+
+                        <button id="nextFlashBtn" class="px-6 py-3 rounded-full bg-gradient-to-r from-cyan-600 to-teal-500 text-white hover:from-cyan-500 hover:to-teal-400 font-bold shadow-lg transition-all disabled:opacity-20 disabled:grayscale" ${state.flashcardIndex === flashcardData.length - 1 ? 'disabled' : ''}>SELANJUTNYA &rarr;</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- EVENT DELEGATION & LISTENERS ---
+        function attachEventListeners() {
+            const container = document.getElementById('app');
+            
+            const viewButtons = container.querySelectorAll('[data-view]');
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    setView(btn.getAttribute('data-view'));
+                });
+            });
+
+            const trainOpts = container.querySelectorAll('.opt-btn-train');
+            trainOpts.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    handleTrainingOptionClick(parseInt(btn.getAttribute('data-idx')), btn);
+                });
+            });
+
+            const nextTrain = document.getElementById('nextTrainBtn');
+            if (nextTrain) {
+                nextTrain.addEventListener('click', () => {
+                    state.quizIndex++;
+                    state.quizAnswered = false;
+                    render();
+                });
+            }
+
+            const warOpts = container.querySelectorAll('.opt-btn-war');
+            warOpts.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    handleWarOptionClick(parseInt(btn.getAttribute('data-idx')), btn);
+                });
+            });
+
+            // FLASHCARD FLIP CLICK EVENT
+            const flashcardScene = document.getElementById('flashcard-scene');
+            if(flashcardScene) {
+                const flashcard = document.getElementById('flashcard');
+                flashcardScene.addEventListener('click', () => {
+                    state.flashcardFlipped = !state.flashcardFlipped;
+                    flashcard.classList.toggle('is-flipped', state.flashcardFlipped);
+                });
+            }
+            
+            const prevFlash = document.getElementById('prevFlashBtn');
+            const nextFlash = document.getElementById('nextFlashBtn');
+            
+            if(prevFlash) {
+                prevFlash.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(state.flashcardIndex > 0) {
+                        state.flashcardIndex--;
+                        state.flashcardFlipped = false;
+                        render();
+                    }
+                });
+            }
+            if(nextFlash) {
+                nextFlash.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(state.flashcardIndex < flashcardData.length - 1) {
+                        state.flashcardIndex++;
+                        state.flashcardFlipped = false;
+                        render();
+                    }
+                });
+            }
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            render();
+        });
     </script>
 </body>
 </html>
