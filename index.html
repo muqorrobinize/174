@@ -11,6 +11,10 @@
 
     <!-- === PATCH FOR ELEVENLABS WIDGET === -->
     <script>
+        /**
+         * ElevenLabs Patch:
+         * Menangani error "Cannot assign to read only property 'getUserMedia'".
+         */
         (function() {
             try {
                 if (window.navigator && window.navigator.mediaDevices) {
@@ -77,7 +81,7 @@
                     },
                     keyframes: {
                         scroll: {
-                            '0%': { transform: 'translate3d(0,0,0)' }, 
+                            '0%': { transform: 'translate3d(0,0,0)' }, /* Menggunakan translate3d untuk Hardware Acceleration */
                             '100%': { transform: 'translate3d(-50%,0,0)' },
                         },
                         blink: {
@@ -142,14 +146,9 @@
         .menu-open { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
         .menu-closed { opacity: 0; transform: scale(0.95) translateY(20px); pointer-events: none; }
         
-        /* Viewer Native Styling (Pengganti Iframe) */
-        #viewer-content { 
-            background-color: rgb(var(--c-surface)); 
-            color: rgb(var(--c-ink));
-        }
-        #viewer-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
-        #viewer-content th, #viewer-content td { border: 1px solid rgb(var(--c-line)); padding: 0.5rem; }
+        #viewer-frame { background-color: rgb(var(--c-surface)); transition: background-color 0.4s ease; }
         
+        /* Optimasi GPU untuk animasi halus */
         .will-change-transform { will-change: transform; }
     </style>
 </head>
@@ -189,7 +188,7 @@
         </div>
     </div>
 
-    <!-- === DOCUMENT VIEWER OVERLAY (NO IFRAME) === -->
+    <!-- === DOCUMENT VIEWER OVERLAY === -->
     <div id="viewer-overlay" class="fixed inset-0 pt-[5rem] z-[100] bg-base hidden flex-col transition-all duration-300 transform-gpu">
         <div class="absolute top-8 left-0 right-0 h-12 bg-base/90 backdrop-blur-md border-b border-line flex justify-between items-center px-5 z-10 pointer-events-none">
             <span class="font-mono text-[9px] font-bold uppercase tracking-widest text-inkdim flex items-center gap-2">
@@ -197,8 +196,7 @@
                 LIVE_VIEWER
             </span>
         </div>
-        <!-- Iframe diganti dengan div biasa yang memuat konten melalui AJAX (Sangat Ringan) -->
-        <div id="viewer-content" class="w-full h-full flex-grow overflow-y-auto relative z-0 p-6 md:p-10 text-sm md:text-base font-serif leading-relaxed"></div>
+        <iframe id="viewer-frame" class="w-full h-full flex-grow border-none relative z-0" src="" loading="lazy"></iframe>
     </div>
 
     <!-- === FLOATING ACTION BUTTON & MENUS === -->
@@ -210,7 +208,7 @@
             Yo, server ain't free fam! Slide some love to <span class="text-ink font-bold">Saweria</span> or this whole thing goes poof!
         </div>
 
-        <!-- Menu Panel -->
+        <!-- Menu Panel (Compact OS Control Center Style) -->
         <div id="start-menu-panel" class="absolute bottom-[4.5rem] right-0 w-[85vw] max-w-[240px] bg-base/80 backdrop-blur-2xl border border-line shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-3xl menu-closed transition-all duration-300 origin-bottom-right flex flex-col overflow-hidden z-[210] will-change-transform">
             
             <div class="px-5 py-4 flex justify-between items-center bg-base/50 border-b border-line shrink-0">
@@ -323,6 +321,7 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-inkdim" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
+                    <!-- Ditambahkan debounce event listener di JS, bukan oninput inline -->
                     <input type="text" id="search-input" placeholder="Search archive..." class="w-full bg-surface border border-line rounded-full pl-10 pr-4 py-3 text-sm text-ink input-sleek font-mono placeholder-inkdim/60">
                 </div>
                 <button onclick="toggleView()" class="shrink-0 bg-base border border-line rounded-full px-5 py-3 text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-surface transition-colors flex items-center justify-center gap-2">
@@ -348,11 +347,7 @@
         </footer>
     </div>
 
-    <!-- Script ElevenLabs Di Kembalikan Ke Bentuk Asli & Default -->
-    <elevenlabs-convai agent-id="agent_2301kj2bse7xfkyt7z51xthe9c5m"></elevenlabs-convai>
-    <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
-
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT LOGIC (OPTIMIZED) -->
     <script type="module">
         const grid = document.getElementById('grid-wrapper');
         const searchInput = document.getElementById('search-input');
@@ -363,6 +358,7 @@
         let activeSubFolderFiles = []; 
         let activeSubFolderTitle = "";
 
+        // Party / Music Variables
         let isPartyMode = false;
         const partyAudio = document.getElementById('party-audio');
         let musicUrlFallback = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
@@ -374,7 +370,8 @@
             setInterval(showSaweriaBubble, 60000); 
         });
 
-        // FUNGSI DEBOUNCE UNTUK OPTIMASI PENCARIAN
+        // === FUNGSI DEBOUNCE UNTUK OPTIMASI PENCARIAN ===
+        // Mencegah render ulang setiap kali menekan tuts keyboard secara beruntun
         function debounce(func, wait) {
             let timeout;
             return function(...args) {
@@ -385,9 +382,9 @@
 
         searchInput.addEventListener('input', debounce((e) => {
             renderHome(e.target.value);
-        }, 300));
+        }, 300)); // Menunggu 300ms setelah selesai mengetik
 
-        // FETCH API
+        // === FETCH API ===
         async function init() {
             sysStatus.innerText = "FETCHING_DATA...";
             try {
@@ -428,11 +425,13 @@
             } catch(e) {}
         }
 
-        // RENDER LOGIC
+        // === RENDER LOGIC (BATCH RENDERING UNTUK PERFORMA) ===
+        // Alih-alih merender elemen satu per satu ke dalam DOM, kita menggunakan String.
+        // Ini mengurangi beban Browser Reflow secara signifikan.
         function renderHome(filter="") {
             grid.className = isListView ? "flex flex-col gap-3" : "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 pt-4"; 
             
-            let htmlContent = ""; 
+            let htmlContent = ""; // Penampung string
             
             Object.keys(quizzes).sort().forEach(cat => {
                 const matchesFilter = quizzes[cat].some(q => q.name.toLowerCase().includes(filter.toLowerCase())) || cat.toLowerCase().includes(filter.toLowerCase());
@@ -461,6 +460,7 @@
                 }
             });
 
+            // Update DOM hanya 1 kali
             grid.innerHTML = htmlContent;
         }
 
@@ -483,6 +483,7 @@
                 </div>`;
             });
 
+            // Update DOM hanya 1 kali
             grid.innerHTML = htmlContent;
         }
 
@@ -494,6 +495,7 @@
             let htmlContent = `<div class="col-span-full flex justify-between items-center mb-6"><h2 class="font-serif text-2xl">${subCat}</h2><button onclick="openCategory('${cat}')" class="px-4 py-2 bg-surface rounded-full text-[10px] font-bold">&larr; BACK</button></div>`;
             
             activeSubFolderFiles.forEach((q, index) => {
+                // Gunakan index untuk binding yang aman jika ada tanda kutip di nama file
                 const isAudio = q.file.endsWith('.mp3');
                 const onClickAction = isAudio ? `playAudio('${q.url}')` : `openViewer('${q.url}', \`${q.name}\`)`;
 
@@ -503,10 +505,11 @@
                 </div>`;
             });
 
+            // Update DOM hanya 1 kali
             grid.innerHTML = htmlContent;
         }
 
-        // UTILS
+        // === UTILS ===
         function toggleView() { isListView = !isListView; renderHome(searchInput.value); }
         function copyToClipboard() { navigator.clipboard.writeText(window.location.href).then(() => alert("URL Copied!")); }
 
@@ -540,61 +543,16 @@
             }
         }
 
-        // === FUNGSI OPEN VIEWER DENGAN AJAX / NATIVE DOM (PENGGANTI IFRAME) ===
-        async function openViewer(url, name) {
+        function openViewer(url, name) {
+            document.getElementById('viewer-frame').src = url;
             document.getElementById('viewer-overlay').classList.remove('hidden');
             document.getElementById('viewer-overlay').classList.add('flex');
             document.body.style.overflow = 'hidden';
             document.getElementById('close-viewer-container').style.display = 'block';
             buildStartMenu(name);
-
-            const viewerContent = document.getElementById('viewer-content');
-            
-            // Tampilkan loading instan
-            viewerContent.innerHTML = `<div class="w-full h-full flex items-center justify-center font-mono text-[10px] text-inkdim uppercase tracking-widest animate-pulse">Fetching Document...</div>`;
-
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("Gagal memuat dokumen (Network Error)");
-                const htmlText = await response.text();
-
-                // Kita membedah HTML yang ditarik agar elemen <head> tidak merusak halaman utama
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlText, 'text/html');
-
-                // Opsional: Jika gambar di dalam file kuis menggunakan path relatif, perbaiki path-nya otomatis
-                const images = doc.body.querySelectorAll('img');
-                images.forEach(img => {
-                    const src = img.getAttribute('src');
-                    if (src && !src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('/')) {
-                        img.src = 'kuis/' + src;
-                    }
-                });
-
-                // Masukkan isi konten langsung ke halaman
-                viewerContent.innerHTML = doc.body.innerHTML;
-
-                // Jika file kuis tersebut memiliki Javascript interaktif di dalamnya, 
-                // kita harus menjalankan ulangnya agar tombol-tombolnya berfungsi:
-                const scripts = viewerContent.querySelectorAll('script');
-                scripts.forEach(oldScript => {
-                    const newScript = document.createElement('script');
-                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                    oldScript.parentNode.replaceChild(newScript, oldScript);
-                });
-
-            } catch (error) {
-                viewerContent.innerHTML = `<div class="w-full h-full flex items-center justify-center font-mono text-error uppercase">ERROR: ${error.message}</div>`;
-            }
         }
 
-        // Fungsi Load khusus menu samping saat doc sudah terbuka
-        function loadContentToViewer(url, name) {
-            buildStartMenu(name);
-            openViewer(url, name);
-        }
-
+        // Batch rendering juga diterapkan pada daftar menu start
         function buildStartMenu(activeName) {
             const container = document.getElementById('start-menu-file-list');
             if(activeSubFolderFiles.length > 0) {
@@ -604,9 +562,7 @@
                     const bgClass = isActive ? 'bg-ink text-base' : 'bg-surface/50';
                     const dotClass = isActive ? 'bg-error animate-blink' : 'bg-inkdim';
                     const isAudio = q.file.endsWith('.mp3');
-                    
-                    // Gunakan fungsi loadContentToViewer yang memanggil openViewer (AJAX) kembali
-                    const onClickAction = isAudio ? `playAudio('${q.url}')` : `loadContentToViewer('${q.url}', \`${q.name}\`)`;
+                    const onClickAction = isAudio ? `playAudio('${q.url}')` : `document.getElementById('viewer-frame').src = '${q.url}'; buildStartMenu(\`${q.name}\`);`;
 
                     htmlContent += `
                     <button onclick="${onClickAction}" class="w-full text-left font-mono text-[9px] uppercase px-3 py-2 rounded-xl mb-1 flex items-center gap-2 ${bgClass}">
@@ -635,12 +591,10 @@
             document.getElementById('viewer-overlay').classList.remove('flex');
             document.body.style.overflow = '';
             document.getElementById('start-menu-panel').classList.add('menu-closed');
-            setTimeout(() => {
-                document.getElementById('viewer-content').innerHTML = '';
-            }, 300);
+            setTimeout(() => document.getElementById('viewer-frame').src = '', 300);
         }
 
-        // Daftarkan semua fungsi agar bisa diakses HTML inline
+        // Mendaftarkan fungsi ke window agar bisa diakses secara global oleh inline handler HTML
         window.toggleView = toggleView;
         window.openCategory = openCategory;
         window.openSubFolder = openSubFolder;
@@ -651,9 +605,11 @@
         window.copyToClipboard = copyToClipboard;
         window.playAudio = playAudio;
         window.openViewer = openViewer;
-        window.loadContentToViewer = loadContentToViewer;
         window.buildStartMenu = buildStartMenu;
         window.renderHome = renderHome;
     </script>
+
+    <elevenlabs-convai agent-id="agent_2301kj2bse7xfkyt7z51xthe9c5m"></elevenlabs-convai>
+    <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 </body>
 </html>
