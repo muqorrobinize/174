@@ -239,12 +239,12 @@
         <div class="dock-icon" id="task-player" onclick="toggleApp('win-player')" title="Audio Deck">
             <svg class="w-8 h-8 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
         </div>
-        <!-- NEW: GALLERY ICON -->
+        <!-- GALLERY ICON -->
         <div class="dock-icon" id="task-gallery" onclick="toggleApp('win-gallery')" title="174 Gallery">
             <svg class="w-8 h-8 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
         </div>
         <div class="w-px h-8 bg-line mx-1 my-auto"></div>
-        <!-- NEW: PHOTOBOOTH ICON -->
+        <!-- PHOTOBOOTH ICON -->
         <div class="dock-icon" id="task-photobooth" onclick="toggleApp('win-photobooth')" title="174 Photobooth">
             <svg class="w-8 h-8 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         </div>
@@ -674,7 +674,7 @@
                 if (isDir) iconStr = ICONS.dir;
                 else if (item.name.endsWith('.html') || item.name.endsWith('.js') || item.name.endsWith('.css')) iconStr = ICONS.html;
                 else if (item.name.endsWith('.mp3') || item.name.endsWith('.wav')) iconStr = ICONS.audio;
-                else if (item.name.endsWith('.png') || item.name.endsWith('.jpg') || item.name.endsWith('.jpeg')) iconStr = ICONS.image;
+                else if (item.name.match(/\.(png|jpg|jpeg|gif|webp)$/i)) iconStr = ICONS.image;
 
                 const div = document.createElement('div');
                 div.className = `file-item`;
@@ -795,7 +795,11 @@
 
             try {
                 const res = await fetch(`/api/content?file=${item.path}`);
-                const data = await res.json();
+                let data = await res.json();
+                
+                // BUGFIX: Data dari Vercel kita berupa Array jika itu single file bypass.
+                if (Array.isArray(data)) data = data[0]; 
+
                 const pathParts = item.path.split('/'); pathParts.pop();
                 const newPath = pathParts.length > 0 ? `${pathParts.join('/')}/${newName}` : newName;
                 
@@ -889,11 +893,19 @@
             
             try {
                 const res = await fetch(`/api/content?file=${item.path}`);
-                const data = await res.json();
-                const decoded = decodeURIComponent(escape(atob(data.content)));
+                let data = await res.json();
+                
+                // BUGFIX: Data dari Vercel kita berupa Array jika itu single file bypass.
+                if (Array.isArray(data)) data = data[0]; 
+                
+                // Decode base64
+                const cleanBase64 = data.content.replace(/\s/g, ''); // Hapus spasi/newline dari github
+                const decoded = decodeURIComponent(escape(atob(cleanBase64)));
+                
                 cmEditor.setValue(decoded);
                 updateSyntaxMode(item.path);
             } catch(e) {
+                console.error(e);
                 cmEditor.setValue("ERROR_READING_FILE.");
             } finally {
                 loader.classList.add('hidden'); loader.classList.remove('flex');
@@ -909,7 +921,18 @@
         }
 
         function launchPreview() {
-            const code = cmEditor.getValue();
+            let code = cmEditor.getValue();
+            
+            // BUGFIX: Inject Base tag agar relative path css/gambar tidak rusak saat di-preview di iframe blob
+            const currentUrl = window.location.origin + '/';
+            const baseTag = `<base href="${currentUrl}">`;
+            
+            if(code.toLowerCase().includes('<head>')) {
+                code = code.replace('<head>', '<head>\n' + baseTag);
+            } else {
+                code = baseTag + '\n' + code;
+            }
+
             const blob = new Blob([code], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             
@@ -1000,7 +1023,11 @@
                 let sha = '';
                 try {
                     const c = await fetch(`/api/content?file=${path}`);
-                    if(c.ok) sha = (await c.json()).sha;
+                    if(c.ok) {
+                        const dat = await c.json();
+                        // Sama dengan Code Editor, harus diunpack jika array
+                        sha = (Array.isArray(dat) ? dat[0] : dat).sha;
+                    }
                 } catch(e){}
 
                 await silentApiPush(path, b64, sha, "yaeon", `Payload uplink: ${path}`);
@@ -1098,10 +1125,10 @@
             }
 
             if(currentFilter === 'ascii') {
-                // ASCII Logic
+                // ASCII Logic (Enhanced Detail & Luminance)
                 const w = canvas.width; const h = canvas.height;
                 // Draw tiny video
-                const scale = 8; 
+                const scale = 5; // Reduced scale for higher resolution
                 ctx.drawImage(video, 0, 0, w/scale, h/scale);
                 const pixels = ctx.getImageData(0, 0, w/scale, h/scale).data;
                 
@@ -1109,15 +1136,21 @@
                 ctx.fillStyle = '#000';
                 ctx.fillRect(0, 0, w, h);
                 ctx.fillStyle = '#22c55e'; // Hacker green
-                ctx.font = '8px monospace';
+                ctx.font = 'bold 5px monospace';
+                ctx.textBaseline = 'top';
                 
-                const chars = "@%#*+=-:. ";
+                // 69-character gradient from dark (space) to bright (@)
+                const chars = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+                
                 for(let y=0; y < h/scale; y++) {
                     for(let x=0; x < w/scale; x++) {
-                        const idx = (y * Math.floor(w/scale) + x) * 4;
+                        const idx = (Math.floor(y) * Math.floor(w/scale) + Math.floor(x)) * 4;
                         const r = pixels[idx]; const g = pixels[idx+1]; const b = pixels[idx+2];
-                        const brightness = (r+g+b)/3;
+                        
+                        // Calculate human-eye accurate luminance
+                        const brightness = (0.299 * r + 0.587 * g + 0.114 * b);
                         const charIdx = Math.floor((brightness/255) * (chars.length-1));
+                        
                         ctx.fillText(chars[charIdx], x*scale, y*scale);
                     }
                 }
