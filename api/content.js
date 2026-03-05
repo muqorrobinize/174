@@ -1,8 +1,8 @@
 // File: api/content.js
-// Vercel Serverless Function (Menjembatani GitHub API, Bypass CORS & Hide Token)
+// Vercel Serverless Function (Kanggo nyambungke menyang GitHub API, Bypass CORS)
 
 export default async function handler(req, res) {
-    // 1. SETTING CORS (Sangat Penting agar index.html tidak di-block oleh browser)
+    // 1. NGATUR CORS (Penting banget ben index.html ora di-block karo browser)
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -12,17 +12,15 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
 
-    // 2. Ambil Environment Variables dari Vercel
-    const token = process.env.GITHUB_TOKEN;
-    const owner = process.env.GITHUB_OWNER;
-    const repo = process.env.GITHUB_REPO;
+    // 2. Njupuk Environment Variables seko Vercel
+    const token = process.env.GITHUB_TOKEN || '';
+    const rawOwner = process.env.GITHUB_OWNER || '';
+    const rawRepo = process.env.GITHUB_REPO || '';
 
-    // Jika Env Vars kosong (Biasanya karena lupa REDEPLOY di Vercel setelah setting Env)
-    if (!token || !owner || !repo) {
-        return res.status(500).json({ 
-            message: "FATAL ERROR: Environment Variables are missing. PLEASE REDEPLOY YOUR VERCEL PROJECT." 
-        });
-    }
+    // Ngresiki jeneng owner lan repo menawa wae sampeyan ke-paste link lengkap 
+    const owner = rawOwner.replace(/https?:\/\/github\.com\//, '').replace(/\/$/, '').split('/')[0].trim();
+    let repo = rawRepo.replace(/https?:\/\/github\.com\//, '').replace(/\/$/, '').split('/').pop().trim();
+    repo = repo.replace(/\.git$/, '');
 
     const { method } = req;
     const headers = {
@@ -31,9 +29,17 @@ export default async function handler(req, res) {
         'X-GitHub-Api-Version': '2022-11-28'
     };
 
+    // Yen Env Vars kosong (Biasane amarga lali REDEPLOY ing Vercel sawise ngisi)
+    if (!token || !owner || !repo) {
+        return res.status(200).json([{
+            name: "99._ERROR_LALI_DURUNG_SET_ENV_UTAWA_DURUNG_REDEPLOY_VERCEL.html",
+            type: "file"
+        }]);
+    }
+
     // ==========================================
     // METHOD GET: BACA DIRECTORY / FILE CONTENT
-    // Dipakai oleh index.html DAN deploy.html
+    // Dipake karo index.html LAN deploy.html
     // ==========================================
     if (method === 'GET') {
         const folder = req.query.folder;
@@ -52,29 +58,55 @@ export default async function handler(req, res) {
                 headers: headers
             });
 
-            // 🔥 FIX UTAMA UNTUK INDEX.HTML 🔥
-            // Jika repo masih kosong / folder belum ada, GitHub akan melempar 404.
-            // Jangan lempar 404 ke index.html karena akan membuatnya CRASH. 
-            // Kita kembalikan array kosong [] saja (Status 200).
+            // 💡 CARA PINTER KANGGO DEBUG TANPA NGRUSAK INDEX.HTML 💡
+            // Bakal mbalekake file gawean sing isine pesen error ben ketok nang web sampeyan
             if (ghRes.status === 404) {
-                return res.status(200).json([]);
+                // 404 artine folder utawa repo ora ketemu
+                return res.status(200).json([{
+                    name: "99._ERROR_REPO_UTAWA_FOLDER_KUIS_ORA_KETEMU_NANG_GITHUB.html",
+                    type: "file"
+                }]);
+            }
+
+            if (ghRes.status === 401) {
+                // 401 artine token github e salah
+                return res.status(200).json([{
+                    name: "99._ERROR_TOKEN_GITHUB_SALAH_UTAWA_KADALUWARSA.html",
+                    type: "file"
+                }]);
             }
             
-            if (!ghRes.ok) throw new Error(`GitHub API Error: ${await ghRes.text()}`);
+            if (!ghRes.ok) {
+                return res.status(200).json([{
+                    name: `99._ERROR_API_GITHUB_STATUS_${ghRes.status}.html`,
+                    type: "file"
+                }]);
+            }
             
             const data = await ghRes.json();
-            return res.status(200).json(data);
+            
+            // Yen data wujude array lan kosong
+            if (Array.isArray(data) && data.length === 0) {
+                 return res.status(200).json([{
+                    name: "99._ERROR_FOLDER_ISI_KOSONG_DURUNG_ANA_FILE.html",
+                    type: "file"
+                }]);
+            }
+
+            return res.status(200).json(Array.isArray(data) ? data : [data]);
 
         } catch (error) {
-            // Walaupun ada error internal, kembalikan array kosong untuk MENCEGAH index.html crash.
-            console.error("Fetch Error:", error.message);
-            return res.status(200).json([]);
+            // Nek ana error sistem liyane
+            return res.status(200).json([{
+                name: "99._ERROR_SISTEM_KONEKSI_GAGAL.html",
+                type: "file"
+            }]);
         }
     }
 
     // ==========================================
-    // METHOD POST: CREATE OR UPDATE FILE
-    // Dipakai oleh deploy.html (System Director)
+    // METHOD POST: GAWE ATAU UPDATE FILE
+    // Dipake karo deploy.html (System Director)
     // ==========================================
     if (method === 'POST') {
         const { path, message, content, sha, author } = req.body;
@@ -118,8 +150,8 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // METHOD DELETE: HAPUS FILE PERMANEN
-    // Dipakai oleh deploy.html (System Director)
+    // METHOD DELETE: Mbusak FILE PERMANEN
+    // Dipake karo deploy.html (System Director)
     // ==========================================
     if (method === 'DELETE') {
         const { path, message, sha, author } = req.body;
