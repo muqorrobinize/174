@@ -1,16 +1,26 @@
 // File: api/content.js
-// Vercel Serverless Function untuk menjembatani GitHub API (Bypass CORS & Hide Token)
+// Vercel Serverless Function (Menjembatani GitHub API, Bypass CORS & Hide Token)
 
 export default async function handler(req, res) {
-    // 1. Ambil Environment Variables dari Vercel
+    // 1. SETTING CORS (Sangat Penting agar index.html tidak di-block oleh browser)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    // 2. Ambil Environment Variables dari Vercel
     const token = process.env.GITHUB_TOKEN;
     const owner = process.env.GITHUB_OWNER;
     const repo = process.env.GITHUB_REPO;
 
-    // Keamanan Dasar: Cek apakah env variables sudah di-set
+    // Jika Env Vars kosong (Biasanya karena lupa REDEPLOY di Vercel setelah setting Env)
     if (!token || !owner || !repo) {
         return res.status(500).json({ 
-            message: "FATAL ERROR: Environment Variables (GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO) are missing in Vercel settings." 
+            message: "FATAL ERROR: Environment Variables are missing. PLEASE REDEPLOY YOUR VERCEL PROJECT." 
         });
     }
 
@@ -22,15 +32,13 @@ export default async function handler(req, res) {
     };
 
     // ==========================================
-    // METHOD GET: READ DIRECTORY OR FILE CONTENT
+    // METHOD GET: BACA DIRECTORY / FILE CONTENT
     // Dipakai oleh index.html DAN deploy.html
     // ==========================================
     if (method === 'GET') {
-        // Mendukung dua query string: ?folder=... ATAU ?file=...
         const folder = req.query.folder;
         const file = req.query.file;
         
-        // Tentukan path target, jika root akan menjadi string kosong ('')
         let targetPath = '';
         if (file !== undefined) {
             targetPath = file;
@@ -44,21 +52,23 @@ export default async function handler(req, res) {
                 headers: headers
             });
 
-            // Handle khusus 404 agar UI frontend bisa merespon dengan elegan
+            // 🔥 FIX UTAMA UNTUK INDEX.HTML 🔥
+            // Jika repo masih kosong / folder belum ada, GitHub akan melempar 404.
+            // Jangan lempar 404 ke index.html karena akan membuatnya CRASH. 
+            // Kita kembalikan array kosong [] saja (Status 200).
             if (ghRes.status === 404) {
-                return res.status(404).json({ message: "File or directory not found/empty." });
+                return res.status(200).json([]);
             }
             
             if (!ghRes.ok) throw new Error(`GitHub API Error: ${await ghRes.text()}`);
             
             const data = await ghRes.json();
-            
-            // index.html mengharapkan array balikan dari endpoint ini saat query folder.
-            // GitHub API secara otomatis mengembalikan array jika targetPath adalah direktori.
             return res.status(200).json(data);
 
         } catch (error) {
-            return res.status(500).json({ message: error.message });
+            // Walaupun ada error internal, kembalikan array kosong untuk MENCEGAH index.html crash.
+            console.error("Fetch Error:", error.message);
+            return res.status(200).json([]);
         }
     }
 
@@ -78,30 +88,18 @@ export default async function handler(req, res) {
             content: content
         };
 
-        // Jika ada SHA, ini adalah operasi UPDATE
         if (sha) payload.sha = sha;
         
-        // GHOST PROTOCOL: Memanipulasi identitas commit (opsi Sir Yaeon)
+        // GHOST PROTOCOL (Opsi Sir Yaeon)
         if (author && author.name && author.email) {
-            payload.author = {
-                name: author.name,
-                email: author.email
-            };
-            // committer bisa di-set sama dengan author agar benar-benar tersamarkan
-            payload.committer = {
-                name: author.name,
-                email: author.email
-            };
+            payload.author = { name: author.name, email: author.email };
+            payload.committer = { name: author.name, email: author.email };
         }
 
         try {
-            // GitHub API mewajibkan method PUT untuk create/update contents
             const ghRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
                 method: 'PUT',
-                headers: {
-                    ...headers,
-                    'Content-Type': 'application/json'
-                },
+                headers: { ...headers, 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
@@ -127,7 +125,7 @@ export default async function handler(req, res) {
         const { path, message, sha, author } = req.body;
 
         if (!path || !sha) {
-            return res.status(400).json({ message: "Bad Request: 'path' and 'sha' are required to delete a file." });
+            return res.status(400).json({ message: "Bad Request: 'path' and 'sha' are required." });
         }
 
         const payload = {
@@ -135,7 +133,7 @@ export default async function handler(req, res) {
             sha: sha
         };
 
-        // GHOST PROTOCOL (untuk commit penghapusan file)
+        // GHOST PROTOCOL (Opsi Sir Yaeon)
         if (author && author.name && author.email) {
             payload.author = { name: author.name, email: author.email };
             payload.committer = { name: author.name, email: author.email };
@@ -144,16 +142,12 @@ export default async function handler(req, res) {
         try {
             const ghRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
                 method: 'DELETE',
-                headers: {
-                    ...headers,
-                    'Content-Type': 'application/json'
-                },
+                headers: { ...headers, 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
             if (!ghRes.ok) throw new Error(`GitHub Deletion Error: ${await ghRes.text()}`);
             
-            const data = await ghRes.json();
             return res.status(200).json({ message: "Deletion successful" });
 
         } catch (error) {
@@ -161,6 +155,5 @@ export default async function handler(req, res) {
         }
     }
 
-    // Tolak request selain GET, POST, dan DELETE
     return res.status(405).json({ message: "Method Not Allowed" });
 }
