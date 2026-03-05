@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel Rewrite Tester</title>
+    <style>
+        body { 
+            background: #09090b; 
+            color: #f4f4f5; 
+            font-family: 'Courier New', Courier, monospace; 
+            padding: 30px; 
+            max-width: 800px;
+            margin: auto;
+        }
+        .box { 
+            background: #18181b; 
+            border: 1px solid #27272a; 
+            padding: 20px; 
+            margin-bottom: 25px; 
+            border-radius: 12px; 
+        }
+        input { 
+            background: #000; 
+            color: #fff; 
+            border: 1px solid #3f3f46; 
+            padding: 10px; 
+            width: 300px; 
+            border-radius: 6px;
+        }
+        button { 
+            background: #fff; 
+            color: #000; 
+            padding: 10px 20px; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        button:hover { background: #e4e4e7; }
+        iframe { 
+            width: 100%; 
+            height: 300px; 
+            background: #fff; 
+            border: none; 
+            margin-top: 15px; 
+            border-radius: 6px;
+        }
+        .status {
+            font-size: 12px;
+            color: #a1a1aa;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>🚀 Vercel Rewrite Tester</h2>
+    <p style="color: #a1a1aa; margin-bottom: 30px;">
+        Alat ini mengetes apakah file <code>vercel.json</code> berhasil membelokkan trafik <code>/kuis/</code> dan <code>/music/</code> ke GitHub API.
+    </p>
+    
+    <!-- TESTER UNTUK FOLDER KUIS (HTML) -->
+    <div class="box">
+        <h3>1. Test Folder Kuis (Iframe HTML)</h3>
+        <p style="font-size: 14px; color: #a1a1aa;">Masukkan nama file HTML yang pasti ada di folder kuis GitHub kamu:</p>
+        <input type="text" id="kuisFile" value="" placeholder="contoh: SEMESTER_1.html">
+        <button onclick="testKuis()">Load iframe</button>
+        <div class="status" id="kuisStatus">Menunggu perintah...</div>
+        
+        <iframe id="kuisFrame"></iframe>
+    </div>
+
+    <!-- TESTER UNTUK FOLDER MUSIC (AUDIO) -->
+    <div class="box">
+        <h3>2. Test Folder Music (Audio MP3)</h3>
+        <p style="font-size: 14px; color: #a1a1aa;">Masukkan nama file MP3 yang pasti ada di folder music GitHub kamu:</p>
+        <input type="text" id="musicFile" value="" placeholder="contoh: lagu_rahasia.mp3">
+        <button onclick="testMusic()">Load Audio</button>
+        <div class="status" id="musicStatus">Menunggu perintah...</div>
+        
+        <br><br>
+        <audio id="musicPlayer" controls style="width: 100%;"></audio>
+    </div>
+
+    <script>
+        function testKuis() {
+            const filename = document.getElementById('kuisFile').value.trim();
+            if(!filename) { alert("Masukkan nama file HTML!"); return; }
+            
+            const frame = document.getElementById('kuisFrame');
+            const status = document.getElementById('kuisStatus');
+            
+            // Memanggil path statis /kuis/namafile.html
+            // Vercel akan merubahnya menjadi /api/content?file=kuis/namafile.html&raw=true
+            const url = '/kuis/' + filename;
+            
+            status.innerHTML = `Mencoba meload URL: <a href="${url}" target="_blank" style="color:#60a5fa">${url}</a>`;
+            frame.src = url;
+        }
+
+        function testMusic() {
+            const filename = document.getElementById('musicFile').value.trim();
+            if(!filename) { alert("Masukkan nama file MP3!"); return; }
+            
+            const player = document.getElementById('musicPlayer');
+            const status = document.getElementById('musicStatus');
+            
+            // Memanggil path statis /music/namafile.mp3
+            // Vercel akan merubahnya menjadi /api/content?file=music/namafile.mp3&raw=true
+            const url = '/music/' + filename;
+            
+            status.innerHTML = `Mencoba memutar URL: <a href="${url}" target="_blank" style="color:#60a5fa">${url}</a>`;
+            player.src = url;
+            player.play().catch(e => console.log("Auto-play diblokir browser, silakan klik tombol play manual."));
+        }
+    </script>
+</body>
+</html>
