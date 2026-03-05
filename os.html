@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>174. | System Director OS</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- CodeMirror for Syntax Highlighting (Light Theme for 174 Identity) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        base: 'rgb(255 255 255)',       
+                        surface: 'rgb(244 244 245)',    
+                        ink: 'rgb(9 9 11)',             
+                        inkdim: 'rgb(113 113 122)',     
+                        line: 'rgb(228 228 231)',       
+                        error: 'rgb(220 38 38)',
+                        success: 'rgb(34 197 94)'
+                    },
+                    fontFamily: {
+                        times: ['"Times New Roman"', 'Times', 'serif'],
+                        serif: ['Lora', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        sans: ['system-ui', '-apple-system', 'sans-serif'] // Mac native feel for UI
+                    },
+                    animation: {
+                        'blink': 'blink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blink: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.3' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            background-color: rgb(244 244 245); /* Surface */
+            background-image: radial-gradient(rgb(228 228 231) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: rgb(9 9 11); 
+            overflow: hidden; 
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Menu Bar */
+        .top-menu-bar {
+            position: absolute; top: 0; left: 0; width: 100%; height: 28px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgb(228 228 231);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 9999;
+            font-size: 12px; font-weight: 500; font-family: 'system-ui', sans-serif;
+        }
+
+        /* Floating Dock */
+        .dock-container {
+            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(228, 228, 231, 0.8);
+            border-radius: 20px;
+            display: flex; gap: 8px; padding: 6px; z-index: 9999;
+            box-shadow: 0 10px 30px rgba(9,9,11,0.1);
+        }
+        .dock-icon { 
+            width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; background: transparent;
+        }
+        .dock-icon:hover { 
+            background: rgba(244, 244, 245, 0.8); 
+            transform: scale(1.15) translateY(-6px);
+            box-shadow: 0 4px 12px rgba(9,9,11,0.05);
+        }
+        .dock-icon.active::after {
+            content: ''; position: absolute; bottom: -4px; width: 4px; height: 4px; 
+            border-radius: 50%; background: rgb(220 38 38); /* Error/Red accent */
+        }
+
+        /* OS Windows (Mac + 174 Identity) */
+        .os-window {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgb(228 228 231);
+            border-radius: 12px; 
+            display: none; 
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(9,9,11,0.15), 0 0 0 1px rgba(255,255,255,0.5) inset;
+            transition: opacity 0.15s, transform 0.15s;
+        }
+        .os-window.snapping { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .os-window.open { display: flex; }
+
+        .window-header {
+            height: 44px;
+            background: rgba(244, 244, 245, 0.5);
+            border-bottom: 1px solid rgb(228 228 231);
+            display: flex;
+            align-items: center;
+            cursor: grab;
+            flex-shrink: 0;
+            padding: 0 16px;
+            position: relative;
+        }
+        .window-header:active { cursor: grabbing; }
+        
+        /* Mac Traffic Lights */
+        .window-controls { display: flex; gap: 8px; z-index: 10; }
+        .win-btn { 
+            width: 12px; height: 12px; border-radius: 50%;
+            cursor: pointer; border: 1px solid rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .win-btn svg { width: 8px; height: 8px; opacity: 0; transition: 0.1s; color: rgba(0,0,0,0.6); }
+        .window-controls:hover .win-btn svg { opacity: 1; }
+        .win-btn.close { background: #ff5f56; }
+        .win-btn.min { background: #ffbd2e; }
+        .win-btn.max { background: #27c93f; }
+
+        .win-title { 
+            position: absolute; left: 0; right: 0; text-align: center;
+            font-size: 13px; font-weight: 600; color: rgb(9 9 11); pointer-events: none;
+            font-family: 'Lora', serif; /* 174 Identity */
+        }
+
+        /* Window Content Areas */
+        .win-body { flex-grow: 1; display: flex; overflow: hidden; position: relative; }
+        .sidebar { width: 220px; background: rgba(244, 244, 245, 0.4); border-right: 1px solid rgb(228 228 231); padding: 10px; overflow-y: auto; }
+        .main-view { flex-grow: 1; display: flex; flex-direction: column; background: transparent;}
+        .toolbar { height: 44px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid rgb(228 228 231); gap: 10px; background: rgba(255,255,255,0.3); flex-shrink: 0;}
+        
+        /* Explorer Grid */
+        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; padding: 20px; overflow-y: auto; align-content: start; }
+        .file-item { display: flex; flex-direction: column; align-items: center; padding: 10px 8px; border-radius: 8px; cursor: default; border: 1px solid transparent; transition: 0.1s;}
+        .file-item:hover { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.05); }
+        .file-item.selected { background: rgba(220, 38, 38, 0.1); border-color: rgba(220, 38, 38, 0.3); }
+        .file-icon { width: 44px; height: 44px; margin-bottom: 8px; pointer-events: none;}
+        .file-name { font-size: 11px; text-align: center; word-break: break-all; max-height: 32px; overflow: hidden; pointer-events: none; font-family: 'JetBrains Mono', monospace; color: rgb(9 9 11);}
+
+        /* Context Menu (Mac Style Light) */
+        .context-menu {
+            position: absolute; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px);
+            border: 1px solid rgb(228 228 231); border-radius: 8px;
+            padding: 5px; min-width: 200px; z-index: 10000; font-size: 12px; color: rgb(9 9 11);
+            box-shadow: 0 10px 30px rgba(9,9,11,0.15); font-family: 'system-ui', sans-serif;
+        }
+        .ctx-item { padding: 6px 12px; cursor: default; display: flex; align-items: center; gap: 8px; border-radius: 4px; transition: 0.05s;}
+        .ctx-item:hover { background: rgb(220 38 38); color: white; }
+        .ctx-divider { height: 1px; background: rgb(228 228 231); margin: 4px 0; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgb(228 228 231); border-radius: 4px;}
+        ::-webkit-scrollbar-thumb:hover { background: rgb(113 113 122); }
+        
+        /* Form Inputs */
+        .input-tech { background: rgb(255 255 255); border: 1px solid rgb(228 228 231); border-radius: 6px; color: rgb(9 9 11); padding: 6px 10px; font-family: 'JetBrains Mono'; font-size: 11px; outline: none; transition: 0.2s;}
+        .input-tech:focus { border-color: rgb(220 38 38); box-shadow: 0 0 0 2px rgba(220,38,38,0.1);}
+        .btn-tech { background: rgb(9 9 11); color: rgb(255 255 255); border: none; padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.1s;}
+        .btn-tech:hover { background: rgb(113 113 122); }
+        .btn-tech.accent { background: rgb(220 38 38); }
+        .btn-tech.accent:hover { background: rgb(185 28 28); }
+
+        /* CodeMirror (174 Light Theme Override) */
+        .CodeMirror { height: 100% !important; font-family: 'JetBrains Mono', monospace; font-size: 13px; background-color: rgb(255 255 255) !important; color: rgb(9 9 11) !important;}
+        .CodeMirror-gutters { background: rgb(244 244 245) !important; border-right: 1px solid rgb(228 228 231) !important; }
+        
+        /* Snap Indicators */
+        #snap-indicator { position: absolute; background: rgba(220, 38, 38, 0.05); backdrop-filter: blur(2px); border: 1px solid rgba(220,38,38,0.3); border-radius: 12px; z-index: 999; display: none; pointer-events: none; transition: all 0.1s;}
+
+        .loader-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Photobooth Canvas */
+        #pb-canvas { width: 100%; height: 100%; object-fit: contain; background: #000; border-radius: 8px;}
+    </style>
+</head>
+<body class="font-sans">
+
+    <!-- === DESKTOP AREA === -->
+    <div id="desktop-area" class="absolute top-7 bottom-[72px] w-full z-0" oncontextmenu="showContextMenu(event, 'desktop')">
+        <!-- Center Logo 174 -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-[0.05] pointer-events-none text-center flex flex-col items-center">
+            <h1 class="text-8xl font-bold tracking-tighter text-ink font-times italic">174.</h1>
+            <p class="text-xl tracking-[0.5em] ml-2 font-serif text-ink">SYSTEM DIRECTOR</p>
+        </div>
+    </div>
+
+    <!-- Snap Indicator -->
+    <div id="snap-indicator"></div>
+
+    <!-- === TOP MENU BAR (MAC STYLE + 174) === -->
+    <div class="top-menu-bar">
+        <div class="flex items-center gap-4">
+            <span class="font-bold flex items-center gap-1.5 cursor-pointer hover:text-error font-serif" onclick="window.location.href='index.html'">
+                <span class="w-2.5 h-2.5 bg-error rounded-full inline-block animate-blink"></span>
+                Archive 174.
+            </span>
+            <span class="text-inkdim hover:text-ink cursor-pointer transition">File</span>
+            <span class="text-inkdim hover:text-ink cursor-pointer transition">Edit</span>
+            <span class="text-inkdim hover:text-ink cursor-pointer transition">View</span>
+        </div>
+        <div class="flex items-center gap-4 text-inkdim">
+            <span id="os-user" class="text-error font-mono text-[10px] uppercase border border-error/30 bg-error/5 px-2 py-0.5 rounded-full font-bold">Ghost Protocol Active</span>
+            <span id="os-clock" class="font-mono text-[11px]">00:00</span>
+        </div>
+    </div>
+
+    <!-- === MAC FLOATING DOCK === -->
+    <div class="dock-container" onmousedown="bringToFront('dock')">
+        <div class="dock-icon" id="task-explorer" onclick="toggleApp('win-explorer')" title="Finder (Explorer)">
+            <svg class="w-8 h-8 text-ink" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
+        </div>
+        <div class="dock-icon" id="task-editor" onclick="toggleApp('win-editor')" title="Code Editor">
+            <svg class="w-8 h-8 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+        </div>
+        <div class="dock-icon" id="task-upload" onclick="toggleApp('win-upload')" title="Upload Media">
+            <svg class="w-8 h-8 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        </div>
+        <div class="dock-icon" id="task-player" onclick="toggleApp('win-player')" title="Audio Deck">
+            <svg class="w-8 h-8 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+        </div>
+        <!-- NEW: GALLERY ICON -->
+        <div class="dock-icon" id="task-gallery" onclick="toggleApp('win-gallery')" title="174 Gallery">
+            <svg class="w-8 h-8 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+        <div class="w-px h-8 bg-line mx-1 my-auto"></div>
+        <!-- NEW: PHOTOBOOTH ICON -->
+        <div class="dock-icon" id="task-photobooth" onclick="toggleApp('win-photobooth')" title="174 Photobooth">
+            <svg class="w-8 h-8 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </div>
+    </div>
+
+    <!-- === WINDOWS === -->
+
+    <!-- 1. DATA EXPLORER -->
+    <div id="win-explorer" class="os-window" style="width: 800px; height: 500px; top: 50px; left: 60px; z-index: 10;" onmousedown="bringToFront('win-explorer')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-explorer')">
+            <div class="window-controls">
+                <div class="win-btn close" onclick="closeApp('win-explorer')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"></path></svg></div>
+                <div class="win-btn min" onclick="minApp('win-explorer')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 12H4"></path></svg></div>
+                <div class="win-btn max" onclick="maxWindow('win-explorer')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 8h16M4 16h16"></path></svg></div>
+            </div>
+            <div class="win-title">Finder - Archive 174</div>
+        </div>
+        <div class="win-body">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="text-[10px] text-inkdim uppercase tracking-widest font-bold mb-3 pl-2">Locations</div>
+                <ul class="space-y-1 font-mono" id="sidebar-tree">
+                    <li class="text-xs text-inkdim pl-2">Scanning repo...</li>
+                </ul>
+            </div>
+            <!-- Main View -->
+            <div class="main-view relative">
+                <div class="toolbar font-mono">
+                    <button onclick="navigateUp()" class="p-1.5 rounded hover:bg-black/5 text-inkdim hover:text-ink" title="Go Up">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <div id="breadcrumb" class="text-[11px] text-ink bg-white border border-line rounded px-3 py-1.5 flex-grow truncate shadow-sm">/</div>
+                    <button onclick="loadDir(currentPath)" class="p-1.5 rounded hover:bg-black/5 text-inkdim hover:text-ink" title="Refresh">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+                <div id="file-grid" class="file-grid flex-grow" oncontextmenu="showContextMenu(event, 'explorer-bg')" onclick="deselectAll()">
+                    <!-- Icons load here -->
+                </div>
+                <!-- Loader -->
+                <div id="explorer-loading" class="absolute inset-0 bg-white/50 backdrop-blur-sm hidden items-center justify-center z-10">
+                    <svg class="w-8 h-8 text-error loader-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </div>
+            </div>
+        </div>
+        <div class="h-6 border-t border-line bg-surface/50 flex items-center px-4 text-[10px] text-inkdim font-mono" id="status-bar">
+            System Ready.
+        </div>
+    </div>
+
+    <!-- 2. CODE EDITOR & LIVE LAUNCHER -->
+    <div id="win-editor" class="os-window" style="width: 850px; height: 600px; top: 70px; left: 150px; z-index: 11;" onmousedown="bringToFront('win-editor')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-editor')">
+            <div class="window-controls">
+                <div class="win-btn close" onclick="closeApp('win-editor')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"></path></svg></div>
+                <div class="win-btn min" onclick="minApp('win-editor')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 12H4"></path></svg></div>
+                <div class="win-btn max" onclick="maxWindow('win-editor')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 8h16M4 16h16"></path></svg></div>
+            </div>
+            <div class="win-title" id="editor-title">Archive Code Editor</div>
+        </div>
+        <div class="toolbar h-12 bg-white border-b border-line">
+            <input type="text" id="editor-path" class="input-tech flex-grow" readonly placeholder="Select a file from Explorer">
+            <input type="hidden" id="editor-sha">
+            <select id="editor-identity" class="input-tech w-36 cursor-pointer">
+                <option value="system">System (Owner)</option>
+                <option value="yaeon" selected>Sir Yaeon</option>
+            </select>
+            <button onclick="launchPreview()" class="btn-tech outline flex items-center gap-2">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+                Preview
+            </button>
+            <button onclick="commitCode()" id="btn-commit" class="btn-tech accent flex items-center gap-2">
+                Save & Push
+            </button>
+        </div>
+        <div class="win-body relative">
+            <textarea id="code-editor"></textarea>
+            <div id="editor-loading" class="absolute inset-0 bg-white/80 backdrop-blur-sm hidden items-center justify-center z-10 flex-col gap-3">
+                <svg class="w-8 h-8 text-error loader-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span class="text-xs text-inkdim font-mono">Decrypting Payload...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. LIVE PREVIEW (TESTING) WINDOW -->
+    <div id="win-preview" class="os-window bg-white" style="width: 500px; height: 600px; top: 40px; left: 60%; z-index: 15;" onmousedown="bringToFront('win-preview')">
+        <div class="window-header bg-surface !border-b-0 backdrop-blur-md" onmousedown="startDrag(event, 'win-preview')">
+            <div class="window-controls">
+                <div class="win-btn close" onclick="closeApp('win-preview')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"></path></svg></div>
+                <div class="win-btn max" onclick="maxWindow('win-preview')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 8h16M4 16h16"></path></svg></div>
+            </div>
+            <div class="win-title">Live Preview Environment</div>
+        </div>
+        <div class="win-body bg-white rounded-b-xl border-t border-line">
+            <iframe id="preview-frame" class="w-full h-full border-none bg-white"></iframe>
+        </div>
+    </div>
+
+    <!-- 4. UPLOADER (UPLINK) -->
+    <div id="win-upload" class="os-window" style="width: 450px; height: 400px; top: 120px; left: 30%; z-index: 12;" onmousedown="bringToFront('win-upload')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-upload')">
+            <div class="window-controls">
+                <div class="win-btn close" onclick="closeApp('win-upload')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"></path></svg></div>
+            </div>
+            <div class="win-title">Secure Uplink</div>
+        </div>
+        <div class="win-body p-6 flex flex-col gap-4 font-mono bg-white">
+            <div id="drop-zone" class="border border-dashed border-line bg-surface rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-error hover:bg-error/5 transition-colors flex-grow" onclick="document.getElementById('file-input').click()">
+                <svg class="w-10 h-10 text-inkdim mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <span id="upload-filename" class="text-xs font-bold text-ink">Select File or Drag Here</span>
+                <span class="text-[10px] text-inkdim mt-2">Supports HTML, MP3, WAV, JPG, PNG etc.</span>
+                <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(event)">
+            </div>
+            <div class="space-y-2">
+                <label class="block text-[10px] text-inkdim uppercase tracking-widest">Target Path</label>
+                <input type="text" id="upload-path" class="w-full input-tech" placeholder="e.g., music/classified_audio.mp3">
+            </div>
+            <button onclick="commitUpload()" id="btn-upload" class="btn-tech accent w-full py-3 mt-2 rounded-lg text-xs">
+                Initiate Transfer
+            </button>
+        </div>
+    </div>
+
+    <!-- 5. 174 AUDIO DECK (MUSIC PLAYER) -->
+    <div id="win-player" class="os-window" style="width: 380px; height: 180px; top: 200px; left: 40%; z-index: 13;" onmousedown="bringToFront('win-player')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-player')">
+            <div class="window-controls">
+                <div class="win-btn close" onclick="closeApp('win-player')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"></path></svg></div>
+            </div>
+            <div class="win-title">Audio Player</div>
+        </div>
+        <div class="win-body p-5 flex flex-col justify-between bg-white font-mono border-t border-line">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-surface border border-line rounded-xl flex items-center justify-center shadow-sm">
+                    <svg class="w-8 h-8 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+                </div>
+                <div class="flex-grow overflow-hidden">
+                    <div id="player-title" class="text-xs font-bold text-ink truncate">NO_SIGNAL</div>
+                    <div id="player-status" class="text-[10px] text-inkdim mt-1">Ready to stream...</div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <audio id="core-audio" class="w-full h-8 outline-none" controls controlsList="nodownload"></audio>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. NEW: 174 PHOTOBOOTH -->
+    <div id="win-photobooth" class="os-window" style="width: 600px; height: 500px; top: 90px; left: 25%; z-index: 14;" onmousedown="bringToFront('win-photobooth')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-photobooth')">
+            <div class="window-controls">
+                <div class="win-btn close" onclick="closePhotobooth()"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"></path></svg></div>
+                <div class="win-btn min" onclick="minApp('win-photobooth')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 12H4"></path></svg></div>
+            </div>
+            <div class="win-title">174 Photobooth</div>
+        </div>
+        <div class="win-body flex-col bg-ink p-4 gap-4">
+            <!-- Canvas Display -->
+            <div class="flex-grow relative bg-black rounded-lg overflow-hidden border border-zinc-800 shadow-inner flex items-center justify-center">
+                <video id="pb-video" class="hidden" autoplay playsinline></video>
+                <canvas id="pb-canvas"></canvas>
+                <div id="pb-loader" class="absolute text-white text-xs font-mono animate-pulse">Initializing Camera...</div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="h-12 flex items-center justify-between gap-4 shrink-0 font-mono">
+                <select id="pb-filter" class="input-tech bg-zinc-900 border-zinc-700 text-white flex-grow" onchange="changeFilter()">
+                    <option value="normal">Normal</option>
+                    <option value="grayscale">Grayscale</option>
+                    <option value="negative">Negative</option>
+                    <option value="sepia">Classified Sepia</option>
+                    <option value="ascii">ASCII Matrix (Realtime)</option>
+                </select>
+                <button onclick="takePhoto()" class="btn-tech accent flex items-center gap-2 px-6">
+                    📸 Capture & Upload
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. NEW: 174 GALLERY -->
+    <div id="win-gallery" class="os-window" style="width: 700px; height: 500px; top: 110px; left: 30%; z-index: 15;" onmousedown="bringToFront('win-gallery')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-gallery')">
+            <div class="window-controls">
+                <div class="win-btn close" onclick="closeApp('win-gallery')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"></path></svg></div>
+                <div class="win-btn min" onclick="minApp('win-gallery')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 12H4"></path></svg></div>
+                <div class="win-btn max" onclick="maxWindow('win-gallery')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 8h16M4 16h16"></path></svg></div>
+            </div>
+            <div class="win-title">174 Gallery</div>
+        </div>
+        <div class="win-body bg-surface flex flex-col">
+            <div class="h-10 border-b border-line flex items-center px-4 bg-white/50 backdrop-blur-md">
+                <span class="text-xs font-semibold text-ink" id="gallery-path-label">Current: /</span>
+            </div>
+            <!-- Grid View -->
+            <div id="gallery-grid" class="flex-grow p-4 overflow-y-auto grid grid-cols-3 sm:grid-cols-4 gap-4">
+                <div class="col-span-full text-center text-inkdim text-xs mt-10">Select a folder with images in Explorer...</div>
+            </div>
+            <!-- Fullscreen Viewer -->
+            <div id="gallery-viewer" class="absolute inset-0 bg-black/95 hidden flex-col z-20">
+                <div class="h-12 flex justify-between items-center px-4 text-white bg-gradient-to-b from-black/50 to-transparent">
+                    <span id="gallery-viewer-title" class="text-xs font-mono">image.jpg</span>
+                    <button onclick="closeGalleryViewer()" class="hover:text-error text-xs font-bold uppercase tracking-widest">✕ Close Viewer</button>
+                </div>
+                <div class="flex-grow p-4 flex items-center justify-center">
+                    <img id="gallery-viewer-img" src="" class="max-w-full max-h-full object-contain shadow-2xl rounded">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === CONTEXT MENU === -->
+    <div id="ctx-menu" class="context-menu hidden"></div>
+
+    <!-- === SYSTEM SCRIPTS === -->
+    <script>
+        // -- CLOCK --
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('os-clock').innerText = d.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', weekday: 'short', month: 'short', day: 'numeric'});
+        }, 1000);
+
+        // -- STATE --
+        let currentPath = '';
+        let currentItems = [];
+        let selectedItem = null;
+        let cmEditor = null;
+        let zIndexCounter = 100;
+        let selectedFileForUpload = null;
+
+        // -- ICONS (Light Theme Adapated) --
+        const ICONS = {
+            dir: `<svg class="file-icon text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>`,
+            html: `<svg class="file-icon text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>`,
+            audio: `<svg class="file-icon text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>`,
+            image: `<svg class="file-icon text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`,
+            default: `<svg class="file-icon text-inkdim" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>`
+        };
+
+        window.onload = () => {
+            // Init CodeMirror
+            cmEditor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                lineNumbers: true, mode: 'htmlmixed',
+                indentUnit: 4, lineWrapping: true, matchBrackets: true
+            });
+            
+            document.addEventListener('click', () => {
+                document.getElementById('ctx-menu').classList.add('hidden');
+            });
+        };
+
+        // -- WINDOW MANAGEMENT (Snapping & Dragging) --
+        function bringToFront(id) {
+            // BUGFIX: Cegah error "null style" saat klik area desktop/dock
+            if(id === 'dock' || !document.getElementById(id)) return;
+            
+            zIndexCounter++;
+            document.getElementById(id).style.zIndex = zIndexCounter;
+            
+            document.querySelectorAll('.dock-icon').forEach(el => el.classList.remove('active'));
+            if(document.getElementById('task-' + id.split('-')[1])) {
+                document.getElementById('task-' + id.split('-')[1]).classList.add('active');
+            }
+        }
+
+        function toggleApp(id) {
+            const win = document.getElementById(id);
+            if(win.classList.contains('open')) {
+                if(win.style.zIndex == zIndexCounter) win.classList.remove('open'); 
+                else bringToFront(id); 
+            } else {
+                win.classList.add('open');
+                bringToFront(id);
+                if(id === 'win-explorer' && currentItems.length === 0) loadDir(''); 
+                if(id === 'win-editor') setTimeout(() => cmEditor.refresh(), 200);
+                if(id === 'win-photobooth') initPhotobooth();
+                if(id === 'win-gallery') refreshGallery();
+            }
+        }
+
+        function closeApp(id) { document.getElementById(id).classList.remove('open'); }
+        function minApp(id) { document.getElementById(id).classList.remove('open'); }
+        
+        function maxWindow(id) {
+            const win = document.getElementById(id);
+            if(win.dataset.maximized === "true") {
+                win.style.width = win.dataset.origW; win.style.height = win.dataset.origH;
+                win.style.top = win.dataset.origY; win.style.left = win.dataset.origX;
+                win.dataset.maximized = "false";
+            } else {
+                win.dataset.origW = win.style.width; win.dataset.origH = win.style.height;
+                win.dataset.origX = win.style.left; win.dataset.origY = win.style.top;
+                
+                win.style.width = '100%'; win.style.height = 'calc(100% - 28px)'; 
+                win.style.top = '28px'; win.style.left = '0';
+                win.dataset.maximized = "true";
+            }
+        }
+
+        let isDragging = false, currentWin = null, offsetX, offsetY;
+        const snapInd = document.getElementById('snap-indicator');
+
+        function startDrag(e, id) {
+            if(e.target.closest('.window-controls')) return;
+            isDragging = true; currentWin = document.getElementById(id);
+            bringToFront(id);
+            
+            if(currentWin.dataset.maximized === "true") maxWindow(id);
+
+            const rect = currentWin.getBoundingClientRect();
+            offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function drag(e) {
+            if(!isDragging) return;
+            currentWin.style.left = (e.clientX - offsetX) + 'px';
+            currentWin.style.top = (e.clientY - offsetY) + 'px';
+
+            const edgeThreshold = 30;
+            if(e.clientX < edgeThreshold) { 
+                snapInd.style.display = 'block';
+                snapInd.style.left = '0'; snapInd.style.top = '28px';
+                snapInd.style.width = '50%'; snapInd.style.height = 'calc(100% - 28px)';
+            } else if (e.clientX > window.innerWidth - edgeThreshold) { 
+                snapInd.style.display = 'block';
+                snapInd.style.left = '50%'; snapInd.style.top = '28px';
+                snapInd.style.width = '50%'; snapInd.style.height = 'calc(100% - 28px)';
+            } else if (e.clientY < edgeThreshold + 28) { 
+                snapInd.style.display = 'block';
+                snapInd.style.left = '0'; snapInd.style.top = '28px';
+                snapInd.style.width = '100%'; snapInd.style.height = 'calc(100% - 28px)';
+            } else {
+                snapInd.style.display = 'none';
+            }
+        }
+
+        function stopDrag(e) {
+            isDragging = false; 
+            snapInd.style.display = 'none';
+            
+            const edgeThreshold = 30;
+            if(e.clientX < edgeThreshold) {
+                currentWin.style.left = '0'; currentWin.style.top = '28px';
+                currentWin.style.width = '50%'; currentWin.style.height = 'calc(100% - 28px)';
+            } else if (e.clientX > window.innerWidth - edgeThreshold) {
+                currentWin.style.left = '50%'; currentWin.style.top = '28px';
+                currentWin.style.width = '50%'; currentWin.style.height = 'calc(100% - 28px)';
+            } else if (e.clientY < edgeThreshold + 28) {
+                maxWindow(currentWin.id); 
+            }
+            
+            currentWin = null;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        // -- FILE EXPLORER --
+        async function loadDir(path) {
+            currentPath = path;
+            selectedItem = null;
+            updateBreadcrumb();
+            
+            const grid = document.getElementById('file-grid');
+            const loader = document.getElementById('explorer-loading');
+            loader.classList.remove('hidden'); loader.classList.add('flex');
+            
+            try {
+                const res = await fetch(`/api/content?folder=${path}`);
+                if (!res.ok) throw new Error("API Connection Failed");
+                const data = await res.json();
+                
+                currentItems = Array.isArray(data) ? data : [data];
+                currentItems.sort((a, b) => {
+                    if (a.type === b.type) return a.name.localeCompare(b.name);
+                    return a.type === 'dir' ? -1 : 1;
+                });
+
+                renderGrid();
+                if(path === '') renderDynamicSidebar();
+                
+                // Refresh data gallery secara live jika aplikasinya sedang dibuka
+                if(document.getElementById('win-gallery').classList.contains('open')) {
+                    refreshGallery();
+                }
+
+                document.getElementById('status-bar').innerText = `${currentItems.length} items fetched.`;
+            } catch (err) {
+                grid.innerHTML = `<div class="col-span-full text-center text-error mt-10 text-xs font-mono">ERR_CONNECTION: Cannot access repository.</div>`;
+            } finally {
+                loader.classList.add('hidden'); loader.classList.remove('flex');
+            }
+        }
+
+        function renderDynamicSidebar() {
+            const tree = document.getElementById('sidebar-tree');
+            tree.innerHTML = `
+                <li class="px-3 py-1.5 text-[11px] ${currentPath === '' ? 'text-ink bg-black/5 font-bold rounded' : 'text-inkdim hover:bg-black/5 rounded'} cursor-pointer transition" onclick="loadDir('')">
+                    🏠 Root Archive
+                </li>
+            `;
+            
+            currentItems.filter(i => i.type === 'dir').forEach(dir => {
+                tree.innerHTML += `
+                <li class="px-3 py-1.5 text-[11px] text-inkdim hover:bg-black/5 rounded cursor-pointer mt-0.5 ml-2 transition" onclick="loadDir('${dir.path}')">
+                    📁 ${dir.name}
+                </li>`;
+            });
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('file-grid');
+            grid.innerHTML = '';
+            
+            if (currentItems.length === 0 || (currentItems.length === 1 && currentItems[0].name.includes('ERROR'))) {
+                grid.innerHTML = `<div class="col-span-full text-center text-inkdim mt-10 text-xs font-medium">Folder is empty.</div>`;
+                return;
+            }
+
+            currentItems.forEach((item, index) => {
+                if (item.name === '.gitkeep') return;
+                
+                const isDir = item.type === 'dir';
+                let iconStr = ICONS.default;
+                if (isDir) iconStr = ICONS.dir;
+                else if (item.name.endsWith('.html') || item.name.endsWith('.js') || item.name.endsWith('.css')) iconStr = ICONS.html;
+                else if (item.name.endsWith('.mp3') || item.name.endsWith('.wav')) iconStr = ICONS.audio;
+                else if (item.name.endsWith('.png') || item.name.endsWith('.jpg') || item.name.endsWith('.jpeg')) iconStr = ICONS.image;
+
+                const div = document.createElement('div');
+                div.className = `file-item`;
+                div.innerHTML = `${iconStr}<span class="file-name">${item.name}</span>`;
+                
+                div.onclick = (e) => { e.stopPropagation(); selectItem(index, div); };
+                div.ondblclick = (e) => { e.stopPropagation(); isDir ? loadDir(item.path) : handleFileOpen(item); };
+                div.oncontextmenu = (e) => { e.stopPropagation(); selectItem(index, div); showContextMenu(e, 'file', item); };
+                
+                grid.appendChild(div);
+            });
+        }
+
+        function updateBreadcrumb() {
+            document.getElementById('breadcrumb').innerText = currentPath ? currentPath : 'Root';
+        }
+        function navigateUp() {
+            if(!currentPath) return;
+            const p = currentPath.split('/'); p.pop();
+            loadDir(p.join('/'));
+        }
+
+        function selectItem(index, el) {
+            deselectAll();
+            selectedItem = currentItems[index];
+            el.classList.add('selected');
+        }
+        function deselectAll() {
+            selectedItem = null;
+            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('selected'));
+        }
+
+        function handleFileOpen(item) {
+            if(item.name.endsWith('.mp3') || item.name.endsWith('.wav')) {
+                openAudioPlayer(item);
+            } else if (item.name.match(/\.(png|jpg|jpeg|gif|webp)$/i)) {
+                // Buka aplikasi Gallery secara otomatis jika file berupa gambar
+                toggleApp('win-gallery');
+                refreshGallery();
+                openGalleryViewer(item.path, item.name);
+            } else {
+                openCodeEditor(item);
+            }
+        }
+
+        // -- MAC/174 CONTEXT MENU --
+        function showContextMenu(e, type, item = null) {
+            e.preventDefault();
+            const menu = document.getElementById('ctx-menu');
+            menu.innerHTML = '';
+            
+            if(type === 'explorer-bg' || type === 'desktop') {
+                menu.innerHTML = `
+                    <div class="ctx-item text-inkdim font-bold mb-1 px-2 border-b border-line pb-1" style="pointer-events:none;">${type === 'desktop' ? 'System' : 'Directory Actions'}</div>
+                    <div class="ctx-item" onclick="triggerNewFolder()">📁 New Folder</div>
+                    <div class="ctx-item" onclick="triggerNewFile()">📄 New File</div>
+                    <div class="ctx-divider"></div>
+                    <div class="ctx-item" onclick="triggerUploadContext()">☁️ Upload from Computer...</div>
+                    <div class="ctx-divider"></div>
+                    <div class="ctx-item" onclick="type === 'desktop' ? window.location.reload() : loadDir(currentPath)">↻ Refresh</div>
+                `;
+            } else if (type === 'file') {
+                const isDir = item.type === 'dir';
+                menu.innerHTML = `<div class="ctx-item text-inkdim font-bold mb-1 px-2 border-b border-line pb-1 truncate max-w-[180px]" style="pointer-events:none;">${item.name}</div>`;
+                
+                if(!isDir) {
+                    menu.innerHTML += `<div class="ctx-item" onclick='handleFileOpen(${JSON.stringify(item)})'>▶ Open File</div>`;
+                } else {
+                    menu.innerHTML += `<div class="ctx-item" onclick="loadDir('${item.path}')">📂 Open Folder</div>`;
+                }
+                menu.innerHTML += `
+                    <div class="ctx-item" onclick='downloadFile(${JSON.stringify(item)})'>⬇️ Download File</div>
+                    <div class="ctx-item" onclick='triggerRename(${JSON.stringify(item)})'>🖋️ Rename</div>
+                    <div class="ctx-divider"></div>
+                    <div class="ctx-item text-error hover:!bg-error hover:!text-white" onclick='triggerDelete(${JSON.stringify(item)})'>🗑️ Move to Trash</div>
+                `;
+            }
+
+            let posX = e.clientX; let posY = e.clientY;
+            menu.style.display = 'block'; 
+            const menuWidth = menu.offsetWidth; const menuHeight = menu.offsetHeight;
+            menu.style.display = ''; 
+            
+            if (posX + menuWidth > window.innerWidth) posX = window.innerWidth - menuWidth - 10;
+            if (posY + menuHeight > window.innerHeight) posY = window.innerHeight - menuHeight - 10;
+
+            menu.style.left = posX + 'px';
+            menu.style.top = posY + 'px';
+            menu.classList.remove('hidden');
+        }
+
+        // -- NEW/RENAME/DELETE LOGIC --
+        function triggerNewFile() {
+            const name = prompt("Filename (e.g., intel.html):");
+            if(!name) return;
+            const path = currentPath ? `${currentPath}/${name}` : name;
+            
+            toggleApp('win-editor');
+            document.getElementById('editor-path').value = path;
+            document.getElementById('editor-sha').value = '';
+            cmEditor.setValue("<!-- CLASSIFIED DOCUMENT -->\n");
+            updateSyntaxMode(path);
+        }
+
+        function triggerNewFolder() {
+            const name = prompt("Directory Name:");
+            if(!name) return;
+            const path = currentPath ? `${currentPath}/${name}/.gitkeep` : `${name}/.gitkeep`;
+            silentApiPush(path, "Placeholder", "", "yaeon", "Init directory").then(() => loadDir(currentPath));
+        }
+
+        async function triggerRename(item) {
+            const newName = prompt(`Rename ${item.name} to:`, item.name);
+            if(!newName || newName === item.name) return;
+            
+            document.getElementById('explorer-loading').classList.remove('hidden');
+            document.getElementById('explorer-loading').classList.add('flex');
+
+            try {
+                const res = await fetch(`/api/content?file=${item.path}`);
+                const data = await res.json();
+                const pathParts = item.path.split('/'); pathParts.pop();
+                const newPath = pathParts.length > 0 ? `${pathParts.join('/')}/${newName}` : newName;
+                
+                await silentApiPush(newPath, data.content, "", "yaeon", `Rename ${item.name}`, true);
+                await silentApiDelete(item.path, item.sha, "yaeon", `Purge old file`);
+                loadDir(currentPath);
+            } catch(e) {
+                alert("Rename failed.");
+                document.getElementById('explorer-loading').classList.add('hidden');
+            }
+        }
+
+        async function triggerDelete(item) {
+            if(!confirm(`Delete ${item.name} permanently?`)) return;
+            document.getElementById('explorer-loading').classList.remove('hidden');
+            document.getElementById('explorer-loading').classList.add('flex');
+            
+            try {
+                await silentApiDelete(item.path, item.sha, "yaeon", `Purge ${item.name}`);
+                loadDir(currentPath);
+            } catch(e) { alert("Delete failed."); document.getElementById('explorer-loading').classList.add('hidden'); }
+        }
+
+        async function downloadFile(item) {
+            if(item.type === 'dir') return alert("Cannot download directories directly.");
+            try {
+                // Konversi remote file API menjadi Blob yang bisa didownload browser
+                const url = `/api/content?file=${item.path}&raw=true`;
+                const response = await fetch(url);
+                if(!response.ok) throw new Error("Failed to fetch file securely");
+                
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = item.name; // Simpan dengan nama aslinya
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+            } catch(e) {
+                alert("Download failed: " + e.message);
+            }
+        }
+
+        // -- GALLERY APP --
+        function refreshGallery() {
+            const grid = document.getElementById('gallery-grid');
+            document.getElementById('gallery-path-label').innerText = `Current Path: /${currentPath}`;
+            
+            // Saring dan hanya ambil gambar/foto
+            const images = currentItems.filter(item => item.name.match(/\.(jpg|jpeg|png|gif|webp)$/i));
+            
+            if(images.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-inkdim text-xs mt-10">No images found in current directory.</div>`;
+                return;
+            }
+
+            grid.innerHTML = images.map(img => `
+                <div class="aspect-square bg-white border border-line rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow group relative" onclick="openGalleryViewer('${img.path}', '${img.name}')">
+                    <img src="/api/content?file=${img.path}&raw=true" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                    <div class="absolute bottom-0 left-0 w-full bg-black/50 backdrop-blur-sm text-white text-[9px] p-2 truncate opacity-0 group-hover:opacity-100 transition-opacity">
+                        ${img.name}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openGalleryViewer(path, name) {
+            document.getElementById('gallery-viewer').classList.remove('hidden');
+            document.getElementById('gallery-viewer').classList.add('flex');
+            document.getElementById('gallery-viewer-title').innerText = name;
+            document.getElementById('gallery-viewer-img').src = `/api/content?file=${path}&raw=true`;
+        }
+
+        function closeGalleryViewer() {
+            document.getElementById('gallery-viewer').classList.add('hidden');
+            document.getElementById('gallery-viewer').classList.remove('flex');
+            document.getElementById('gallery-viewer-img').src = '';
+        }
+
+        // -- CODE EDITOR & PREVIEW LAUNCHER --
+        async function openCodeEditor(item) {
+            toggleApp('win-editor');
+            document.getElementById('editor-title').innerText = item.name;
+            document.getElementById('editor-path').value = item.path;
+            document.getElementById('editor-sha').value = item.sha;
+            
+            const loader = document.getElementById('editor-loading');
+            loader.classList.remove('hidden'); loader.classList.add('flex');
+            
+            try {
+                const res = await fetch(`/api/content?file=${item.path}`);
+                const data = await res.json();
+                const decoded = decodeURIComponent(escape(atob(data.content)));
+                cmEditor.setValue(decoded);
+                updateSyntaxMode(item.path);
+            } catch(e) {
+                cmEditor.setValue("ERROR_READING_FILE.");
+            } finally {
+                loader.classList.add('hidden'); loader.classList.remove('flex');
+                setTimeout(() => cmEditor.refresh(), 100);
+            }
+        }
+
+        function updateSyntaxMode(path) {
+            let mode = 'htmlmixed';
+            if(path.endsWith('.js')) mode = 'javascript';
+            else if(path.endsWith('.css')) mode = 'css';
+            cmEditor.setOption("mode", mode);
+        }
+
+        function launchPreview() {
+            const code = cmEditor.getValue();
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            document.getElementById('preview-frame').src = url;
+            toggleApp('win-preview');
+        }
+
+        async function commitCode() {
+            const path = document.getElementById('editor-path').value;
+            const content = cmEditor.getValue();
+            const sha = document.getElementById('editor-sha').value;
+            const identity = document.getElementById('editor-identity').value;
+            const btn = document.getElementById('btn-commit');
+
+            if(!path) return alert("Path cannot be empty!");
+            btn.innerText = "Pushing..."; btn.disabled = true;
+
+            try {
+                const b64 = btoa(unescape(encodeURIComponent(content)));
+                const data = await silentApiPush(path, b64, sha, identity, `Code update: ${path}`);
+                document.getElementById('editor-sha').value = data.sha; 
+                
+                const dir = path.split('/').slice(0,-1).join('/');
+                if(dir === currentPath) loadDir(currentPath);
+            } catch(e) {
+                alert("Upload failed.");
+            } finally {
+                btn.innerHTML = "Save & Push"; btn.disabled = false;
+            }
+        }
+
+        // -- AUDIO PLAYER --
+        function openAudioPlayer(item) {
+            toggleApp('win-player');
+            document.getElementById('player-title').innerText = item.name;
+            document.getElementById('player-status').innerText = "Streaming via secure API...";
+            
+            const audioEl = document.getElementById('core-audio');
+            audioEl.src = `/api/content?file=${item.path}&raw=true`;
+            
+            audioEl.play().then(() => {
+                document.getElementById('player-status').innerText = "Playing...";
+                document.getElementById('player-status').className = "text-[10px] text-success mt-1 font-bold";
+            }).catch(() => {
+                document.getElementById('player-status').innerText = "Autoplay blocked (Click Play)";
+                document.getElementById('player-status').className = "text-[10px] text-orange-500 mt-1";
+            });
+        }
+
+        // -- SECURE UPLINK --
+        function triggerUploadContext() {
+            toggleApp('win-upload');
+            setTimeout(() => document.getElementById('file-input').click(), 300);
+        }
+
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = "#ef4444"; dropZone.style.background = "rgba(239, 68, 68, 0.05)"; };
+        dropZone.ondragleave = () => { dropZone.style.borderColor = "rgb(228 228 231)"; dropZone.style.background = "rgba(244 244 245, 1)"; };
+        dropZone.ondrop = (e) => {
+            e.preventDefault(); dropZone.style.borderColor = "rgb(228 228 231)"; dropZone.style.background = "rgba(244 244 245, 1)";
+            if(e.dataTransfer.files.length) handleFileSelect({target:{files:e.dataTransfer.files}});
+        };
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if(file) {
+                selectedFileForUpload = file;
+                document.getElementById('upload-filename').innerHTML = `<span class="text-ink">${file.name}</span><br><span class="text-error font-normal mt-1 block">${(file.size/1024).toFixed(1)} KB</span>`;
+                const base = currentPath ? `${currentPath}/` : '';
+                document.getElementById('upload-path').value = base + file.name;
+            }
+        }
+
+        async function commitUpload() {
+            if(!selectedFileForUpload) return alert("Select a file first.");
+            const path = document.getElementById('upload-path').value.trim();
+            const btn = document.getElementById('btn-upload');
+            btn.innerText = "Transmitting..."; btn.disabled = true;
+            
+            try {
+                const b64 = await new Promise((res, rej) => {
+                    const r = new FileReader();
+                    r.onload = e => res(e.target.result.split(',')[1]);
+                    r.onerror = rej;
+                    r.readAsDataURL(selectedFileForUpload);
+                });
+
+                let sha = '';
+                try {
+                    const c = await fetch(`/api/content?file=${path}`);
+                    if(c.ok) sha = (await c.json()).sha;
+                } catch(e){}
+
+                await silentApiPush(path, b64, sha, "yaeon", `Payload uplink: ${path}`);
+                
+                const dir = path.split('/').slice(0,-1).join('/');
+                if(dir === currentPath) loadDir(currentPath);
+                
+                closeApp('win-upload');
+            } catch(e) {
+                alert("Transmission failed.");
+            } finally {
+                btn.innerText = "Initiate Transfer"; btn.disabled = false;
+            }
+        }
+
+        // -- API CORE --
+        async function silentApiPush(path, base64, sha, identity, msg, isAlreadyBase64 = false) {
+            const authorData = identity === 'yaeon' 
+                ? { name: 'ghaffarsyafiq-arch', email: 'ghaffarsyafiq-arch@users.noreply.github.com' } 
+                : null;
+            
+            const payload = {
+                path: path, content: isAlreadyBase64 ? base64 : base64, 
+                sha: sha, message: msg, author: authorData
+            };
+
+            const res = await fetch('/api/content', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if(!res.ok) throw new Error(await res.text());
+            return await res.json();
+        }
+
+        async function silentApiDelete(path, sha, identity, msg) {
+            const authorData = identity === 'yaeon' 
+                ? { name: 'ghaffarsyafiq-arch', email: 'ghaffarsyafiq-arch@users.noreply.github.com' } 
+                : null;
+            const payload = { path, sha, message: msg, author: authorData };
+            const res = await fetch('/api/content', {
+                method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if(!res.ok) throw new Error(await res.text());
+        }
+
+        // -- PHOTOBOOTH APP (REAL-TIME FILTERS & CAPTURE) --
+        let videoStream = null;
+        let pbLoop = null;
+
+        async function initPhotobooth() {
+            const video = document.getElementById('pb-video');
+            const loader = document.getElementById('pb-loader');
+            
+            if(videoStream) return; // Already running
+            loader.style.display = 'block';
+
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = videoStream;
+                video.onloadedmetadata = () => {
+                    video.play();
+                    loader.style.display = 'none';
+                    drawPhotobooth();
+                };
+            } catch(e) {
+                loader.innerText = "Camera Access Denied/Error.";
+            }
+        }
+
+        function closePhotobooth() {
+            closeApp('win-photobooth');
+            if(videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            if(pbLoop) cancelAnimationFrame(pbLoop);
+        }
+
+        let currentFilter = 'normal';
+        function changeFilter() {
+            currentFilter = document.getElementById('pb-filter').value;
+        }
+
+        function drawPhotobooth() {
+            if(!videoStream) return;
+            const video = document.getElementById('pb-video');
+            const canvas = document.getElementById('pb-canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            
+            // Set canvas size to match video
+            if(canvas.width !== video.videoWidth) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+            }
+
+            if(currentFilter === 'ascii') {
+                // ASCII Logic
+                const w = canvas.width; const h = canvas.height;
+                // Draw tiny video
+                const scale = 8; 
+                ctx.drawImage(video, 0, 0, w/scale, h/scale);
+                const pixels = ctx.getImageData(0, 0, w/scale, h/scale).data;
+                
+                // Clear and prepare for text
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, w, h);
+                ctx.fillStyle = '#22c55e'; // Hacker green
+                ctx.font = '8px monospace';
+                
+                const chars = "@%#*+=-:. ";
+                for(let y=0; y < h/scale; y++) {
+                    for(let x=0; x < w/scale; x++) {
+                        const idx = (y * Math.floor(w/scale) + x) * 4;
+                        const r = pixels[idx]; const g = pixels[idx+1]; const b = pixels[idx+2];
+                        const brightness = (r+g+b)/3;
+                        const charIdx = Math.floor((brightness/255) * (chars.length-1));
+                        ctx.fillText(chars[charIdx], x*scale, y*scale);
+                    }
+                }
+            } else {
+                // Normal / CSS Filters
+                ctx.filter = 'none';
+                if(currentFilter === 'grayscale') ctx.filter = 'grayscale(100%)';
+                if(currentFilter === 'negative') ctx.filter = 'invert(100%)';
+                if(currentFilter === 'sepia') ctx.filter = 'sepia(100%) hue-rotate(-30deg) saturate(140%)';
+                
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                ctx.filter = 'none'; // reset
+            }
+
+            pbLoop = requestAnimationFrame(drawPhotobooth);
+        }
+
+        function takePhoto() {
+            const canvas = document.getElementById('pb-canvas');
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            
+            // Generate filename based on timestamp
+            const date = new Date();
+            const filename = `photo_${date.getFullYear()}${date.getMonth()+1}${date.getDate()}_${date.getTime()}.jpg`;
+            
+            // Send to Uploader Window
+            selectedFileForUpload = dataURLtoFile(dataUrl, filename);
+            
+            // Set Upload UI
+            document.getElementById('upload-filename').innerHTML = `<span class="text-ink">${filename}</span><br><span class="text-success font-normal mt-1 block">Captured from Photobooth</span>`;
+            const base = currentPath ? `${currentPath}/` : '';
+            document.getElementById('upload-path').value = base + filename;
+            
+            // Open Uploader
+            toggleApp('win-upload');
+        }
+
+        // Helper to convert dataURL to File object for the uploader
+        function dataURLtoFile(dataurl, filename) {
+            let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+            return new File([u8arr], filename, {type:mime});
+        }
+    </script>
+</body>
+</html>
