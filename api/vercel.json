@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/kuis/:path*",
+      "destination": "/api/content?file=kuis/:path*&raw=true"
+    },
+    {
+      "source": "/music/:path*",
+      "destination": "/api/content?file=music/:path*&raw=true"
+    }
+  ]
+}
