@@ -59,9 +59,7 @@ export default async function handler(req, res) {
             });
 
             // 💡 CARA PINTER KANGGO DEBUG TANPA NGRUSAK INDEX.HTML 💡
-            // Bakal mbalekake file gawean sing isine pesen error ben ketok nang web sampeyan
             if (ghRes.status === 404) {
-                // 404 artine folder utawa repo ora ketemu
                 return res.status(200).json([{
                     name: "99._ERROR_REPO_UTAWA_FOLDER_KUIS_ORA_KETEMU_NANG_GITHUB.html",
                     type: "file"
@@ -69,7 +67,6 @@ export default async function handler(req, res) {
             }
 
             if (ghRes.status === 401) {
-                // 401 artine token github e salah
                 return res.status(200).json([{
                     name: "99._ERROR_TOKEN_GITHUB_SALAH_UTAWA_KADALUWARSA.html",
                     type: "file"
@@ -85,6 +82,29 @@ export default async function handler(req, res) {
             
             const data = await ghRes.json();
             
+            // 🚀 FITUR BYPASS 404 VERCEL: Merender HTML/MP3 LIVE dari GitHub ke Iframe
+            if (req.query.raw === 'true') {
+                if (!Array.isArray(data) && data.type === 'file' && data.download_url) {
+                    // Ambil file mentah langsung dari GitHub API
+                    const rawRes = await fetch(data.download_url, { headers });
+                    const arrayBuffer = await rawRes.arrayBuffer();
+                    const buffer = Buffer.from(arrayBuffer);
+
+                    // Set tipe header supaya Iframe browser bisa memproses HTML atau Audio
+                    if (targetPath.endsWith('.html')) res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                    else if (targetPath.endsWith('.mp3')) res.setHeader('Content-Type', 'audio/mpeg');
+                    else if (targetPath.endsWith('.wav')) res.setHeader('Content-Type', 'audio/wav');
+                    else res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+
+                    // Matikan cache Vercel supaya perubahan dari Yaeon langsung tampil detik itu juga
+                    res.setHeader('Cache-Control', 'no-store, max-age=0');
+                    return res.status(200).send(buffer);
+                } else {
+                    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                    return res.status(404).send('<h1 style="color:red; font-family:monospace; text-align:center; margin-top:20%;">404 - Live File Not Found in GitHub</h1>');
+                }
+            }
+
             // Yen data wujude array lan kosong
             if (Array.isArray(data) && data.length === 0) {
                  return res.status(200).json([{
@@ -96,7 +116,6 @@ export default async function handler(req, res) {
             return res.status(200).json(Array.isArray(data) ? data : [data]);
 
         } catch (error) {
-            // Nek ana error sistem liyane
             return res.status(200).json([{
                 name: "99._ERROR_SISTEM_KONEKSI_GAGAL.html",
                 type: "file"
