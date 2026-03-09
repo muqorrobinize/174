@@ -208,6 +208,69 @@
             padding-top: 0.2rem;
             font-weight: bold;
         }
+
+        /* --- CSS NIGHTMARE MODE (SUDDEN DEATH) --- */
+        body { transition: background-color 0.4s ease, color 0.4s ease; }
+        .quiz-container { transition: all 0.4s ease; }
+        
+        body.sudden-death-mode {
+            background-color: #050000;
+            color: #ffcccc;
+        }
+        body.sudden-death-mode .quiz-container {
+            background-color: #110000;
+            border-color: #4d0000;
+            box-shadow: 0 0 80px rgba(180, 0, 0, 0.3);
+            color: #ffcccc;
+        }
+        body.sudden-death-mode .nyt-header,
+        body.sudden-death-mode .nyt-subtitle {
+            border-color: #660000;
+            color: #ff4d4d;
+        }
+        body.sudden-death-mode .nyt-title,
+        body.sudden-death-mode #question-text,
+        body.sudden-death-mode #score-display {
+            color: #ff1a1a;
+        }
+        body.sudden-death-mode .btn-option {
+            background-color: #0a0000;
+            border-color: #330000;
+            color: #ff9999;
+        }
+        body.sudden-death-mode .btn-option.incorrect {
+            background-color: #4d0000 !important;
+            border-color: #ff0000 !important;
+            color: #ffcccc;
+            box-shadow: inset 0 0 10px rgba(255,0,0,0.5);
+        }
+        body.sudden-death-mode .btn-option.correct {
+            background-color: #002200 !important;
+            border-color: #00ff00 !important;
+            color: #ccffcc;
+        }
+        body.sudden-death-mode .explanation-box {
+            background-color: #1a0000;
+            border-left-color: #ff0000;
+            color: #ffcccc;
+            box-shadow: 0 0 20px rgba(255,0,0,0.1);
+        }
+        body.sudden-death-mode .explanation-box strong {
+            border-bottom-color: #ff4d4d;
+            color: #ff3333;
+        }
+        body.sudden-death-mode button:not(#btn-finish):not(#btn-next) {
+            color: #ff6666;
+        }
+        
+        @keyframes violent-shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px) rotate(-1deg); }
+            20%, 40%, 60%, 80% { transform: translateX(8px) rotate(1deg); }
+        }
+        .animate-violent-shake {
+            animation: violent-shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -239,6 +302,11 @@
                     <i class="ph ph-exam text-lg"></i>
                     Exam Mode (Blind)
                 </button>
+                <button onclick="startQuiz('drill')" class="btn-editorial w-full flex items-center justify-center gap-2 bg-black text-red-500 border-red-700 hover:bg-red-950 hover:text-red-300 transition-colors uppercase tracking-widest group relative overflow-hidden shadow-[0_0_15px_rgba(220,38,38,0.2)] hover:shadow-[0_0_25px_rgba(220,38,38,0.6)]">
+                    <div class="absolute inset-0 bg-red-900/30 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                    <i class="ph ph-skull text-xl relative z-10"></i>
+                    <span class="relative z-10 font-black">All In Drill (Sudden Death)</span>
+                </button>
             </div>
             <p class="mt-8 font-sans text-xs text-gray-500 uppercase tracking-widest"><span id="display-q-count">80</span> Standardized Inquiries</p>
         </div>
@@ -260,6 +328,20 @@
                 </div>
                 <div id="options-container" class="space-y-3"></div>
                 <div id="feedback-area" class="hidden explanation-box text-editorial-darkGray leading-relaxed"></div>
+                
+                <!-- DRILL WARNING BOX -->
+                <div id="drill-warning" class="hidden w-full mt-10 p-8 border-y-4 border-red-600 bg-[#0a0000] text-center animate-violent-shake relative shadow-[0_0_60px_rgba(255,0,0,0.4)]">
+                    <div class="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ff0000_10px,#ff0000_20px)] pointer-events-none"></div>
+                    <h2 class="relative z-10 text-5xl md:text-6xl font-black uppercase tracking-[0.2em] text-red-600 mb-2 drop-shadow-[0_0_15px_rgba(255,0,0,0.8)] animate-pulse">Fatal Error</h2>
+                    <p class="relative z-10 font-serif text-xl text-red-300 mb-8 italic">Satu kesalahan mengakhiri segalanya. Pahami rasional di atas sebelum memori Anda dihapus.</p>
+                    <p class="relative z-10 font-sans text-sm uppercase tracking-widest text-red-500 mb-2 font-bold">Simulasi ditarik ke Titik Nol dalam</p>
+                    <div class="relative z-10 flex justify-center items-center gap-4 mb-8 mt-4">
+                        <span class="text-4xl text-red-900 font-light">|</span>
+                        <span id="drill-time" class="text-8xl md:text-9xl font-black font-sans text-red-500 tabular-nums leading-none tracking-tighter drop-shadow-[0_0_20px_rgba(255,0,0,0.6)]">10</span>
+                        <span class="text-4xl text-red-900 font-light">|</span>
+                    </div>
+                    <button onclick="restartDrillNow()" class="relative z-10 px-8 py-3 bg-black border border-red-600 text-red-500 hover:bg-red-700 hover:text-black font-black uppercase tracking-widest text-sm transition-all duration-300 hover:scale-105">Eksekusi Ulang</button>
+                </div>
             </div>
 
             <div class="flex justify-between items-center mt-10 pt-6 border-t border-black">
@@ -395,6 +477,7 @@
         let score = 0;
         let mode = '';
         let userAnswers = [];
+        let drillInterval = null;
 
         const startScreen = document.getElementById('start-screen');
         const quizScreen = document.getElementById('quiz-screen');
@@ -417,6 +500,11 @@
             score = 0;
             userAnswers = new Array(questions.length).fill(null);
             
+            // Normalize theme
+            document.body.classList.remove('sudden-death-mode');
+            
+            if (drillInterval) clearInterval(drillInterval);
+            
             startScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
             resultScreen.classList.remove('flex');
@@ -434,12 +522,15 @@
             
             if(mode === 'exam') {
                 document.getElementById('score-display').innerText = `EXAM IN PROGRESS`;
+            } else if (mode === 'drill') {
+                document.getElementById('score-display').innerText = `DRILL MODE | SCORE: ${score}`;
             } else {
                 document.getElementById('score-display').innerText = `SCORE: ${score}`;
             }
 
             qText.innerHTML = q.q;
             feedbackArea.classList.add('hidden');
+            document.getElementById('drill-warning').classList.add('hidden');
             optContainer.innerHTML = '';
 
             let optionsToRender = [...q.o];
@@ -491,12 +582,12 @@
 
             if (ans === q.a) {
                 score++;
-                if (mode === 'practice') {
+                if (mode === 'practice' || mode === 'drill') {
                     btnElem.classList.add('correct');
                     btnElem.innerHTML += '<i class="ph-bold ph-check icon-indicator"></i>';
                 }
             } else {
-                if (mode === 'practice') {
+                if (mode === 'practice' || mode === 'drill') {
                     btnElem.classList.add('incorrect');
                     btnElem.innerHTML += '<i class="ph-bold ph-x icon-indicator"></i>';
                     
@@ -512,12 +603,45 @@
             }
 
             if(mode !== 'exam') {
-                document.getElementById('score-display').innerText = `SCORE: ${score}`;
+                document.getElementById('score-display').innerText = (mode === 'drill' ? 'DRILL MODE | ' : '') + `SCORE: ${score}`;
             }
 
-            if (mode === 'practice') {
+            if (mode === 'practice' || mode === 'drill') {
                 feedbackArea.innerHTML = q.exp;
                 feedbackArea.classList.remove('hidden');
+            }
+
+            // --- LOGIC KHUSUS DRILL (SUDDEN DEATH) ---
+            if (mode === 'drill' && ans !== q.a) {
+                // Trigger Nightmare Theme
+                document.body.classList.add('sudden-death-mode');
+                
+                // Sembunyikan tombol next/finish agar tidak bisa lanjut
+                btnNext.classList.add('hidden');
+                btnFinish.classList.add('hidden');
+                btnPrev.disabled = true; // Kunci tombol prev juga
+                
+                const warningBox = document.getElementById('drill-warning');
+                const timeSpan = document.getElementById('drill-time');
+                warningBox.classList.remove('hidden');
+                
+                // Scroll to focus on explanation and the warning
+                setTimeout(() => {
+                    warningBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 150);
+
+                let timeLeft = 10; // Waktu 10 detik untuk membaca rasional
+                timeSpan.innerText = timeLeft;
+                
+                if (drillInterval) clearInterval(drillInterval);
+                drillInterval = setInterval(() => {
+                    timeLeft--;
+                    timeSpan.innerText = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(drillInterval);
+                        restartDrillNow(); // Auto restart
+                    }
+                }, 1000);
             }
         }
 
@@ -561,12 +685,22 @@
         }
 
         function backToHome() {
+            if (drillInterval) clearInterval(drillInterval);
+            document.body.classList.remove('sudden-death-mode');
+            
             quizScreen.classList.add('hidden');
             quizScreen.classList.remove('flex');
             resultScreen.classList.add('hidden');
             resultScreen.classList.remove('flex');
             
             startScreen.classList.remove('hidden');
+        }
+
+        // Fungsi restart instan saat mode Drill
+        function restartDrillNow() {
+            if (drillInterval) clearInterval(drillInterval);
+            document.body.classList.remove('sudden-death-mode');
+            startQuiz('drill');
         }
     </script>
 </body>
