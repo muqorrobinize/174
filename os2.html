@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>beenbrain | PRO System</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CodeMirror for Pro Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-darker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { base: '#ffffff', surface: '#f8fafc', ink: '#0f172a', inkdim: '#64748b', line: '#e2e8f0', error: '#ef4444', success: '#22c55e' },
+                    fontFamily: { mono: ['JetBrains Mono', 'monospace'], sans: ['Inter', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #ffffff; color: #0f172a; overflow: hidden; user-select: none; -webkit-font-smoothing: antialiased; }
+
+        /* --- VOID ANIMATIONS --- */
+        @keyframes drift { 0% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-15px) rotate(1deg); } 100% { transform: translateY(0px) rotate(0deg); } }
+        .void-item { position: absolute; cursor: grab; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .void-item:active { cursor: grabbing; }
+        .void-card { background: white; border-radius: 1rem; border: 1px solid #f1f5f9; padding: 0.5rem; box-shadow: 0 20px 50px rgba(0,0,0,0.08); transition: box-shadow 0.3s; }
+        .void-card:hover { box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+
+        /* --- OS WINDOWS PRO --- */
+        .os-window { position: absolute; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 16px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 30px 60px -15px rgba(0,0,0,0.2); transition: opacity 0.15s, transform 0.15s; }
+        .os-window.open { display: flex; }
+        .window-header { height: 48px; background: rgba(255, 255, 255, 0.5); border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; cursor: grab; padding: 0 16px; position: relative; flex-shrink: 0; }
+        .window-header:active { cursor: grabbing; }
+        .window-controls { display: flex; gap: 8px; z-index: 10; }
+        .win-btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.1); }
+        .win-btn svg { width: 8px; height: 8px; opacity: 0; transition: 0.1s; color: rgba(0,0,0,0.6); }
+        .window-controls:hover .win-btn svg { opacity: 1; }
+        .win-btn.close { background: #ff5f56; } .win-btn.min { background: #ffbd2e; } .win-btn.max { background: #27c93f; }
+        .win-title { position: absolute; left: 0; right: 0; text-align: center; font-size: 13px; font-weight: 600; pointer-events: none; color: #475569; }
+        .win-body { flex-grow: 1; display: flex; overflow: hidden; position: relative; background: transparent; }
+
+        /* --- FLOATING DOCK --- */
+        .dock-container { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 24px; display: flex; gap: 8px; padding: 8px; z-index: 9999; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+        .dock-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 14px; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .dock-icon:hover { background: #f8fafc; transform: scale(1.15) translateY(-8px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .dock-icon.active::after { content: ''; position: absolute; bottom: -4px; width: 4px; height: 4px; border-radius: 50%; background: #0f172a; }
+
+        /* --- UI COMPONENTS --- */
+        .input-tech { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-family: 'Inter', sans-serif; outline: none; transition: 0.2s; color: #0f172a;}
+        .input-tech:focus { border-color: #0f172a; box-shadow: 0 0 0 2px rgba(15,23,42,0.1); }
+        .btn-tech { background: #0f172a; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.1s; }
+        .btn-tech:hover { background: #334155; }
+        .btn-tech.accent { background: #3b82f6; } .btn-tech.accent:hover { background: #2563eb; }
+
+        /* Context Menu */
+        .context-menu { position: absolute; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid #e2e8f0; border-radius: 12px; padding: 6px; min-width: 200px; z-index: 10000; font-size: 12px; color: #0f172a; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-family: 'Inter', sans-serif; }
+        .ctx-item { padding: 8px 12px; cursor: default; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: 0.05s; font-weight: 500;}
+        .ctx-item:hover { background: #0f172a; color: white; }
+        .ctx-item.danger:hover { background: #ef4444; color: white; }
+        .ctx-divider { height: 1px; background: #e2e8f0; margin: 4px 0; }
+
+        /* Range Sliders Pro */
+        input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; outline: none; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #cbd5e1; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); margin-top: -4px; cursor: pointer; border: 2px solid #0f172a;}
+        input[type=range]:focus::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(15,23,42,0.2); }
+
+        /* Pro Dark Theme Range */
+        .dark-range::-webkit-slider-runnable-track { background: #334155; }
+        .dark-range::-webkit-slider-thumb { background: #38bdf8; border-color: #38bdf8;}
+
+        /* Scrollbars & Tools */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px;}
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .CodeMirror { height: 100% !important; font-family: 'JetBrains Mono', monospace; font-size: 13px; border-radius: 0 0 16px 0;}
+        .loader-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Masonry Support */
+        .masonry-grid { column-count: 2; column-gap: 1rem; }
+        @media (min-width: 640px) { .masonry-grid { column-count: 3; } }
+        @media (min-width: 1024px) { .masonry-grid { column-count: 4; } }
+        .masonry-item { break-inside: avoid; margin-bottom: 1rem; }
+    </style>
+</head>
+<body class="font-sans" oncontextmenu="showContextMenu(event, 'desktop')">
+
+    <!-- === SYSTEM BOOT === -->
+    <div id="sys-loader" class="fixed inset-0 bg-white z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
+        <h1 class="text-6xl font-black text-slate-200 tracking-tighter mb-4">beenbrain</h1>
+        <div class="flex items-center gap-3 text-slate-500 font-mono text-xs">
+            <svg class="w-5 h-5 loader-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <span id="sys-loader-text">Booting Pro Environment...</span>
+        </div>
+    </div>
+
+    <!-- === WHITE VOID AREA === -->
+    <div id="void-area" class="absolute inset-0 z-0" onmousedown="handleVoidMouseDown(event)" onmousemove="handleVoidMouseMove(event)" onmouseup="handleVoidMouseUp(event)">
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <h1 class="text-[15vw] font-black text-slate-50 tracking-tighter opacity-70">beenbrain</h1>
+        </div>
+        <div id="void-items-container" class="absolute inset-0 z-20 pointer-events-none"></div>
+    </div>
+
+    <!-- === HEADER PILL === -->
+    <div class="absolute top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+        <div class="flex items-center gap-4 bg-white/80 backdrop-blur-xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-full px-6 py-3 pointer-events-auto transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+            <span class="font-bold text-xl tracking-tight pr-4 border-r border-slate-200 cursor-pointer" onclick="window.location.reload()">beenbrain.</span>
+            <div class="flex items-center gap-2 px-2">
+                <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" id="search-input" placeholder="Search memory..." oninput="renderVoid()" class="bg-transparent border-none focus:ring-0 outline-none text-sm w-48 placeholder-slate-400 text-slate-800">
+            </div>
+            <div class="flex items-center gap-1 pl-4 border-l border-slate-200" id="filter-container"></div>
+            <div class="pl-4 ml-2 border-l border-slate-200 flex items-center text-xs text-slate-400 font-medium gap-1 font-mono" id="sync-status">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                <span id="sync-text">Connecting...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- === FLOATING DOCK === -->
+    <div class="dock-container" onmousedown="bringToFront('dock')">
+        <div class="dock-icon" id="task-explorer" onclick="toggleApp('win-explorer')" title="Pro Explorer">
+            <svg class="w-7 h-7 text-slate-700" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
+        </div>
+        <div class="dock-icon" id="task-editor" onclick="toggleApp('win-editor')" title="VS Code Engine">
+            <svg class="w-7 h-7 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+        </div>
+        <div class="dock-icon" id="task-gallery" onclick="toggleApp('win-gallery')" title="Google Photos Style">
+            <svg class="w-7 h-7 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+        <div class="dock-icon" id="task-player" onclick="toggleApp('win-player')" title="Spotify Engine">
+            <svg class="w-7 h-7 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+        </div>
+        <div class="w-px h-8 bg-slate-200 mx-1 my-auto"></div>
+        <div class="dock-icon" id="task-photobooth" onclick="toggleApp('win-photobooth')" title="Pro Camera Matrix">
+            <svg class="w-7 h-7 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </div>
+        <div class="dock-icon" id="task-upload" onclick="toggleApp('win-upload')" title="Uplink / Upload">
+            <svg class="w-7 h-7 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        </div>
+    </div>
+
+    <!-- === CONTEXT MENU & TOAST & LABEL MODAL === -->
+    <div id="ctx-menu" class="context-menu hidden"></div>
+    <div id="toast-container" class="absolute top-24 left-1/2 transform -translate-x-1/2 z-[100] hidden">
+        <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 text-sm font-medium" id="toast-msg"></div>
+    </div>
+    <div id="label-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md transform transition-all scale-100">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-900">Beri Label Ingatan</h3>
+                <button onclick="closeLabelModal()" class="text-slate-400 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 p-2 rounded-full transition-colors"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <div id="paste-preview" class="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 max-h-40 overflow-hidden flex items-center justify-center shadow-inner"></div>
+            <div class="space-y-4">
+                <input type="text" id="label-input" placeholder="Folder / Label..." list="existing-labels" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-900 font-medium">
+                <datalist id="existing-labels"></datalist>
+                <button onclick="submitPasteItem()" id="btn-save-void" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-[0.98] transition-all">Simpan ke Void</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === APPS WINDOWS === -->
+
+    <!-- 1. EXPLORER PRO -->
+    <div id="win-explorer" class="os-window" style="width: 850px; height: 550px; top: 60px; left: 10%; z-index: 50;" onmousedown="bringToFront('win-explorer')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-explorer')">
+            <div class="window-controls"><div class="win-btn close" onclick="closeApp('win-explorer')"></div><div class="win-btn min" onclick="minApp('win-explorer')"></div><div class="win-btn max" onclick="maxWindow('win-explorer')"></div></div>
+            <div class="win-title">Explorer Pro</div>
+        </div>
+        <div class="win-body flex-row bg-white">
+            <div class="w-56 bg-slate-50 border-r border-slate-200 flex flex-col">
+                <div class="p-4 border-b border-slate-200">
+                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Favorites</div>
+                    <ul class="space-y-1 text-sm font-medium text-slate-700">
+                        <li class="py-1.5 px-2 hover:bg-slate-200 rounded cursor-pointer flex items-center gap-2" onclick="openExplorerFolder('')">🏠 Home</li>
+                        <li class="py-1.5 px-2 hover:bg-slate-200 rounded cursor-pointer flex items-center gap-2" onclick="openExplorerFolder('Photobooth')">📸 Matrix Shots</li>
+                    </ul>
+                </div>
+                <div class="p-4 flex-grow overflow-y-auto">
+                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Locations (Labels)</div>
+                    <ul id="sidebar-tree" class="space-y-1 text-sm font-medium text-slate-600"></ul>
+                </div>
+            </div>
+            <div class="flex-grow flex flex-col relative" onclick="deselectAllFiles()">
+                <div class="h-14 border-b border-slate-200 flex items-center px-4 justify-between bg-white">
+                    <div class="flex items-center gap-3">
+                        <button onclick="refreshExplorer()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></button>
+                        <div id="explorer-path" class="text-sm text-slate-800 font-medium">/beenbrain</div>
+                    </div>
+                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
+                        <button onclick="explView='grid'; refreshExplorer()" class="p-1.5 rounded hover:bg-white text-slate-600 shadow-sm" title="Grid View"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg></button>
+                        <button onclick="explView='list'; refreshExplorer()" class="p-1.5 rounded hover:bg-white text-slate-600" title="List View"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg></button>
+                    </div>
+                </div>
+                <div id="explorer-content" class="flex-grow overflow-y-auto p-4 bg-white" oncontextmenu="showContextMenu(event, 'explorer-bg')"></div>
+            </div>
+            <!-- Detail Pane -->
+            <div class="w-64 border-l border-slate-200 bg-slate-50 p-4 hidden flex-col items-center text-center gap-3" id="explorer-detail">
+                <div id="detail-icon" class="w-24 h-24 mb-2 flex items-center justify-center"></div>
+                <h4 id="detail-name" class="font-bold text-slate-800 text-sm break-all">Select a file</h4>
+                <div id="detail-meta" class="text-xs text-slate-500 space-y-1"></div>
+                <button id="detail-open-btn" class="mt-4 btn-tech accent w-full hidden">Open File</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. CODE EDITOR (VS Code Vibe) -->
+    <div id="win-editor" class="os-window bg-[#1e1e1e]" style="width: 900px; height: 600px; top: 70px; left: 12%; z-index: 51;" onmousedown="bringToFront('win-editor')">
+        <div class="window-header !bg-[#2d2d2d] !border-[#1e1e1e]" onmousedown="startDrag(event, 'win-editor')">
+            <div class="window-controls"><div class="win-btn close" onclick="closeApp('win-editor')"></div><div class="win-btn min" onclick="minApp('win-editor')"></div><div class="win-btn max" onclick="maxWindow('win-editor')"></div></div>
+            <div class="win-title !text-slate-300" id="editor-title">VS Engine</div>
+        </div>
+        <div class="win-body flex flex-row bg-[#1e1e1e]">
+            <!-- Sidebar Explorer Code -->
+            <div class="w-56 bg-[#252526] border-r border-[#333] flex flex-col text-slate-300">
+                <div class="px-4 py-2 text-[10px] uppercase tracking-widest font-bold text-slate-500">Explorer</div>
+                <ul id="editor-file-tree" class="flex-grow overflow-y-auto text-sm space-y-0.5 px-2 pb-4"></ul>
+            </div>
+            <!-- Main Editor Area -->
+            <div class="flex-grow flex flex-col relative">
+                <div class="h-10 bg-[#1e1e1e] flex items-center px-2 gap-1 border-b border-[#333]">
+                    <div class="flex-grow flex gap-2">
+                        <input type="text" id="editor-path" class="bg-[#2d2d2d] border border-[#3c3c3c] text-slate-300 text-xs px-3 py-1.5 rounded-md w-full font-mono outline-none focus:border-blue-500 transition" readonly placeholder="Path...">
+                        <input type="hidden" id="editor-sha">
+                    </div>
+                    <button onclick="launchPreview()" class="px-3 py-1.5 bg-[#2d2d2d] hover:bg-[#3d3d3d] text-slate-300 rounded-md text-xs font-medium flex items-center gap-1 transition">▶ Run</button>
+                    <button onclick="commitCode()" id="btn-commit" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-medium transition">Save</button>
+                </div>
+                <div class="flex-grow relative">
+                    <textarea id="code-editor"></textarea>
+                    <div id="editor-loading" class="absolute inset-0 bg-[#1e1e1e]/80 backdrop-blur-sm hidden items-center justify-center z-10 flex-col gap-3">
+                        <svg class="w-8 h-8 text-blue-500 loader-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span class="text-xs font-mono text-slate-400">Loading Source...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. LIVE PREVIEW -->
+    <div id="win-preview" class="os-window bg-white" style="width: 500px; height: 600px; top: 40px; left: 60%; z-index: 52;" onmousedown="bringToFront('win-preview')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-preview')">
+            <div class="window-controls"><div class="win-btn close" onclick="closeApp('win-preview')"></div><div class="win-btn max" onclick="maxWindow('win-preview')"></div></div>
+            <div class="win-title">Live Preview</div>
+        </div>
+        <div class="win-body bg-white border-t border-slate-200">
+            <iframe id="preview-frame" class="w-full h-full border-none bg-white"></iframe>
+        </div>
+    </div>
+
+    <!-- 4. UPLOADER PRO -->
+    <div id="win-upload" class="os-window" style="width: 450px; height: 400px; top: 120px; left: 30%; z-index: 53;" onmousedown="bringToFront('win-upload')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-upload')">
+            <div class="window-controls"><div class="win-btn close" onclick="closeApp('win-upload')"></div></div>
+            <div class="win-title">Secure Uplink</div>
+        </div>
+        <div class="win-body p-6 flex flex-col gap-4 bg-white">
+            <div id="drop-zone" class="border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors flex-grow" onclick="document.getElementById('file-input').click()">
+                <div class="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                </div>
+                <span id="upload-filename" class="text-sm font-bold text-slate-800">Tarik File ke Sini</span>
+                <span class="text-xs text-slate-500 mt-1">atau klik untuk menelusuri</span>
+                <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(event)">
+            </div>
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 font-bold uppercase">Folder / Target Label</label>
+                <input type="text" id="upload-path" class="w-full input-tech" placeholder="Contoh: Media/foto.jpg">
+            </div>
+            <button onclick="commitUpload()" id="btn-upload" class="btn-tech accent w-full py-3 mt-1 rounded-xl text-sm">Unggah ke Server</button>
+        </div>
+    </div>
+
+    <!-- 5. AUDIO PLAYER (Spotify Style) -->
+    <div id="win-player" class="os-window bg-slate-900" style="width: 800px; height: 500px; top: 100px; left: 20%; z-index: 54;" onmousedown="bringToFront('win-player')">
+        <div class="window-header !bg-black/40 !border-slate-800" onmousedown="startDrag(event, 'win-player')">
+            <div class="window-controls"><div class="win-btn close" onclick="closeApp('win-player')"></div><div class="win-btn min" onclick="minApp('win-player')"></div><div class="win-btn max" onclick="maxWindow('win-player')"></div></div>
+            <div class="win-title !text-slate-300">Audio Deck Pro</div>
+        </div>
+        <div class="win-body flex flex-col bg-slate-900 text-white">
+            <div class="flex-grow flex overflow-hidden">
+                <!-- Sidebar Playlist -->
+                <div class="w-64 bg-black/30 border-r border-slate-800 flex flex-col">
+                    <div class="p-4 text-xs font-bold uppercase tracking-widest text-slate-500">Your Library</div>
+                    <ul id="audio-playlist" class="flex-grow overflow-y-auto px-2 space-y-1"></ul>
+                </div>
+                <!-- Main Art Area -->
+                <div class="flex-grow flex flex-col items-center justify-center bg-gradient-to-b from-slate-800 to-slate-900 p-8">
+                    <div class="w-64 h-64 rounded-xl shadow-2xl bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden relative group">
+                        <svg class="w-20 h-20 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <button onclick="document.getElementById('task-explorer').click()" class="bg-white/20 hover:bg-white/40 backdrop-blur px-4 py-2 rounded-full text-xs font-medium transition">Cari Audio Baru</button>
+                        </div>
+                    </div>
+                    <h2 id="player-title" class="text-2xl font-bold mt-8 mb-2 truncate max-w-md text-center">Select a Track</h2>
+                    <p id="player-artist" class="text-slate-400 text-sm font-medium">beenbrain Audio</p>
+                </div>
+            </div>
+            <!-- Bottom Controls -->
+            <div class="h-24 bg-black/60 border-t border-slate-800 flex items-center px-6 gap-6">
+                <audio id="core-audio" class="hidden"></audio>
+                <div class="flex-shrink-0 w-1/4 truncate">
+                    <div class="text-sm font-bold truncate" id="btm-title">Ready</div>
+                    <div class="text-xs text-slate-400 truncate">System</div>
+                </div>
+                <!-- Controls & Seekbar -->
+                <div class="flex-grow flex flex-col items-center gap-2">
+                    <div class="flex items-center gap-6">
+                        <button onclick="prevTrack()" class="text-slate-400 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z"/></svg></button>
+                        <button onclick="togglePlay()" id="btn-play" class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:scale-105 transition"><svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg></button>
+                        <button onclick="nextTrack()" class="text-slate-400 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M11.555 14.832A1 1 0 0013 14v-2.798l5.445 3.63A1 1 0 0020 14V6a1 1 0 00-1.555-.832L13 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z"/></svg></button>
+                    </div>
+                    <div class="w-full flex items-center gap-3 text-xs text-slate-400 font-mono">
+                        <span id="time-current">0:00</span>
+                        <input type="range" id="seek-bar" value="0" class="flex-grow dark-range" oninput="seekAudio()">
+                        <span id="time-total">0:00</span>
+                    </div>
+                </div>
+                <!-- Volume -->
+                <div class="flex-shrink-0 w-1/4 flex justify-end items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd"/></svg>
+                    <input type="range" id="vol-bar" value="100" class="w-24 dark-range" oninput="setVolume()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. PHOTOBOOTH (Pro Camera + Sliders) -->
+    <div id="win-photobooth" class="os-window bg-[#0a0a0a]" style="width: 750px; height: 550px; top: 90px; left: 15%; z-index: 55;" onmousedown="bringToFront('win-photobooth')">
+        <div class="window-header !bg-[#111] !border-[#222]" onmousedown="startDrag(event, 'win-photobooth')">
+            <div class="window-controls"><div class="win-btn close" onclick="closePhotobooth()"></div><div class="win-btn min" onclick="minApp('win-photobooth')"></div></div>
+            <div class="win-title !text-slate-300">Pro Camera Matrix</div>
+        </div>
+        <div class="win-body flex bg-[#0a0a0a]">
+            <!-- Main Canvas Area -->
+            <div class="flex-grow p-4 flex flex-col items-center justify-center relative">
+                <div class="relative w-full h-full bg-black rounded-xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)] border border-[#222]">
+                    <video id="pb-video" class="hidden" autoplay playsinline></video>
+                    <canvas id="pb-canvas" class="w-full h-full object-contain"></canvas>
+                    
+                    <!-- Rule of Thirds Grid -->
+                    <div id="pb-grid" class="absolute inset-0 pointer-events-none opacity-30 flex flex-col justify-evenly">
+                        <div class="w-full h-px bg-white"></div><div class="w-full h-px bg-white"></div>
+                        <div class="absolute inset-0 flex justify-evenly"><div class="h-full w-px bg-white"></div><div class="h-full w-px bg-white"></div></div>
+                    </div>
+                    <div id="pb-loader" class="absolute inset-0 flex items-center justify-center text-green-500 font-mono text-sm">Waiting for Camera Signal...</div>
+                </div>
+            </div>
+            <!-- Side Panel Controls -->
+            <div class="w-64 bg-[#111] border-l border-[#222] p-6 flex flex-col gap-6 text-white overflow-y-auto">
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Lens Filters</h4>
+                    <select id="pb-filter" class="w-full bg-[#222] border border-[#333] rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none" onchange="changeFilter()">
+                        <option value="normal">Normal Lens</option>
+                        <option value="grayscale">Noir (B&W)</option>
+                        <option value="negative">Negative Space</option>
+                        <option value="sepia">Classified Sepia</option>
+                        <option value="ascii">Matrix ASCII Engine</option>
+                    </select>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Adjustments</h4>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span>Brightness</span><span id="val-bright">100%</span></div>
+                        <input type="range" id="pb-brightness" min="0" max="200" value="100" class="dark-range" oninput="updatePbAdjustments()">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span>Contrast</span><span id="val-contrast">100%</span></div>
+                        <input type="range" id="pb-contrast" min="0" max="200" value="100" class="dark-range" oninput="updatePbAdjustments()">
+                    </div>
+                    <div class="flex items-center gap-2 mt-4">
+                        <input type="checkbox" id="toggle-grid" checked onchange="document.getElementById('pb-grid').style.display = this.checked ? 'flex' : 'none'" class="w-4 h-4 accent-blue-500">
+                        <label for="toggle-grid" class="text-sm">Show Rule of Thirds</label>
+                    </div>
+                </div>
+                <div class="mt-auto pt-4">
+                    <button onclick="takePhoto()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 transition-all active:scale-95">
+                        <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center"><div class="w-4 h-4 bg-white rounded-full"></div></div>
+                        CAPTURE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. GALLERY (Google Photos Style) -->
+    <div id="win-gallery" class="os-window" style="width: 850px; height: 600px; top: 70px; left: 15%; z-index: 56;" onmousedown="bringToFront('win-gallery')">
+        <div class="window-header" onmousedown="startDrag(event, 'win-gallery')">
+            <div class="window-controls"><div class="win-btn close" onclick="closeApp('win-gallery')"></div><div class="win-btn min" onclick="minApp('win-gallery')"></div><div class="win-btn max" onclick="maxWindow('win-gallery')"></div></div>
+            <div class="win-title">Photos Gallery</div>
+        </div>
+        <div class="win-body flex-row bg-white">
+            <div class="w-48 bg-slate-50 border-r border-slate-200 p-4">
+                <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-3">Albums</div>
+                <ul id="gallery-albums" class="space-y-1 text-sm font-medium text-slate-700"></ul>
+            </div>
+            <div class="flex-grow flex flex-col">
+                <div class="h-14 border-b border-slate-200 flex items-center px-6 bg-white/50 backdrop-blur z-10 sticky top-0 justify-between">
+                    <h2 class="text-lg font-bold text-slate-800" id="gallery-header-title">All Photos</h2>
+                    <span class="text-xs text-slate-500" id="gallery-count">0 items</span>
+                </div>
+                <div class="flex-grow p-6 overflow-y-auto bg-white">
+                    <div id="gallery-masonry" class="masonry-grid"></div>
+                </div>
+            </div>
+            
+            <!-- Pro Lightbox / Fullscreen Viewer -->
+            <div id="gallery-viewer" class="absolute inset-0 bg-black/95 hidden flex-col z-[100] backdrop-blur-md transition-opacity">
+                <div class="h-16 flex justify-between items-center px-6 text-white bg-gradient-to-b from-black/80 to-transparent absolute top-0 w-full z-10">
+                    <span id="gallery-viewer-title" class="text-sm font-medium drop-shadow-md">image.jpg</span>
+                    <button onclick="closeGalleryViewer()" class="p-2 hover:bg-white/20 rounded-full transition"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+                <div class="flex-grow flex items-center justify-between px-4 relative">
+                    <button onclick="prevGalleryImg(event)" class="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white backdrop-blur transition"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                    <div class="flex-grow flex items-center justify-center h-full p-12">
+                        <img id="gallery-viewer-img" src="" class="max-w-full max-h-full object-contain shadow-2xl transition-transform duration-300 transform scale-95" onload="this.classList.remove('scale-95'); this.classList.add('scale-100')">
+                    </div>
+                    <button onclick="nextGalleryImg(event)" class="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white backdrop-blur transition"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === SCRIPTS === -->
+    <script>
+        /* --- 1. CORE STATE --- */
+        let voidItems = []; 
+        let currentExplorerFolder = ''; let explView = 'grid';
+        let pendingPaste = null;
+        let activeFilter = 'all'; let searchQuery = '';
+        let cmEditor = null; let zIndexCounter = 100;
+
+        const ICONS = {
+            dir: `<svg class="w-12 h-12 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>`,
+            html: `<svg class="w-12 h-12 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>`,
+            audio: `<svg class="w-12 h-12 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>`,
+            image: `<svg class="w-12 h-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`,
+            default: `<svg class="w-12 h-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>`
+        };
+
+        window.onload = async () => {
+            setupUI();
+            cmEditor = CodeMirror.fromTextArea(document.getElementById('code-editor'), { lineNumbers: true, mode: 'htmlmixed', theme: 'material-darker', indentUnit: 4, lineWrapping: true });
+            document.addEventListener('click', () => document.getElementById('ctx-menu').classList.add('hidden'));
+
+            await syncDatabase();
+            
+            document.getElementById('sys-loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('sys-loader').style.display = 'none', 500);
+            
+            // Init Audio Events
+            const aud = document.getElementById('core-audio');
+            aud.addEventListener('timeupdate', updateAudioUI);
+            aud.addEventListener('ended', nextTrack);
+            
+            // Keyboard Nav Gallery
+            document.addEventListener('keydown', (e) => {
+                if(!document.getElementById('gallery-viewer').classList.contains('hidden')) {
+                    if(e.key === 'ArrowRight') nextGalleryImg();
+                    if(e.key === 'ArrowLeft') prevGalleryImg();
+                    if(e.key === 'Escape') closeGalleryViewer();
+                }
+            });
+        };
+
+        function setupUI() {
+            const filters = ['all', 'text', 'image', 'video'];
+            const container = document.getElementById('filter-container');
+            filters.forEach(type => {
+                const btn = document.createElement('button');
+                btn.className = `text-xs font-medium px-3 py-1.5 rounded-full transition-colors capitalize ${activeFilter === type ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-100'}`;
+                btn.innerText = type; btn.onclick = () => { activeFilter = type; updateFilterUI(); renderVoid(); };
+                btn.id = `filter-btn-${type}`; container.appendChild(btn);
+            });
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast-container');
+            document.getElementById('toast-msg').innerText = msg;
+            t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000);
+        }
+
+        /* --- 2. BOOT & SYNC ENGINE --- */
+        async function syncDatabase() {
+            try {
+                const rawItems = await fetchDirectoryTree('');
+                if(rawItems.length === 0 && !navigator.onLine) throw new Error("Offline");
+                voidItems = rawItems.map(item => mapApiItemToVoid(item));
+                document.getElementById('sync-text').innerText = "API Synced"; document.getElementById('sync-status').classList.add('text-blue-600');
+                localStorage.setItem('beenbrain_db', JSON.stringify(voidItems));
+            } catch (e) {
+                console.warn("API Sync Failed, using LocalStorage.");
+                const saved = localStorage.getItem('beenbrain_db'); if (saved) voidItems = JSON.parse(saved);
+                document.getElementById('sync-text').innerText = "Local Mock DB"; document.getElementById('sync-status').classList.add('text-orange-500');
+            }
+            renderVoid(); refreshAllApps();
+        }
+
+        async function fetchDirectoryTree(path) {
+            let items = [];
+            try {
+                const res = await fetch(`/api/content?folder=${path}`);
+                if (!res.ok) return items;
+                const arr = Array.isArray(await res.json()) ? await res.json() : [await res.json()];
+                for (const item of arr) {
+                    if (item.name === '.gitkeep') continue;
+                    if (item.type === 'dir') { const sub = await fetchDirectoryTree(item.path); items = items.concat(sub); } 
+                    else { items.push(item); }
+                }
+            } catch(e) {} return items;
+        }
+
+        function mapApiItemToVoid(apiItem) {
+            const parts = apiItem.path.split('/'); const label = parts.length > 1 ? parts[parts.length - 2] : 'Root';
+            let type = 'text';
+            if (apiItem.name.match(/\.(png|jpg|jpeg|gif|webp)$/i)) type = 'image';
+            else if (apiItem.name.match(/\.(mp4|webm)$/i)) type = 'video';
+            else if (apiItem.name.match(/\.(mp3|wav)$/i)) type = 'audio';
+            let content = ''; if(type !== 'text') content = `/api/content?file=${apiItem.path}&raw=true`;
+            return {
+                id: apiItem.sha || Date.now().toString() + Math.random(), path: apiItem.path, name: apiItem.name, type: type, content: content, label: label,
+                x: Math.floor(Math.random() * (window.innerWidth - 300)) + 50, y: Math.floor(Math.random() * (window.innerHeight - 300)) + 150,
+                floatDuration: Math.random() * 4 + 4, floatDelay: Math.random() * 2, apiLinked: true, sha: apiItem.sha
+            };
+        }
+
+        async function silentApiPush(path, base64, sha, msg) {
+            try {
+                const res = await fetch('/api/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path, content: base64, sha, message: msg }) });
+                if(!res.ok) throw new Error(); return await res.json();
+            } catch(e) { return { sha: Date.now().toString() }; }
+        }
+
+        async function silentApiDelete(path, sha, msg) {
+            try { await fetch('/api/content', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path, sha, message: msg }) }); } catch(e) {}
+        }
+
+        /* --- 3. VOID RENDERING --- */
+        let draggingVoidId = null; let dragVoidOffset = {x:0, y:0};
+
+        function updateFilterUI() {
+            ['all', 'text', 'image', 'video'].forEach(type => {
+                const btn = document.getElementById(`filter-btn-${type}`);
+                if(activeFilter === type) { btn.classList.replace('text-slate-500', 'text-white'); btn.classList.replace('hover:bg-slate-100', 'bg-slate-900'); }
+                else { btn.classList.replace('text-white', 'text-slate-500'); btn.classList.replace('bg-slate-900', 'hover:bg-slate-100'); }
+            });
+        }
+
+        function renderVoid() {
+            const container = document.getElementById('void-items-container');
+            const grouped = {};
+            
+            voidItems.forEach(item => {
+                const matchSearch = item.label.toLowerCase().includes(searchQuery) || item.name.toLowerCase().includes(searchQuery) || (item.type === 'text' && item.content.toLowerCase().includes(searchQuery));
+                const matchFilter = activeFilter === 'all' || item.type === activeFilter;
+                if (matchSearch && matchFilter) { if (!grouped[item.label]) grouped[item.label] = []; grouped[item.label].push(item); }
+            });
+
+            container.innerHTML = '';
+            Object.entries(grouped).forEach(([label, items]) => {
+                if (activeFilter === 'all' && !searchQuery && items.length > 0) {
+                    const topItem = items.reduce((prev, curr) => prev.y < curr.y ? prev : curr);
+                    const header = document.createElement('div');
+                    header.className = "absolute pointer-events-auto flex items-center gap-2 z-10 group/header transition-all";
+                    header.style.left = `${topItem.x}px`; header.style.top = `${Math.max(20, topItem.y - 45)}px`;
+                    header.innerHTML = `
+                        <div class="bg-white/70 backdrop-blur-sm border border-slate-200 text-slate-800 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow-sm hover:shadow-md transition cursor-pointer" onclick="openExplorerFolder('${label}'); toggleApp('win-explorer');">
+                            📁 ${label} <span class="text-slate-400 ml-1">(${items.length})</span>
+                        </div>
+                    `;
+                    container.appendChild(header);
+                }
+
+                items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.id = `void-item-${item.id}`;
+                    div.className = `void-item pointer-events-auto group ${draggingVoidId === item.id ? 'z-[60] scale-105' : 'z-20'}`;
+                    div.style.left = `${item.x}px`; div.style.top = `${item.y}px`;
+                    if (draggingVoidId !== item.id) { div.style.animationName = 'drift'; div.style.animationDuration = `${item.floatDuration}s`; div.style.animationTimingFunction = 'ease-in-out'; div.style.animationIterationCount = 'infinite'; div.style.animationDirection = 'alternate'; div.style.animationDelay = `${item.floatDelay}s`; } else { div.style.animationName = 'none'; div.style.transition = 'transform 0.1s'; }
+
+                    let contentHtml = '';
+                    if (item.type === 'text') {
+                        let displayTxt = item.content || "Double click to load file content...";
+                        contentHtml = `<div class="p-5 max-h-[250px] overflow-y-auto custom-scrollbar w-[280px] bg-slate-50 rounded-xl" ondblclick="openFileInApp('${item.id}')"><div class="font-mono text-[10px] text-blue-500 font-bold mb-2 break-all">${item.name}</div><p class="text-xs leading-relaxed font-medium whitespace-pre-wrap text-slate-700 pointer-events-none">${displayTxt.substring(0, 300)}${displayTxt.length>300?'...':''}</p></div>`;
+                    } else if (item.type === 'image') {
+                        contentHtml = `<div ondblclick="openFileInApp('${item.id}')"><img src="${item.content}" class="w-full h-auto max-h-[300px] max-w-[300px] object-cover rounded-xl pointer-events-none shadow-sm"></div>`;
+                    } else if (item.type === 'video' || item.type === 'audio') {
+                        contentHtml = `<div class="p-6 bg-slate-900 text-white rounded-xl text-center w-48 shadow-lg" ondblclick="openFileInApp('${item.id}')"><svg class="w-8 h-8 text-blue-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs font-mono break-all">${item.name}</span></div>`;
+                    }
+
+                    const labelTag = (activeFilter !== 'all' || searchQuery) ? `<div class="absolute -top-3 -left-2 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-md z-30">${item.label}</div>` : '';
+
+                    div.innerHTML = `<div class="void-card relative" oncontextmenu="showContextMenu(event, 'file', '${item.id}')">${labelTag}${contentHtml}</div>`;
+                    div.onmousedown = (e) => { if(e.button !== 0) return; e.stopPropagation(); draggingVoidId = item.id; const rect = div.getBoundingClientRect(); dragVoidOffset.x = e.clientX - rect.left; dragVoidOffset.y = e.clientY - rect.top; renderVoid(); };
+                    container.appendChild(div);
+                });
+            });
+        }
+
+        function handleVoidMouseMove(e) { if (!draggingVoidId) return; const el = document.getElementById(`void-item-${draggingVoidId}`); if (el) { el.style.left = `${Math.max(0, e.clientX - dragVoidOffset.x)}px`; el.style.top = `${Math.max(0, e.clientY - dragVoidOffset.y)}px`; } }
+        function handleVoidMouseUp(e) { if (draggingVoidId) { const el = document.getElementById(`void-item-${draggingVoidId}`); const item = voidItems.find(i => i.id === draggingVoidId); if (item && el) { item.x = parseInt(el.style.left); item.y = parseInt(el.style.top); localStorage.setItem('beenbrain_db', JSON.stringify(voidItems)); } draggingVoidId = null; renderVoid(); } }
+        function handleVoidMouseDown(e) { if(e.target.id === 'void-area') document.getElementById('ctx-menu').classList.add('hidden'); }
+
+        window.addEventListener('paste', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            const items = e.clipboardData.items; let handled = false;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile(); const reader = new FileReader();
+                    reader.onload = (ev) => { pendingPaste = { type: 'image', content: ev.target.result, file: file, name: `paste_${Date.now()}.jpg` }; openLabelModal(); }; reader.readAsDataURL(file); handled = true; break;
+                }
+            }
+            if (!handled) { const text = e.clipboardData.getData('text'); if (text) { pendingPaste = { type: 'text', content: text, name: `note_${Date.now()}.txt` }; openLabelModal(); } }
+        });
+
+        function openLabelModal() {
+            document.getElementById('paste-preview').innerHTML = pendingPaste.type === 'text' ? `<p class="text-sm text-slate-500 truncate w-full text-center italic font-medium">"${pendingPaste.content}"</p>` : `<img src="${pendingPaste.content}" class="max-h-24 rounded shadow-sm">`;
+            document.getElementById('existing-labels').innerHTML = [...new Set(voidItems.map(i => i.label))].map(l => `<option value="${l}">`).join('');
+            document.getElementById('label-modal').classList.remove('hidden'); document.getElementById('label-modal').classList.add('flex'); document.getElementById('label-input').focus();
+        }
+        function closeLabelModal() { document.getElementById('label-modal').classList.add('hidden'); document.getElementById('label-modal').classList.remove('flex'); pendingPaste = null; document.getElementById('label-input').value = ''; }
+
+        async function submitPasteItem() {
+            if(!pendingPaste) return;
+            const label = document.getElementById('label-input').value.trim() || 'Void';
+            document.getElementById('btn-save-void').innerText = "Menyimpan...";
+            const groupItems = voidItems.filter(i => i.label === label);
+            const targetX = groupItems.length > 0 ? groupItems[groupItems.length - 1].x + 40 : Math.floor(Math.random() * (window.innerWidth - 300)) + 50;
+            const targetY = groupItems.length > 0 ? groupItems[groupItems.length - 1].y + 40 : Math.floor(Math.random() * (window.innerHeight - 300)) + 150;
+            const path = `${label}/${pendingPaste.name}`;
+            let base64 = pendingPaste.type === 'text' ? btoa(unescape(encodeURIComponent(pendingPaste.content))) : pendingPaste.content.split(',')[1];
+            
+            const res = await silentApiPush(path, base64, '', 'Pasted to void');
+            voidItems.push({ id: res.sha || Date.now().toString(), path: path, name: pendingPaste.name, type: pendingPaste.type, content: pendingPaste.content, label: label, x: targetX, y: targetY, floatDuration: Math.random() * 4 + 4, floatDelay: Math.random() * 2, sha: res.sha });
+            localStorage.setItem('beenbrain_db', JSON.stringify(voidItems));
+            
+            document.getElementById('btn-save-void').innerText = "Simpan ke Void"; closeLabelModal(); renderVoid(); refreshAllApps(); showToast("Memori Tersimpan!");
+        }
+
+        // --- 4. WINDOWS & APPS MANAGEMENT ---
+        function bringToFront(id) { if (id === 'dock' || !document.getElementById(id)) return; zIndexCounter++; document.getElementById(id).style.zIndex = zIndexCounter; document.querySelectorAll('.dock-icon').forEach(el => el.classList.remove('active')); if(document.getElementById('task-' + id.split('-')[1])) document.getElementById('task-' + id.split('-')[1]).classList.add('active'); }
+        function toggleApp(id) { const win = document.getElementById(id); if (win.classList.contains('open') && win.style.zIndex == zIndexCounter) win.classList.remove('open'); else { win.classList.add('open'); bringToFront(id); initAppHook(id); } }
+        function closeApp(id) { document.getElementById(id).classList.remove('open'); }
+        function minApp(id) { document.getElementById(id).classList.remove('open'); }
+        function maxWindow(id) {
+            const win = document.getElementById(id);
+            if (win.dataset.maximized === "true") { win.style.width = win.dataset.origW; win.style.height = win.dataset.origH; win.style.top = win.dataset.origY; win.style.left = win.dataset.origX; win.dataset.maximized = "false"; win.style.borderRadius = "16px"; } 
+            else { win.dataset.origW = win.style.width; win.dataset.origH = win.style.height; win.dataset.origX = win.style.left; win.dataset.origY = win.style.top; win.style.width = '100%'; win.style.height = 'calc(100% - 28px)'; win.style.top = '28px'; win.style.left = '0'; win.dataset.maximized = "true"; win.style.borderRadius = "0px"; }
+        }
+        
+        let isDraggingWin = false; let currentWin = null; let offsetX, offsetY;
+        function startDrag(e, id) { if (e.target.closest('.window-controls')) return; isDraggingWin = true; currentWin = document.getElementById(id); bringToFront(id); if (currentWin.dataset.maximized === "true") maxWindow(id); const rect = currentWin.getBoundingClientRect(); offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top; document.addEventListener('mousemove', dragWin); document.addEventListener('mouseup', stopDragWin); }
+        function dragWin(e) { if (!isDraggingWin) return; currentWin.style.left = (e.clientX - offsetX) + 'px'; currentWin.style.top = (e.clientY - offsetY) + 'px'; }
+        function stopDragWin(e) { isDraggingWin = false; currentWin = null; document.removeEventListener('mousemove', dragWin); document.removeEventListener('mouseup', stopDragWin); }
+
+        function initAppHook(id) {
+            if (id === 'win-explorer') refreshExplorer();
+            if (id === 'win-editor') { setTimeout(() => cmEditor.refresh(), 200); refreshEditorSidebar(); }
+            if (id === 'win-photobooth') initPhotobooth();
+            if (id === 'win-gallery') refreshGallery();
+            if (id === 'win-player') refreshAudioPlaylist();
+        }
+
+        function refreshAllApps() { refreshExplorer(); refreshEditorSidebar(); refreshGallery(); refreshAudioPlaylist(); }
+
+        // Context Menu
+        function showContextMenu(e, type, id = null) {
+            e.preventDefault(); e.stopPropagation(); const menu = document.getElementById('ctx-menu'); menu.innerHTML = '';
+            if(type === 'desktop' || type === 'explorer-bg') {
+                menu.innerHTML = `<div class="ctx-item text-slate-400 font-bold mb-1 px-2 border-b border-slate-100 pb-1 pointer-events-none">System Actions</div><div class="ctx-item" onclick="toggleApp('win-editor')">📄 Create File</div><div class="ctx-item" onclick="toggleApp('win-upload')">☁️ Upload Media</div><div class="ctx-divider"></div><div class="ctx-item" onclick="syncDatabase()">↻ Force API Sync</div>`;
+            } else if (type === 'file') {
+                const item = voidItems.find(i => i.id === id); if(!item) return;
+                menu.innerHTML = `<div class="ctx-item text-slate-400 font-bold mb-1 px-2 border-b border-slate-100 pb-1 pointer-events-none truncate max-w-[180px]">${item.name}</div><div class="ctx-item" onclick="openFileInApp('${item.id}')">▶ Open App</div><div class="ctx-item" onclick="triggerRename('${item.id}')">🖋️ Rename</div><div class="ctx-divider"></div><div class="ctx-item danger" onclick="triggerDelete('${item.id}')">🗑️ Delete Permanently</div>`;
+            }
+            menu.style.display = 'block'; const w = menu.offsetWidth; const h = menu.offsetHeight;
+            let x = e.clientX; let y = e.clientY; if(x+w > window.innerWidth) x -= w; if(y+h > window.innerHeight) y -= h;
+            menu.style.left = `${x}px`; menu.style.top = `${y}px`; menu.classList.remove('hidden');
+        }
+
+        async function triggerDelete(id) { const item = voidItems.find(i => i.id === id); if(confirm(`Delete ${item.name}?`)) { await silentApiDelete(item.path, item.sha, `Delete ${item.name}`); voidItems = voidItems.filter(i => i.id !== id); localStorage.setItem('beenbrain_db', JSON.stringify(voidItems)); renderVoid(); refreshAllApps(); } }
+        async function triggerRename(id) {
+            const item = voidItems.find(i => i.id === id); const newName = prompt(`Rename ${item.name} to:`, item.name); if(!newName || newName === item.name) return;
+            try {
+                let base64 = '';
+                if(item.type === 'text') { if(!item.content) { const res = await fetch(`/api/content?file=${item.path}`); const dat = await res.json(); base64 = (Array.isArray(dat)?dat[0]:dat).content; } else { base64 = btoa(unescape(encodeURIComponent(item.content))); } } 
+                else { const res = await fetch(item.content); const blob = await res.blob(); base64 = await new Promise((res) => { const r = new FileReader(); r.onload = e => res(e.target.result.split(',')[1]); r.readAsDataURL(blob); }); }
+                const newPath = `${item.label}/${newName}`; await silentApiPush(newPath, base64, '', `Rename to ${newName}`); await silentApiDelete(item.path, item.sha, `Purge old`);
+                item.name = newName; item.path = newPath; if(item.type !== 'text') item.content = `/api/content?file=${newPath}&raw=true`; localStorage.setItem('beenbrain_db', JSON.stringify(voidItems)); renderVoid(); refreshAllApps();
+            } catch(e) { alert("Rename Failed."); }
+        }
+
+        /* === EXPLORER PRO === */
+        function refreshExplorer() {
+            const sb = document.getElementById('sidebar-tree'); const labels = [...new Set(voidItems.map(i => i.label))];
+            sb.innerHTML = '';
+            labels.forEach(l => { sb.innerHTML += `<li class="py-1.5 px-2 hover:bg-slate-200 rounded cursor-pointer transition flex items-center gap-2 ${currentExplorerFolder===l?'bg-slate-200 text-slate-900 font-bold':''}" onclick="openExplorerFolder('${l}')">📁 <span class="truncate">${l}</span></li>`; });
+            openExplorerFolder(currentExplorerFolder);
+        }
+
+        function openExplorerFolder(label) {
+            currentExplorerFolder = label; document.getElementById('explorer-path').innerText = label === '' ? '/beenbrain/home' : `/beenbrain/${label}`;
+            const cont = document.getElementById('explorer-content');
+            const items = label === '' ? voidItems : voidItems.filter(i => i.label === label);
+            
+            if(explView === 'grid') {
+                cont.className = "flex-grow overflow-y-auto p-4 bg-white grid grid-cols-4 sm:grid-cols-5 gap-6 content-start";
+                cont.innerHTML = items.map(item => `
+                    <div class="flex flex-col items-center text-center p-3 rounded-xl hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-200 transition-all file-item group" id="expl-item-${item.id}" onclick="selectExplorerItem('${item.id}', event)" ondblclick="openFileInApp('${item.id}')" oncontextmenu="showContextMenu(event, 'file', '${item.id}')">
+                        <div class="relative w-16 h-16 flex items-center justify-center mb-3">
+                            ${item.type === 'image' ? `<img src="${item.content}" class="w-full h-full object-cover rounded-lg shadow-sm border border-slate-100 group-hover:shadow-md transition">` : ICONS[item.type] || ICONS.default}
+                        </div>
+                        <span class="text-xs font-medium text-slate-700 truncate w-full pointer-events-none group-hover:text-blue-600 transition">${item.name}</span>
+                    </div>
+                `).join('');
+            } else {
+                cont.className = "flex-grow overflow-y-auto bg-white flex flex-col";
+                cont.innerHTML = `<div class="grid grid-cols-12 gap-4 px-4 py-2 border-b border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 sticky top-0 bg-white/90 backdrop-blur z-10"><div class="col-span-6">Name</div><div class="col-span-3">Type</div><div class="col-span-3 text-right">Label</div></div>` + 
+                items.map(item => `
+                    <div class="grid grid-cols-12 gap-4 px-4 py-3 border-b border-slate-50 hover:bg-slate-50 cursor-pointer transition-colors file-item items-center" id="expl-item-${item.id}" onclick="selectExplorerItem('${item.id}', event)" ondblclick="openFileInApp('${item.id}')" oncontextmenu="showContextMenu(event, 'file', '${item.id}')">
+                        <div class="col-span-6 flex items-center gap-3 truncate"><div class="w-6 h-6 flex-shrink-0 flex items-center justify-center">${item.type === 'image' ? `<img src="${item.content}" class="w-full h-full object-cover rounded">` : `<svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>`}</div><span class="text-sm font-medium text-slate-700 truncate">${item.name}</span></div>
+                        <div class="col-span-3 text-xs text-slate-500 uppercase">${item.type}</div>
+                        <div class="col-span-3 text-xs text-slate-500 text-right truncate"><span class="bg-slate-100 px-2 py-1 rounded-full">${item.label}</span></div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function selectExplorerItem(id, e) {
+            e.stopPropagation(); document.querySelectorAll('.file-item').forEach(el => { el.classList.remove('bg-blue-50', 'border-blue-200'); if(explView === 'grid') el.classList.add('border-transparent'); });
+            const el = document.getElementById(`expl-item-${id}`); if(el) { el.classList.remove('border-transparent', 'hover:bg-slate-50'); el.classList.add('bg-blue-50', 'border-blue-200'); }
+            
+            // Update Details Pane
+            const item = voidItems.find(i => i.id === id); const pane = document.getElementById('explorer-detail');
+            pane.classList.remove('hidden'); pane.classList.add('flex');
+            document.getElementById('detail-name').innerText = item.name;
+            document.getElementById('detail-icon').innerHTML = item.type === 'image' ? `<img src="${item.content}" class="w-full h-full object-cover rounded-xl shadow-md border border-slate-200">` : ICONS[item.type] || ICONS.default;
+            document.getElementById('detail-meta').innerHTML = `<div>Type: ${item.type.toUpperCase()}</div><div>Location: /${item.label}</div>`;
+            const btn = document.getElementById('detail-open-btn'); btn.classList.remove('hidden'); btn.onclick = () => openFileInApp(id);
+        }
+        function deselectAllFiles() { document.querySelectorAll('.file-item').forEach(el => { el.classList.remove('bg-blue-50', 'border-blue-200'); if(explView === 'grid') el.classList.add('border-transparent'); }); document.getElementById('explorer-detail').classList.add('hidden'); document.getElementById('explorer-detail').classList.remove('flex'); }
+
+        async function openFileInApp(id) {
+            const item = voidItems.find(i => i.id === id); if(!item) return;
+            if(item.type === 'text') {
+                toggleApp('win-editor'); document.getElementById('editor-path').value = item.path; document.getElementById('editor-sha').value = item.sha || item.id;
+                if(!item.content && item.apiLinked) {
+                    document.getElementById('editor-loading').classList.remove('hidden'); document.getElementById('editor-loading').classList.add('flex');
+                    try { const res = await fetch(`/api/content?file=${item.path}`); const dat = await res.json(); const b64 = (Array.isArray(dat) ? dat[0] : dat).content.replace(/\s/g, ''); item.content = decodeURIComponent(escape(atob(b64))); } catch(e) {}
+                    document.getElementById('editor-loading').classList.add('hidden'); document.getElementById('editor-loading').classList.remove('flex');
+                }
+                cmEditor.setValue(item.content || ''); if(item.name.endsWith('.js')) cmEditor.setOption("mode", "javascript"); else if(item.name.endsWith('.css')) cmEditor.setOption("mode", "css"); else cmEditor.setOption("mode", "htmlmixed");
+            } else if (item.type === 'image') { toggleApp('win-gallery'); openGalleryViewer(item.id); } 
+            else if (item.type === 'audio' || item.type === 'video') { toggleApp('win-player'); playAudioTrack(item.id); }
+        }
+
+        /* === EDITOR PRO (VS Engine) === */
+        function refreshEditorSidebar() {
+            const tree = document.getElementById('editor-file-tree');
+            const texts = voidItems.filter(i => i.type === 'text');
+            tree.innerHTML = texts.map(i => `<li class="py-1 px-2 hover:bg-[#333] cursor-pointer rounded transition truncate flex items-center gap-2" onclick="openFileInApp('${i.id}')"><svg class="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>${i.name}</li>`).join('');
+        }
+
+        async function commitCode() {
+            const path = document.getElementById('editor-path').value; const content = cmEditor.getValue(); const sha = document.getElementById('editor-sha').value;
+            if(!path) return; document.getElementById('btn-commit').innerText = "Saving...";
+            const b64 = btoa(unescape(encodeURIComponent(content))); const res = await silentApiPush(path, b64, sha, `Update ${path}`);
+            let existingItem = voidItems.find(i => i.path === path || i.sha === sha);
+            if(existingItem) { existingItem.content = content; existingItem.sha = res.sha; existingItem.path = path; } 
+            else { const label = path.includes('/') ? path.split('/')[1] : 'Code'; voidItems.push({ id: res.sha || Date.now().toString(), path: path, name: path.split('/').pop(), type: 'text', content: content, label: label, x: window.innerWidth/2, y: window.innerHeight/2, floatDuration: 5, floatDelay: 0, sha: res.sha }); }
+            document.getElementById('editor-sha').value = res.sha; document.getElementById('btn-commit').innerText = "Save";
+            localStorage.setItem('beenbrain_db', JSON.stringify(voidItems)); renderVoid(); refreshAllApps(); showToast("Source Saved.");
+        }
+
+        function launchPreview() {
+            let code = cmEditor.getValue(); const url = window.location.origin + '/'; const baseTag = `<base href="${url}">`;
+            code = code.toLowerCase().includes('<head>') ? code.replace('<head>', '<head>\n' + baseTag) : baseTag + '\n' + code;
+            document.getElementById('preview-frame').src = URL.createObjectURL(new Blob([code], { type: 'text/html' })); toggleApp('win-preview');
+        }
+
+        /* === AUDIO DECK PRO (Spotify Style) === */
+        let currentPlaylist = []; let currentAudioIndex = -1;
+
+        function refreshAudioPlaylist() {
+            const list = document.getElementById('audio-playlist');
+            currentPlaylist = voidItems.filter(i => i.type === 'audio' || i.type === 'video'); // Putar video sbg audio juga
+            
+            if(currentPlaylist.length === 0) { list.innerHTML = `<li class="text-xs text-slate-600 p-2 text-center mt-4">Library Empty</li>`; return; }
+            list.innerHTML = currentPlaylist.map((item, index) => `
+                <li class="p-2 hover:bg-white/10 rounded-lg cursor-pointer flex items-center gap-3 transition group ${index === currentAudioIndex ? 'bg-white/10' : ''}" onclick="playAudioTrack('${item.id}')">
+                    <div class="w-8 h-8 bg-slate-800 rounded flex items-center justify-center flex-shrink-0 relative">
+                        ${index === currentAudioIndex ? `<div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>` : `<svg class="w-4 h-4 text-slate-400 group-hover:text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>`}
+                    </div>
+                    <div class="flex-col overflow-hidden">
+                        <div class="text-xs font-bold text-white truncate ${index === currentAudioIndex ? 'text-green-500' : ''}">${item.name}</div>
+                        <div class="text-[10px] text-slate-400">${item.label}</div>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function playAudioTrack(id) {
+            currentAudioIndex = currentPlaylist.findIndex(i => i.id === id);
+            if(currentAudioIndex === -1) return;
+            const item = currentPlaylist[currentAudioIndex];
+            const aud = document.getElementById('core-audio');
+            
+            document.getElementById('player-title').innerText = item.name;
+            document.getElementById('btm-title').innerText = item.name;
+            document.getElementById('player-artist').innerText = "Folder: " + item.label;
+            
+            aud.src = item.content; aud.play(); refreshAudioPlaylist();
+            document.getElementById('btn-play').innerHTML = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>`;
+        }
+
+        function togglePlay() {
+            const aud = document.getElementById('core-audio'); const btn = document.getElementById('btn-play');
+            if(!aud.src) { if(currentPlaylist.length > 0) playAudioTrack(currentPlaylist[0].id); return; }
+            if(aud.paused) { aud.play(); btn.innerHTML = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>`; } 
+            else { aud.pause(); btn.innerHTML = `<svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>`; }
+        }
+
+        function nextTrack() { if(currentPlaylist.length===0) return; let n = currentAudioIndex + 1; if(n >= currentPlaylist.length) n = 0; playAudioTrack(currentPlaylist[n].id); }
+        function prevTrack() { if(currentPlaylist.length===0) return; let n = currentAudioIndex - 1; if(n < 0) n = currentPlaylist.length - 1; playAudioTrack(currentPlaylist[n].id); }
+
+        function updateAudioUI() {
+            const aud = document.getElementById('core-audio'); const seek = document.getElementById('seek-bar');
+            if(aud.duration) {
+                seek.value = (aud.currentTime / aud.duration) * 100;
+                document.getElementById('time-current').innerText = formatTime(aud.currentTime);
+                document.getElementById('time-total').innerText = formatTime(aud.duration);
+            }
+        }
+        function seekAudio() { const aud = document.getElementById('core-audio'); const seek = document.getElementById('seek-bar'); aud.currentTime = (seek.value * aud.duration) / 100; }
+        function setVolume() { document.getElementById('core-audio').volume = document.getElementById('vol-bar').value / 100; }
+        function formatTime(s) { const m = Math.floor(s/60); const sec = Math.floor(s%60); return `${m}:${sec<10?'0':''}${sec}`; }
+
+
+        /* === GALLERY PRO (Google Photos Style) === */
+        let galleryImages = []; let currentGalleryIndex = 0;
+
+        function refreshGallery() {
+            const sb = document.getElementById('gallery-albums'); const grid = document.getElementById('gallery-masonry');
+            const labels = [...new Set(voidItems.map(i => i.label))];
+            
+            sb.innerHTML = `<li class="py-2 px-3 hover:bg-slate-200 rounded-lg cursor-pointer transition font-bold" onclick="openGalleryAlbum('')">🖼️ All Photos</li>`;
+            labels.forEach(l => { sb.innerHTML += `<li class="py-2 px-3 hover:bg-slate-200 rounded-lg cursor-pointer transition truncate" onclick="openGalleryAlbum('${l}')">📁 ${l}</li>`; });
+            openGalleryAlbum('');
+        }
+
+        function openGalleryAlbum(label) {
+            document.getElementById('gallery-header-title').innerText = label === '' ? 'All Photos' : label;
+            galleryImages = voidItems.filter(i => i.type === 'image' && (label === '' || i.label === label));
+            document.getElementById('gallery-count').innerText = `${galleryImages.length} items`;
+            
+            const grid = document.getElementById('gallery-masonry');
+            if(galleryImages.length === 0) { grid.innerHTML = `<div class="w-full text-center text-slate-400 mt-20">Album Kosong.</div>`; return; }
+
+            grid.innerHTML = galleryImages.map((img, idx) => `
+                <div class="masonry-item relative group cursor-pointer overflow-hidden rounded-xl border border-slate-100" onclick="openGalleryViewerByIdx(${idx})">
+                    <img src="${img.content}" loading="lazy" class="w-full h-auto block transform group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                        <span class="text-white text-[10px] font-medium truncate drop-shadow-md">${img.name}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openGalleryViewer(id) { const idx = galleryImages.findIndex(i => i.id === id); if(idx !== -1) openGalleryViewerByIdx(idx); }
+        function openGalleryViewerByIdx(idx) {
+            currentGalleryIndex = idx; const img = galleryImages[idx];
+            const v = document.getElementById('gallery-viewer');
+            v.classList.remove('hidden'); v.classList.add('flex');
+            setTimeout(() => v.classList.remove('opacity-0'), 10);
+            document.getElementById('gallery-viewer-title').innerText = img.name;
+            const imgEl = document.getElementById('gallery-viewer-img');
+            imgEl.src = img.content;
+        }
+
+        function closeGalleryViewer() { 
+            const v = document.getElementById('gallery-viewer');
+            v.classList.add('opacity-0');
+            setTimeout(() => { v.classList.add('hidden'); v.classList.remove('flex'); document.getElementById('gallery-viewer-img').src = ''; }, 300);
+        }
+
+        function nextGalleryImg(e) { if(e) e.stopPropagation(); currentGalleryIndex++; if(currentGalleryIndex >= galleryImages.length) currentGalleryIndex = 0; openGalleryViewerByIdx(currentGalleryIndex); }
+        function prevGalleryImg(e) { if(e) e.stopPropagation(); currentGalleryIndex--; if(currentGalleryIndex < 0) currentGalleryIndex = galleryImages.length - 1; openGalleryViewerByIdx(currentGalleryIndex); }
+
+
+        /* === PHOTOBOOTH PRO (Matrix + Sliders) === */
+        let videoStream = null; let pbLoop = null; let pbFilter = 'normal';
+        let pbBright = 100; let pbContrast = 100;
+
+        async function initPhotobooth() {
+            const video = document.getElementById('pb-video'); const loader = document.getElementById('pb-loader');
+            if(videoStream) return; loader.style.display = 'flex';
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                video.srcObject = videoStream; video.onloadedmetadata = () => { video.play(); loader.style.display = 'none'; drawPhotobooth(); };
+            } catch(e) { loader.innerText = "Camera Denied."; }
+        }
+
+        function closePhotobooth() { closeApp('win-photobooth'); if(videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; } if(pbLoop) cancelAnimationFrame(pbLoop); }
+        function changeFilter() { pbFilter = document.getElementById('pb-filter').value; }
+        function updatePbAdjustments() { pbBright = document.getElementById('pb-brightness').value; pbContrast = document.getElementById('pb-contrast').value; document.getElementById('val-bright').innerText = `${pbBright}%`; document.getElementById('val-contrast').innerText = `${pbContrast}%`; }
+
+        function drawPhotobooth() {
+            if(!videoStream) return;
+            const video = document.getElementById('pb-video'); const canvas = document.getElementById('pb-canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            if(canvas.width !== video.videoWidth) { canvas.width = video.videoWidth; canvas.height = video.videoHeight; }
+
+            // Apply base adjustments
+            let baseFilter = `brightness(${pbBright}%) contrast(${pbContrast}%) `;
+
+            if(pbFilter === 'ascii') {
+                // Untuk ASCII kita gambar dulu ke offscreen atau timpa
+                ctx.filter = baseFilter; const scale = 6; ctx.drawImage(video, 0, 0, canvas.width/scale, canvas.height/scale);
+                const pixels = ctx.getImageData(0, 0, canvas.width/scale, canvas.height/scale).data;
+                ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#22c55e'; ctx.font = 'bold 6px monospace'; ctx.textBaseline = 'top';
+                const chars = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+                for(let y=0; y < canvas.height/scale; y++) {
+                    for(let x=0; x < canvas.width/scale; x++) {
+                        const idx = (Math.floor(y) * Math.floor(canvas.width/scale) + Math.floor(x)) * 4;
+                        const brightness = (0.299 * pixels[idx] + 0.587 * pixels[idx+1] + 0.114 * pixels[idx+2]);
+                        ctx.fillText(chars[Math.floor((brightness/255) * (chars.length-1))], x*scale, y*scale);
+                    }
+                }
+            } else {
+                if(pbFilter === 'grayscale') baseFilter += 'grayscale(100%)';
+                if(pbFilter === 'negative') baseFilter += 'invert(100%)';
+                if(pbFilter === 'sepia') baseFilter += 'sepia(100%) hue-rotate(-30deg) saturate(140%)';
+                ctx.filter = baseFilter; ctx.drawImage(video, 0, 0, canvas.width, canvas.height); ctx.filter = 'none';
+            }
+            pbLoop = requestAnimationFrame(drawPhotobooth);
+        }
+
+        function takePhoto() {
+            const dataUrl = document.getElementById('pb-canvas').toDataURL('image/jpeg', 0.95);
+            const filename = `SHOT_${Date.now()}.jpg`;
+            pendingPaste = { type: 'image', content: dataUrl, name: filename, file: dataURLtoFile(dataUrl, filename) };
+            
+            document.getElementById('upload-filename').innerHTML = `<span class="text-slate-900">${filename}</span><br><span class="text-blue-500 font-normal mt-1 block">Pro Camera Shot</span>`;
+            document.getElementById('upload-path').value = `Photobooth/${filename}`;
+            toggleApp('win-upload'); showToast("Image Processed.");
+        }
+        function dataURLtoFile(dataurl, filename) { let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n); while(n--){ u8arr[n] = bstr.charCodeAt(n); } return new File([u8arr], filename, {type:mime}); }
+
+        /* === UPLOADER PRO === */
+        let manualUploadFile = null;
+        function handleFileSelect(e) {
+            const file = e.target.files[0]; if(file) {
+                manualUploadFile = file; document.getElementById('upload-filename').innerHTML = `<span class="text-slate-800">${file.name}</span><br><span class="text-blue-500 font-normal mt-1 block">${(file.size/1024).toFixed(1)} KB</span>`;
+                document.getElementById('upload-path').value = (currentExplorerFolder ? `${currentExplorerFolder}/` : 'Uploads/') + file.name;
+            }
+        }
+        async function commitUpload() {
+            let path = document.getElementById('upload-path').value.trim();
+            if(!path) { if(!manualUploadFile) { return showToast("Pilih file dulu."); } else { path = 'Uploads/' + manualUploadFile.name; } }
+            
+            const btn = document.getElementById('btn-upload'); btn.innerText = "Transmitting..."; btn.disabled = true;
+            const processUpload = async (b64, type, filename) => {
+                const parts = path.split('/'); const label = parts.length > 1 ? parts[parts.length - 2] : 'Media';
+                const res = await silentApiPush(path, b64, '', `Uplink: ${path}`);
+                voidItems.push({ id: res.sha || Date.now().toString(), path: path, name: filename, type: type, content: type === 'text' ? atob(b64) : `/api/content?file=${path}&raw=true`, label: label, x: window.innerWidth/2, y: window.innerHeight/2, floatDuration: 5, floatDelay: 0, sha: res.sha });
+                localStorage.setItem('beenbrain_db', JSON.stringify(voidItems));
+                btn.innerText = "Unggah ke Server"; btn.disabled = false; closeApp('win-upload'); renderVoid(); refreshAllApps(); showToast("Payload Sukses!");
+            };
+
+            if(pendingPaste && !manualUploadFile) { await processUpload(pendingPaste.content.split(',')[1], 'image', pendingPaste.name); pendingPaste = null; } 
+            else if (manualUploadFile) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    let type = 'text'; if (manualUploadFile.type.startsWith('image/')) type = 'image'; else if (manualUploadFile.type.startsWith('video/')) type = 'video'; else if (manualUploadFile.type.startsWith('audio/')) type = 'audio';
+                    await processUpload(e.target.result.split(',')[1], type, manualUploadFile.name); manualUploadFile = null;
+                }; reader.readAsDataURL(manualUploadFile);
+            }
+        }
+    </script>
+</body>
+</html>
