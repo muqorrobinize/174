@@ -175,7 +175,7 @@ img { display: block; }
 .search-inner-row { max-width: 1100px; margin: 0 auto; padding: 0 8px; display: flex; align-items: center; gap: 8px; }
 .search-label { font-size: 10px; font-weight: bold; color: var(--darkgrey); white-space: nowrap; }
 #search-input {
-  width: 200px; padding: 3px 6px; font-size: 11px;
+  flex: 1; min-width: 0; padding: 3px 6px; font-size: 11px;
   border: 1px solid var(--border); background: var(--white); color: var(--ink);
   font-family: Verdana, sans-serif; outline: none;
 }
@@ -206,7 +206,7 @@ img { display: block; }
 .gs-section-head .more-link:hover { color: var(--white); text-decoration: underline; }
 .gs-panel {
   background: var(--panel-bg); border: 1px solid var(--border);
-  border-top: none; margin-bottom: 8px;
+  border-top: none; margin-bottom: 8px; overflow-x: auto;
 }
 .gs-panel-inner { padding: 6px 8px; }
 
@@ -522,6 +522,38 @@ footer {
    MISC
    ============================================================ */
 button { cursor: pointer; }
+
+/* ============================================================
+   MOBILE / SMARTPHONE FIXES
+   ============================================================ */
+@media (max-width: 768px) {
+  .masthead-inner { flex-direction: column; padding-bottom: 10px; gap: 8px; }
+  .masthead-right { padding-left: 16px; padding-right: 16px; justify-content: space-between; width: 100%; }
+  
+  .top-nav-inner { flex-wrap: wrap; }
+  .top-nav-link { flex: 1 1 auto; justify-content: center; }
+  .top-nav-right { width: 100%; margin-left: 0; justify-content: center; padding: 6px 10px; border-top: 1px solid var(--redbg); }
+  
+  #hero-banner { flex-direction: column; }
+  .hero-right { width: 100%; border-left: none; border-top: 1px solid rgba(255,0,0,0.3); }
+  
+  .ticker-seg { padding: 0 20px; }
+  
+  .footer-inner { flex-direction: column; text-align: center; justify-content: center; gap: 12px; }
+  .footer-links { justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .logo-text { font-size: 26px; }
+  .hero-title { font-size: 24px; }
+  
+  .search-inner-row { flex-wrap: wrap; }
+  .search-label { width: 100%; margin-bottom: 2px; }
+  #search-input { width: 100%; flex: none; }
+  .search-go { width: 100%; padding: 6px 8px; margin-top: 2px; }
+  
+  .mini-cards { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -582,7 +614,7 @@ button { cursor: pointer; }
   <div class="link-row">
     <a href="https://wa.me/6281372406462" target="_blank" class="link-btn">📞 The Alchemist</a>
     <a href="https://wa.me/6281280702747" target="_blank" class="link-btn">📞 The Grace</a>
-    <a href="https://saweria.co/beenspaceess" target="_blank" class="link-btn donate">💰 DONATE — Keep Us Alive</a>
+    <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank" class="link-btn donate">💰 DONATE — Keep Us Alive</a>
   </div>
   <div id="drawer-file-section">
     <div class="dfile-head">
@@ -603,8 +635,8 @@ button { cursor: pointer; }
 <!-- TICKER -->
 <div id="ticker-bar">
   <div class="ticker-scroll">
-    <span class="ticker-seg">⚡ YO, FOR REAL — YOU THINK THIS MAGIC JUST HAPPENS? NAH. SERVER RUNS ON FUMES &amp; PRAYERS. SLIDE SOME LOVE TO <a href="https://saweria.co/beenspaceess" target="_blank">SAWERIA</a>. DON'T GHOST US. YOUR FUTURE EXAM-PASSING SELF WILL THANK YOU. /// BLOK 2.2 ONLINE — DIGESTIF, HEPAR, GINJAL, SALURAN KEMIH. STAY SHARP, SIR. ///</span>
-    <span class="ticker-seg">⚡ YO, FOR REAL — YOU THINK THIS MAGIC JUST HAPPENS? NAH. SERVER RUNS ON FUMES &amp; PRAYERS. SLIDE SOME LOVE TO <a href="https://saweria.co/beenspaceess" target="_blank">SAWERIA</a>. DON'T GHOST US. YOUR FUTURE EXAM-PASSING SELF WILL THANK YOU. /// BLOK 2.2 ONLINE — DIGESTIF, HEPAR, GINJAL, SALURAN KEMIH. STAY SHARP, SIR. ///</span>
+    <span class="ticker-seg">⚡ YO, FOR REAL — YOU THINK THIS MAGIC JUST HAPPENS? NAH. SERVER RUNS ON FUMES &amp; PRAYERS. SLIDE SOME LOVE TO <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">SOCIABUZZ</a>. DON'T GHOST US. YOUR FUTURE EXAM-PASSING SELF WILL THANK YOU. /// BLOK 2.2 ONLINE — DIGESTIF, HEPAR, GINJAL, SALURAN KEMIH. STAY SHARP, SIR. ///</span>
+    <span class="ticker-seg">⚡ YO, FOR REAL — YOU THINK THIS MAGIC JUST HAPPENS? NAH. SERVER RUNS ON FUMES &amp; PRAYERS. SLIDE SOME LOVE TO <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">SOCIABUZZ</a>. DON'T GHOST US. YOUR FUTURE EXAM-PASSING SELF WILL THANK YOU. /// BLOK 2.2 ONLINE — DIGESTIF, HEPAR, GINJAL, SALURAN KEMIH. STAY SHARP, SIR. ///</span>
   </div>
 </div>
 
@@ -646,7 +678,7 @@ button { cursor: pointer; }
     <button class="top-nav-link" id="nav-btn-back" style="display:none;" onclick="navBack()">◀ Back</button>
     <div class="top-nav-right">
       <a href="https://wa.me/6281372406462" target="_blank" class="top-nav-link">📞 Support</a>
-      <a href="https://saweria.co/beenspaceess" target="_blank" class="donate-btn">💰 DONATE</a>
+      <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank" class="donate-btn">💰 DONATE</a>
     </div>
   </div>
 </div>
@@ -694,7 +726,7 @@ button { cursor: pointer; }
   <!-- PROMO BOX -->
   <div class="promo-box">
     <div class="promo-head">⚠ Keep the Archive Alive!</div>
-    <div class="promo-body">The server runs on fumes and prayers. If this archive has saved your grades, consider <a href="https://saweria.co/beenspaceess" target="_blank" class="promo-link">donating to Saweria</a>. Every contribution keeps this running. Don't be a ghost, Sir.</div>
+    <div class="promo-body">The server runs on fumes and prayers. If this archive has saved your grades, consider <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank" class="promo-link">donating via SociaBuzz</a>. Every contribution keeps this running. Don't be a ghost, Sir.</div>
   </div>
 
   <!-- MAIN GRID -->
@@ -711,7 +743,7 @@ button { cursor: pointer; }
     <div class="footer-links">
       <a href="https://wa.me/6281372406462" target="_blank">Contact: Alchemist</a>
       <a href="https://wa.me/6281280702747" target="_blank">Contact: Grace</a>
-      <a href="https://saweria.co/beenspaceess" target="_blank">Donate via Saweria</a>
+      <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">Donate via SociaBuzz</a>
     </div>
     <div class="footer-copy">© 2026 174Archive. FK Unsoed · G1A025174 · Maintained by Yaeon &amp; B$4BE!N.</div>
   </div>
@@ -871,7 +903,7 @@ function renderSidebar(semKeys) {
   html += `<div class="side-panel">
     <div class="side-section-head">⚡ Support Archive</div>
     <div class="side-panel-body">
-      <div class="side-link-item"><span class="side-link-arrow">›</span><a href="https://saweria.co/beenspaceess" target="_blank">Donate via Saweria</a></div>
+      <div class="side-link-item"><span class="side-link-arrow">›</span><a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">Donate via SociaBuzz</a></div>
       <div class="side-link-item"><span class="side-link-arrow">›</span><a href="https://wa.me/6281372406462" target="_blank">Contact Alchemist</a></div>
       <div class="side-link-item"><span class="side-link-arrow">›</span><a href="https://wa.me/6281280702747" target="_blank">Contact Grace</a></div>
     </div>
