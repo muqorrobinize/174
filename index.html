@@ -2,753 +2,1261 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>174SPOT | THE ARCHIVE</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&family=Verdana:wght@400;700&family=Arial+Narrow:wght@400;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>174.exe — ARCHIVE</title>
 <style>
 /* ============================================================
-   TOKENS — GAMESPOT 2003
+   WINDOWS 95/98 SYSTEM TOKENS
    ============================================================ */
 :root {
-  --red:       #CC0000;
-  --red2:      #990000;
-  --red3:      #BB1111;
-  --redbg:     #880000;
-  --orange:    #FF6600;
-  --gold:      #FFCC00;
-  --body-bg:   #CCCCCC;
-  --panel-bg:  #EEEEEE;
-  --panel2:    #E0E0E0;
-  --panel3:    #F5F5F5;
-  --sidebar-bg:#DDDDDD;
-  --header-bg: #1A1A1A;
-  --dark:      #222222;
-  --darkgrey:  #444444;
-  --midgrey:   #777777;
-  --lightgrey: #AAAAAA;
-  --border:    #999999;
-  --border2:   #BBBBBB;
-  --white:     #FFFFFF;
-  --ink:       #111111;
-  --link:      #CC0000;
-  --link-hover:#FF3300;
-  --visited:   #660000;
-  --section-head: #CC0000;
-  --row-alt:   #E8E8E8;
+  --win-bg:        #4A90C8;   /* sky blue desktop */
+  --win-face:      #C0C0C0;   /* window face grey */
+  --win-face2:     #D4D0C8;   /* lighter face */
+  --win-dark:      #808080;   /* shadow */
+  --win-darker:    #404040;
+  --win-light:     #FFFFFF;
+  --win-black:     #000000;
+  --win-title:     #000080;   /* active title bar (navy) */
+  --win-title-end: #1084D0;   /* title gradient end */
+  --win-title-txt: #FFFFFF;
+  --win-red:       #CC0000;
+  --win-blue:      #000080;
+  --win-link:      #0000EE;
+  --win-visited:   #551A8B;
+  --win-select:    #000080;
+  --win-select-txt:#FFFFFF;
+  --win-input-bg:  #FFFFFF;
+  --win-disabled:  #808080;
+  --win-menu-bg:   #C0C0C0;
+  --win-hover:     #000080;
+
+  /* Bevel */
+  --bevel-light:  #FFFFFF;
+  --bevel-light2: #DFDFDF;
+  --bevel-dark:   #808080;
+  --bevel-darker: #404040;
 }
+
+/* ============================================================
+   RESET
+   ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: var(--body-bg); }
+html { background: #5B9BD5; }
 body {
-  font-family: Verdana, Arial, sans-serif;
+  font-family: 'Tahoma', 'MS Sans Serif', Arial, sans-serif;
   font-size: 11px;
-  background: var(--body-bg);
-  color: var(--ink);
+  background: transparent;
+  color: var(--win-black);
   min-height: 100vh;
+  overflow-x: hidden;
 }
-a { color: var(--link); text-decoration: none; }
-a:hover { color: var(--link-hover); text-decoration: underline; }
-img { display: block; }
+
+/* ============================================================
+   WINDOWS 7 SKY BACKGROUND
+   ============================================================ */
+#win7-sky {
+  display: none;
+}
+
+/* ============================================================
+   WINDOWS 95 BEVEL SYSTEM
+   ============================================================ */
+.raised {
+  border-top:    2px solid var(--bevel-light);
+  border-left:   2px solid var(--bevel-light);
+  border-right:  2px solid var(--bevel-darker);
+  border-bottom: 2px solid var(--bevel-darker);
+}
+.raised-sm {
+  border-top:    1px solid var(--bevel-light);
+  border-left:   1px solid var(--bevel-light);
+  border-right:  1px solid var(--bevel-dark);
+  border-bottom: 1px solid var(--bevel-dark);
+}
+.sunken {
+  border-top:    2px solid var(--bevel-darker);
+  border-left:   2px solid var(--bevel-darker);
+  border-right:  2px solid var(--bevel-light);
+  border-bottom: 2px solid var(--bevel-light);
+}
+.sunken-sm {
+  border-top:    1px solid var(--bevel-dark);
+  border-left:   1px solid var(--bevel-dark);
+  border-right:  1px solid var(--bevel-light);
+  border-bottom: 1px solid var(--bevel-light);
+}
+.win-field {
+  border-top:    1px solid var(--bevel-darker);
+  border-left:   1px solid var(--bevel-darker);
+  border-right:  1px solid var(--bevel-light);
+  border-bottom: 1px solid var(--bevel-light);
+  background: var(--win-input-bg);
+}
+
+/* ============================================================
+   WINDOW CHROME
+   ============================================================ */
+.window {
+  background: var(--win-face);
+  border-top:    2px solid var(--bevel-light);
+  border-left:   2px solid var(--bevel-light);
+  border-right:  2px solid var(--bevel-darker);
+  border-bottom: 2px solid var(--bevel-darker);
+}
+.title-bar {
+  background: linear-gradient(90deg, var(--win-title) 0%, var(--win-title-end) 100%);
+  color: var(--win-title-txt);
+  font-weight: bold; font-size: 11px;
+  padding: 3px 4px 3px 6px;
+  display: flex; align-items: center; justify-content: space-between;
+  user-select: none; gap: 4px;
+}
+.title-bar-left { display: flex; align-items: center; gap: 6px; overflow: hidden; }
+.title-bar-icon { font-size: 14px; flex-shrink: 0; }
+.title-bar-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+.title-bar-btns { display: flex; gap: 2px; flex-shrink: 0; }
+.title-btn {
+  width: 16px; height: 14px; background: var(--win-face);
+  border-top:    1px solid var(--bevel-light);
+  border-left:   1px solid var(--bevel-light);
+  border-right:  1px solid var(--bevel-darker);
+  border-bottom: 1px solid var(--bevel-darker);
+  font-size: 9px; font-weight: bold; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--win-black); line-height: 1;
+}
+.title-btn:active {
+  border-top:    1px solid var(--bevel-darker);
+  border-left:   1px solid var(--bevel-darker);
+  border-right:  1px solid var(--bevel-light);
+  border-bottom: 1px solid var(--bevel-light);
+}
+.menu-bar {
+  background: var(--win-face);
+  display: flex; align-items: center; gap: 0;
+  padding: 1px 2px;
+  border-bottom: 1px solid var(--bevel-dark);
+}
+.menu-item {
+  padding: 2px 8px; font-size: 11px; cursor: pointer;
+  color: var(--win-black); background: none; border: none;
+  font-family: 'Tahoma', Arial, sans-serif;
+  transition: background 0.1s, color 0.1s;
+  text-decoration: none; display: inline-flex; align-items: center;
+}
+.menu-item:hover, .menu-item.active { background: var(--win-hover); color: var(--win-title-txt); }
+.menu-item .underline { text-decoration: underline; }
+
+/* ============================================================
+   WIN BUTTON
+   ============================================================ */
+.win-btn {
+  background: var(--win-face);
+  border-top:    2px solid var(--bevel-light);
+  border-left:   2px solid var(--bevel-light);
+  border-right:  2px solid var(--bevel-darker);
+  border-bottom: 2px solid var(--bevel-darker);
+  padding: 4px 14px; font-size: 11px; font-family: 'Tahoma', Arial, sans-serif;
+  cursor: pointer; color: var(--win-black); white-space: nowrap;
+  min-width: 75px; text-align: center; display: inline-block; text-decoration: none;
+}
+.win-btn:active, .win-btn.pressed {
+  border-top:    2px solid var(--bevel-darker);
+  border-left:   2px solid var(--bevel-darker);
+  border-right:  2px solid var(--bevel-light);
+  border-bottom: 2px solid var(--bevel-light);
+  padding: 5px 13px 3px 15px;
+}
+.win-btn:hover:not(:active) { background: var(--win-face2); }
+.win-btn-default {
+  border-top:    2px solid var(--bevel-light);
+  border-left:   2px solid var(--bevel-light);
+  border-right:  2px solid var(--bevel-darker);
+  border-bottom: 2px solid var(--bevel-darker);
+  outline: 1px solid var(--win-black);
+  outline-offset: -3px;
+}
+.win-btn-sm { padding: 2px 8px; min-width: 40px; font-size: 10px; }
 
 /* ============================================================
    TICKER
    ============================================================ */
 #ticker-bar {
-  background: var(--dark);
-  border-bottom: 2px solid var(--red);
-  height: 22px; overflow: hidden;
-  display: flex; align-items: center;
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  background: rgba(0, 0, 80, 0.82);
+  backdrop-filter: blur(4px);
+  height: 20px; overflow: hidden; display: flex; align-items: center;
+  border-bottom: 1px solid rgba(100,150,255,0.4);
 }
-.ticker-scroll { display: flex; width: max-content; animation: ticker 55s linear infinite; }
+.ticker-scroll { display: flex; width: max-content; animation: ticker 60s linear infinite; }
 .ticker-scroll:hover { animation-play-state: paused; }
-.ticker-seg { white-space: nowrap; padding: 0 60px; font-size: 10px; color: #FFAA00; font-weight: bold; font-family: Verdana, sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
-.ticker-seg a { color: var(--gold); }
+.ticker-seg { white-space: nowrap; padding: 0 48px; font-size: 10px; color: #FFFFFF; font-weight: bold; font-family: 'Tahoma', Arial, sans-serif; letter-spacing: 0.03em; }
+.ticker-seg a { color: #FFFF88; text-decoration: underline; }
 @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
 
 /* ============================================================
-   MASTHEAD
+   TASKBAR (bottom)
    ============================================================ */
-#masthead {
-  background: linear-gradient(180deg, #111 0%, #1A1A1A 40%, #2A0000 100%);
-  border-bottom: 3px solid var(--red);
-  padding: 0;
-  margin-top: 22px;
+#taskbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+  height: 32px;
+  background: rgba(180, 210, 240, 0.65);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.7);
+  display: flex; align-items: center; padding: 0 4px; gap: 4px;
 }
-.masthead-inner {
-  max-width: 1100px; margin: 0 auto;
-  display: flex; align-items: stretch; justify-content: space-between;
+#start-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 8px 2px 4px;
+  background: var(--win-face);
+  border-top:    2px solid var(--bevel-light);
+  border-left:   2px solid var(--bevel-light);
+  border-right:  2px solid var(--bevel-darker);
+  border-bottom: 2px solid var(--bevel-darker);
+  font-size: 11px; font-weight: bold; cursor: pointer;
+  font-family: 'Tahoma', Arial, sans-serif;
+  color: var(--win-black);
 }
-.logo-area {
-  padding: 10px 16px;
-  display: flex; align-items: center; gap: 10px;
+#start-btn:active {
+  border-top:    2px solid var(--bevel-darker);
+  border-left:   2px solid var(--bevel-darker);
+  border-right:  2px solid var(--bevel-light);
+  border-bottom: 2px solid var(--bevel-light);
 }
-.logo-text {
-  font-family: Impact, Arial Black, sans-serif;
-  font-size: 32px; font-weight: 900;
-  color: var(--white);
-  letter-spacing: -1px;
-  text-shadow: 2px 2px 0 var(--red), 4px 4px 0 #000;
-  line-height: 1;
+.start-icon { font-size: 16px; }
+.taskbar-sep { width: 2px; height: 22px; background: var(--bevel-dark); border-right: 1px solid var(--bevel-light); margin: 0 4px; }
+.taskbar-app {
+  display: flex; align-items: center; gap: 4px; padding: 3px 8px;
+  background: var(--win-face2);
+  border-top:    2px solid var(--bevel-darker);
+  border-left:   2px solid var(--bevel-darker);
+  border-right:  2px solid var(--bevel-light);
+  border-bottom: 2px solid var(--bevel-light);
+  font-size: 10px; font-family: 'Tahoma', Arial, sans-serif; cursor: pointer;
+  max-width: 140px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  flex-shrink: 0;
 }
-.logo-text span { color: var(--red); }
-.logo-sub {
-  font-family: Verdana, sans-serif; font-size: 9px;
-  color: var(--lightgrey); text-transform: uppercase; letter-spacing: 0.1em;
-  margin-top: 2px;
+.taskbar-clock {
+  margin-left: auto; display: flex; align-items: center;
+  padding: 3px 8px;
+  border-top:    1px solid var(--bevel-darker);
+  border-left:   1px solid var(--bevel-darker);
+  border-right:  1px solid var(--bevel-light);
+  border-bottom: 1px solid var(--bevel-light);
+  font-size: 10px; font-family: 'Tahoma', Arial, sans-serif; gap: 6px;
 }
-.masthead-right {
-  display: flex; align-items: center; gap: 16px; padding: 0 16px;
-}
-.sys-status-chip {
-  background: rgba(0,0,0,0.5); border: 1px solid var(--red);
-  padding: 4px 10px; display: flex; align-items: center; gap: 6px;
-  font-size: 9px; color: #FF6666; font-weight: bold; font-family: Verdana, sans-serif;
-}
-.sys-dot { width: 6px; height: 6px; border-radius: 50%; background: #33FF33; animation: blink 1.4s ease-in-out infinite; }
+.sys-tray-dot { width: 6px; height: 6px; border-radius: 50%; background: #00DD00; animation: blink 1.4s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-.hud-bars { display: flex; flex-direction: column; gap: 4px; }
-.hud-row { display: flex; align-items: center; gap: 6px; }
-.hud-label { font-size: 9px; color: #FF8888; font-weight: bold; width: 20px; }
-.hud-track { width: 80px; height: 8px; background: #333; border: 1px solid #555; overflow: hidden; }
-.hud-fill { height: 100%; }
-.hud-hp { background: linear-gradient(90deg, #990000, #FF3333); width: 75%; }
-.hud-xp { background: linear-gradient(90deg, #003399, #4488FF); width: 0%; transition: width 0.5s ease; }
-.hud-num { font-size: 9px; color: #FFAA00; font-weight: bold; min-width: 28px; }
 
 /* ============================================================
-   TOP NAV
+   START MENU
    ============================================================ */
-#top-nav {
-  background: var(--red2);
-  border-bottom: 2px solid var(--redbg);
-  position: sticky; top: 22px; z-index: 150;
+#start-menu {
+  position: fixed; bottom: 32px; left: 0; z-index: 400;
+  width: 220px;
+  background: var(--win-face);
+  border-top:    2px solid var(--bevel-light);
+  border-left:   2px solid var(--bevel-light);
+  border-right:  2px solid var(--bevel-darker);
+  border-bottom: 2px solid var(--bevel-darker);
+  display: none;
+  box-shadow: 3px 3px 6px rgba(0,0,0,0.4);
 }
-.top-nav-inner {
-  max-width: 1100px; margin: 0 auto;
-  display: flex; align-items: stretch;
+#start-menu.open { display: block; }
+.sm-sidebar {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 28px;
+  background: linear-gradient(180deg, #1A1A8C 0%, #000060 100%);
+  display: flex; align-items: flex-end; padding-bottom: 6px;
 }
-.top-nav-link {
-  display: flex; align-items: center; padding: 5px 10px;
-  font-size: 10px; font-weight: bold; font-family: Verdana, sans-serif;
-  color: var(--white); text-decoration: none; text-transform: uppercase;
-  border-right: 1px solid var(--redbg);
-  transition: background 0.1s;
-  white-space: nowrap; cursor: pointer; background: none; border-top: none; border-bottom: none; border-left: none;
+.sm-sidebar-text {
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font-family: 'Tahoma', Arial, sans-serif; font-size: 14px; font-weight: bold;
+  color: #CCCCFF; letter-spacing: 2px;
 }
-.top-nav-link:first-child { border-left: 1px solid var(--redbg); }
-.top-nav-link:hover, .top-nav-link.active { background: var(--red); color: var(--white); text-decoration: none; }
-.top-nav-right { margin-left: auto; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
-.donate-btn {
-  background: var(--gold); color: var(--dark); font-size: 10px; font-weight: bold;
-  padding: 4px 10px; border: 1px solid #AA8800; cursor: pointer; text-decoration: none;
-  font-family: Verdana, sans-serif; transition: background 0.15s;
+.sm-items { margin-left: 28px; }
+.sm-sep { height: 1px; background: var(--bevel-dark); margin: 3px 4px; border-bottom: 1px solid var(--bevel-light); }
+.sm-item {
+  display: flex; align-items: center; gap: 8px; padding: 5px 8px;
+  font-size: 11px; font-family: 'Tahoma', Arial, sans-serif; cursor: pointer;
+  color: var(--win-black); background: none; border: none; width: 100%; text-align: left;
+  text-decoration: none;
 }
-.donate-btn:hover { background: #FFDD44; color: var(--dark); text-decoration: none; }
+.sm-item:hover { background: var(--win-hover); color: var(--win-title-txt); }
+.sm-item-icon { font-size: 16px; flex-shrink: 0; }
+.sm-item-label { flex: 1; font-weight: bold; }
+.sm-item-sub { font-size: 9px; color: var(--win-dark); display: block; font-weight: normal; }
+.sm-item:hover .sm-item-sub { color: #CCCCFF; }
 
 /* ============================================================
-   BREADCRUMB
+   DESKTOP / MAIN AREA
    ============================================================ */
-#breadcrumb-bar {
-  background: var(--panel2); border-bottom: 1px solid var(--border);
-  padding: 4px 0; display: none;
-  position: sticky; top: calc(22px + 28px); z-index: 140;
+#desktop {
+  padding-top: 28px;
+  padding-bottom: 48px;
+  min-height: 100vh;
 }
-#breadcrumb-bar.visible { display: block; }
-.bc-inner { max-width: 1100px; margin: 0 auto; padding: 0 8px; display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
-.bc-home { font-size: 10px; font-weight: bold; color: var(--link); cursor: pointer; }
-.bc-home:hover { color: var(--link-hover); text-decoration: underline; }
-.bc-sep { color: var(--border); font-size: 10px; padding: 0 3px; }
-.bc-item-link { font-size: 10px; color: var(--link); cursor: pointer; }
-.bc-item-link:hover { text-decoration: underline; }
-.bc-item-cur { font-size: 10px; color: var(--darkgrey); font-weight: bold; }
+#main-window {
+  max-width: 820px;
+  margin: 16px auto;
+  padding: 0 14px;
+}
+@media (max-width: 600px) {
+  #main-window { margin: 6px; padding: 0 4px; }
+}
+
+/* ============================================================
+   HEADER WINDOW
+   ============================================================ */
+#header-win {
+  margin-bottom: 14px;
+}
+.hw-body {
+  background: var(--win-face);
+  padding: 8px 10px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.hw-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.hw-title-block { flex: 1; min-width: 0; }
+.hw-app-name {
+  font-family: 'Tahoma', Arial, sans-serif; font-size: clamp(18px, 6vw, 32px);
+  font-weight: bold; color: var(--win-blue); line-height: 1;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
+}
+.hw-app-name span { color: var(--win-red); }
+.hw-tagline { font-size: 10px; color: var(--win-dark); margin-top: 3px; font-style: italic; }
+.hw-blok-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--win-blue); color: #FFF;
+  font-size: 9px; font-weight: bold; padding: 3px 8px;
+  font-family: 'Tahoma', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.hw-stats {
+  display: flex; gap: 0;
+  border-top: 1px solid var(--bevel-dark); padding-top: 6px; flex-wrap: wrap;
+}
+.hw-stat {
+  flex: 1; min-width: 80px; padding: 3px 8px;
+  border-right: 1px solid var(--bevel-dark); text-align: center;
+}
+.hw-stat:last-child { border-right: none; }
+.hw-stat-label { font-size: 9px; color: var(--win-dark); display: block; }
+.hw-stat-val { font-size: 13px; font-weight: bold; color: var(--win-blue); display: block; }
+
+/* ============================================================
+   TOOLBAR / BREADCRUMB
+   ============================================================ */
+#toolbar {
+  background: var(--win-face);
+  padding: 3px 6px;
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--bevel-dark);
+  position: sticky; top: 20px; z-index: 200;
+}
+.tb-btn {
+  display: flex; align-items: center; gap: 3px; padding: 3px 8px;
+  background: var(--win-face); cursor: pointer;
+  border-top:    1px solid var(--bevel-light);
+  border-left:   1px solid var(--bevel-light);
+  border-right:  1px solid var(--bevel-darker);
+  border-bottom: 1px solid var(--bevel-darker);
+  font-size: 10px; font-family: 'Tahoma', Arial, sans-serif;
+  color: var(--win-black); text-decoration: none; white-space: nowrap;
+}
+.tb-btn:active { border-top: 1px solid var(--bevel-darker); border-left: 1px solid var(--bevel-darker); border-right: 1px solid var(--bevel-light); border-bottom: 1px solid var(--bevel-light); }
+.tb-btn:hover:not(:active) { background: var(--win-face2); }
+.tb-btn-icon { font-size: 14px; }
+.tb-sep { width: 1px; height: 18px; background: var(--bevel-dark); border-right: 1px solid var(--bevel-light); margin: 0 3px; }
+.tb-address {
+  flex: 1; display: flex; align-items: center; gap: 4px;
+  background: var(--win-input-bg);
+  border-top:    1px solid var(--bevel-darker);
+  border-left:   1px solid var(--bevel-darker);
+  border-right:  1px solid var(--bevel-light);
+  border-bottom: 1px solid var(--bevel-light);
+  padding: 2px 6px; min-width: 0; overflow: hidden;
+}
+.tb-address-label { font-size: 10px; color: var(--win-dark); flex-shrink: 0; font-weight: bold; }
+#address-path { font-size: 10px; color: var(--win-blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
 
 /* ============================================================
    SEARCH BAR
    ============================================================ */
-#search-bar {
-  background: var(--panel2); border-bottom: 1px solid var(--border);
-  padding: 5px 0;
-  position: sticky; z-index: 130;
+#search-row {
+  background: var(--win-face);
+  padding: 4px 6px;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid var(--bevel-dark);
 }
-.search-inner-row { max-width: 1100px; margin: 0 auto; padding: 0 8px; display: flex; align-items: center; gap: 8px; }
-.search-label { font-size: 10px; font-weight: bold; color: var(--darkgrey); white-space: nowrap; }
 #search-input {
-  flex: 1; min-width: 0; padding: 3px 6px; font-size: 11px;
-  border: 1px solid var(--border); background: var(--white); color: var(--ink);
-  font-family: Verdana, sans-serif; outline: none;
+  flex: 1; padding: 2px 5px;
+  background: var(--win-input-bg);
+  border-top:    1px solid var(--bevel-darker);
+  border-left:   1px solid var(--bevel-darker);
+  border-right:  1px solid var(--bevel-light);
+  border-bottom: 1px solid var(--bevel-light);
+  font-size: 11px; font-family: 'Tahoma', Arial, sans-serif;
+  color: var(--win-black); outline: none;
 }
-#search-input:focus { border-color: var(--red); }
-.search-go {
-  background: var(--red); color: var(--white); font-size: 10px; font-weight: bold;
-  padding: 3px 8px; border: 1px solid var(--redbg); cursor: pointer; font-family: Verdana, sans-serif;
-}
-.search-go:hover { background: var(--red3); }
+#search-input:focus { outline: 1px dotted var(--win-black); }
 
 /* ============================================================
-   PAGE WRAPPER
+   EXPLORER PANE (list view)
    ============================================================ */
-#page-wrap { max-width: 1100px; margin: 0 auto; padding: 8px; }
+#explorer-pane {
+  background: var(--win-input-bg);
+  border-top:    2px solid var(--bevel-darker);
+  border-left:   2px solid var(--bevel-darker);
+  border-right:  2px solid var(--bevel-light);
+  border-bottom: 2px solid var(--bevel-light);
+  margin: 0;
+}
+
+/* Column headers */
+.col-header {
+  display: flex; background: var(--win-face);
+  border-bottom: 1px solid var(--bevel-dark);
+}
+.col-hd {
+  padding: 3px 8px; font-size: 10px; font-weight: bold;
+  font-family: 'Tahoma', Arial, sans-serif; cursor: default;
+  border-top:    1px solid var(--bevel-light);
+  border-left:   1px solid var(--bevel-light);
+  border-right:  1px solid var(--bevel-darker);
+  border-bottom: 1px solid var(--bevel-darker);
+  color: var(--win-black); white-space: nowrap; user-select: none;
+}
+.col-hd-name { flex: 1; }
+.col-hd-type { width: 100px; }
+.col-hd-size { width: 70px; }
+.col-hd-info { width: 80px; }
+
+/* Explorer rows */
+.exp-row {
+  display: flex; align-items: center;
+  padding: 3px 6px; cursor: pointer;
+  border-bottom: 1px solid #F0F0F0;
+  font-family: 'Tahoma', Arial, sans-serif; font-size: 11px;
+  gap: 6px;
+}
+.exp-row:hover { background: #E0E0F0; }
+.exp-row:active, .exp-row.selected { background: var(--win-select); color: var(--win-select-txt); }
+.exp-row:active .exp-row-type, .exp-row.selected .exp-row-type,
+.exp-row:active .exp-row-size, .exp-row.selected .exp-row-size,
+.exp-row:active .exp-row-info, .exp-row.selected .exp-row-info { color: var(--win-select-txt); }
+.exp-row-icon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
+.exp-row-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold; }
+.exp-row-type { width: 100px; font-size: 10px; color: var(--win-dark); white-space: nowrap; overflow: hidden; }
+.exp-row-size { width: 70px; font-size: 10px; color: var(--win-dark); text-align: right; white-space: nowrap; }
+.exp-row-info { width: 80px; font-size: 10px; color: var(--win-dark); text-align: center; white-space: nowrap; }
+.exp-badge {
+  font-size: 9px; padding: 0 4px; border: 1px solid; display: inline-block; margin-left: 4px;
+  vertical-align: middle; font-weight: normal;
+}
+.badge-secret { color: #800080; border-color: #800080; }
+.exp-status-bar {
+  background: var(--win-face); border-top: 1px solid var(--bevel-dark);
+  padding: 2px 8px; font-size: 10px; color: var(--win-dark);
+  font-family: 'Tahoma', Arial, sans-serif; display: flex; gap: 12px;
+}
+.exp-status-seg { border-right: 1px solid var(--bevel-dark); padding-right: 10px; }
+.exp-status-seg:last-child { border-right: none; }
 
 /* ============================================================
-   SECTION HEADER (GameSpot-style red bar)
+   FILE TILE VIEW (for files inside subfolder)
    ============================================================ */
-.gs-section-head {
-  background: linear-gradient(180deg, var(--red3) 0%, var(--red2) 100%);
-  color: var(--white); font-size: 11px; font-weight: bold;
-  padding: 4px 8px; border-bottom: 1px solid var(--redbg);
-  display: flex; align-items: center; justify-content: space-between;
-  font-family: Verdana, sans-serif; text-transform: uppercase; letter-spacing: 0.04em;
-  user-select: none;
-}
-.gs-section-head .more-link { font-size: 9px; color: #FFAA88; font-weight: normal; cursor: pointer; }
-.gs-section-head .more-link:hover { color: var(--white); text-decoration: underline; }
-.gs-panel {
-  background: var(--panel-bg); border: 1px solid var(--border);
-  border-top: none; margin-bottom: 8px; overflow-x: auto;
-}
-.gs-panel-inner { padding: 6px 8px; }
-
-/* ============================================================
-   HERO BANNER (GameSpot featured game style)
-   ============================================================ */
-#hero-banner {
-  background: linear-gradient(135deg, #1A0000 0%, #2A0000 40%, #1A1A2E 100%);
-  border: 1px solid var(--red); border-bottom: 3px solid var(--red);
-  margin-bottom: 8px; position: relative; overflow: hidden;
-  min-height: 140px; display: flex; align-items: stretch;
-}
-.hero-bg-text {
-  position: absolute; right: -20px; top: -10px;
-  font-family: Impact, sans-serif; font-size: 180px; font-weight: 900;
-  color: rgba(255,255,255,0.03); line-height: 1; pointer-events: none; user-select: none;
-  letter-spacing: -10px;
-}
-.hero-left { flex: 1; padding: 16px 20px; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 1; }
-.hero-eyebrow { font-size: 9px; font-weight: bold; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 6px; font-family: Verdana, sans-serif; }
-.hero-title {
-  font-family: Impact, Arial Black, sans-serif;
-  font-size: clamp(28px, 5vw, 52px); font-weight: 900;
-  color: var(--white); line-height: 0.95; letter-spacing: -1px;
-  text-shadow: 3px 3px 0 var(--red2), 0 0 30px rgba(255,0,0,0.3);
-  cursor: pointer; user-select: none;
-  transition: text-shadow 0.2s;
-}
-.hero-title:hover { text-shadow: 3px 3px 0 var(--red2), 0 0 50px rgba(255,100,0,0.5); }
-.hero-title span { color: var(--red); }
-.hero-tagline { font-size: 10px; color: #AAAACC; margin-top: 8px; font-family: Verdana, sans-serif; font-style: italic; }
-.hero-meta { display: flex; gap: 14px; margin-top: 12px; flex-wrap: wrap; }
-.hero-chip {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 9px; color: var(--lightgrey); font-family: Verdana, sans-serif;
-  text-transform: uppercase; letter-spacing: 0.08em;
-}
-.hero-chip-dot { width: 6px; height: 6px; border-radius: 0; }
-.hero-right {
-  width: 220px; flex-shrink: 0;
-  background: rgba(0,0,0,0.4); border-left: 1px solid rgba(255,0,0,0.3);
-  padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
-  position: relative; z-index: 1;
-}
-.hero-right-head { font-size: 9px; font-weight: bold; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 5px; font-family: Verdana, sans-serif; }
-.quick-stat { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px dotted rgba(255,255,255,0.1); }
-.qs-label { font-size: 9px; color: var(--lightgrey); font-family: Verdana, sans-serif; }
-.qs-val { font-size: 10px; font-weight: bold; color: var(--white); font-family: Verdana, sans-serif; }
-
-/* ============================================================
-   MAIN GRID LAYOUT
-   ============================================================ */
-#main-grid {
+.tile-grid {
   display: grid;
-  grid-template-columns: 1fr 200px;
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 2px; padding: 6px; background: var(--win-input-bg);
 }
-@media (max-width: 700px) { #main-grid { grid-template-columns: 1fr; } }
-.main-col { min-width: 0; }
-.side-col { min-width: 0; }
+@media (max-width: 480px) {
+  .tile-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+}
+.tile-item {
+  display: flex; align-items: center; gap: 6px; padding: 4px 6px;
+  cursor: pointer; font-size: 11px; font-family: 'Tahoma', Arial, sans-serif;
+  border: 1px solid transparent;
+}
+.tile-item:hover { background: #E0E0F0; border-color: #9090D0; }
+.tile-item:active { background: var(--win-select); color: var(--win-select-txt); border-color: var(--win-select); }
+.tile-icon { font-size: 20px; flex-shrink: 0; }
+.tile-name { font-size: 10px; line-height: 1.3; overflow: hidden; word-break: break-word; }
 
 /* ============================================================
-   CATEGORY / FOLDER TABLE (GameSpot game listing style)
-   ============================================================ */
-.gs-table { width: 100%; border-collapse: collapse; }
-.gs-table thead tr { background: linear-gradient(180deg, #BBBBBB, #999999); }
-.gs-table thead th {
-  font-size: 9px; font-weight: bold; text-align: left;
-  padding: 4px 6px; border: 1px solid var(--border);
-  color: var(--dark); text-transform: uppercase; letter-spacing: 0.05em;
-  font-family: Verdana, sans-serif;
-}
-.gs-table tbody tr { cursor: pointer; transition: background 0.1s; }
-.gs-table tbody tr:nth-child(odd)  { background: var(--white); }
-.gs-table tbody tr:nth-child(even) { background: var(--row-alt); }
-.gs-table tbody tr:hover { background: #FFEEEE; }
-.gs-table tbody td {
-  padding: 5px 6px; border: 1px solid var(--border2); font-size: 11px;
-  font-family: Verdana, sans-serif; vertical-align: middle;
-}
-.td-icon { width: 26px; text-align: center; font-size: 14px; }
-.td-name { font-weight: bold; color: var(--link); }
-.gs-table tbody tr:hover .td-name { color: var(--link-hover); text-decoration: underline; }
-.td-badge {
-  display: inline-block; font-size: 8px; font-weight: bold;
-  padding: 1px 5px; border: 1px solid;
-  text-transform: uppercase; vertical-align: middle; margin-left: 4px;
-}
-.badge-new    { color: #CC6600; border-color: #CC6600; background: #FFF3E0; }
-.badge-hot    { color: #CC0000; border-color: #CC0000; background: #FFEEEE; }
-.badge-secret { color: #6600CC; border-color: #6600CC; background: #F5EEFF; }
-.td-count { color: var(--midgrey); font-size: 10px; white-space: nowrap; }
-.td-arrow { color: var(--lightgrey); font-size: 12px; text-align: right; width: 16px; }
-
-/* ============================================================
-   FILE LISTING TABLE
-   ============================================================ */
-.file-table { width: 100%; border-collapse: collapse; }
-.file-table thead tr { background: linear-gradient(180deg, #BBBBBB, #999999); }
-.file-table thead th {
-  font-size: 9px; font-weight: bold; text-align: left;
-  padding: 4px 6px; border: 1px solid var(--border);
-  color: var(--dark); text-transform: uppercase; letter-spacing: 0.05em;
-  font-family: Verdana, sans-serif;
-}
-.file-table tbody tr:nth-child(odd)  { background: var(--white); }
-.file-table tbody tr:nth-child(even) { background: var(--row-alt); }
-.file-table tbody tr { cursor: pointer; transition: background 0.1s; }
-.file-table tbody tr:hover { background: #E8F0FF; }
-.file-table tbody td { padding: 5px 6px; border: 1px solid var(--border2); font-size: 11px; font-family: Verdana, sans-serif; vertical-align: middle; }
-.file-table tbody tr.file-active { background: #FFFDE0 !important; }
-.ft-name { font-weight: bold; color: var(--link); }
-.file-table tbody tr:hover .ft-name { color: var(--link-hover); text-decoration: underline; }
-.ft-type { font-size: 9px; color: var(--midgrey); white-space: nowrap; }
-.ft-size { font-size: 9px; color: var(--midgrey); width: 50px; }
-
-/* ============================================================
-   SECTION BACK ROW
-   ============================================================ */
-.back-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 5px 8px; background: var(--panel2); border: 1px solid var(--border);
-  border-bottom: none; margin-bottom: 0;
-}
-.back-link { font-size: 10px; color: var(--link); cursor: pointer; font-weight: bold; font-family: Verdana, sans-serif; }
-.back-link:hover { text-decoration: underline; color: var(--link-hover); }
-.section-path { font-size: 10px; color: var(--midgrey); font-family: Verdana, sans-serif; }
-
-/* ============================================================
-   SIDEBAR PANELS
-   ============================================================ */
-.side-panel { margin-bottom: 8px; }
-.side-section-head {
-  background: linear-gradient(180deg, var(--red3), var(--red2));
-  color: var(--white); font-size: 10px; font-weight: bold;
-  padding: 3px 7px; border-bottom: 1px solid var(--redbg);
-  text-transform: uppercase; letter-spacing: 0.04em; font-family: Verdana, sans-serif;
-}
-.side-panel-body {
-  background: var(--panel-bg); border: 1px solid var(--border); border-top: none;
-  padding: 6px;
-}
-.side-link-item {
-  display: flex; align-items: center; gap: 4px; padding: 3px 0;
-  border-bottom: 1px dotted var(--border2); font-size: 10px;
-  color: var(--link); cursor: pointer; font-family: Verdana, sans-serif;
-}
-.side-link-item:last-child { border-bottom: none; }
-.side-link-item:hover { color: var(--link-hover); text-decoration: underline; }
-.side-link-arrow { color: var(--red); font-size: 8px; }
-.side-info-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px dotted var(--border2); font-size: 10px; font-family: Verdana, sans-serif; }
-.side-info-row:last-child { border-bottom: none; }
-.side-info-label { color: var(--midgrey); }
-.side-info-val { font-weight: bold; color: var(--dark); }
-
-/* ============================================================
-   MINI GAME CARDS (GameSpot game thumbnails style)
-   ============================================================ */
-.mini-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; }
-.mini-card {
-  background: var(--panel2); border: 1px solid var(--border2); cursor: pointer;
-  transition: border-color 0.1s; padding: 6px;
-}
-.mini-card:hover { border-color: var(--red); }
-.mc-icon { font-size: 22px; margin-bottom: 4px; text-align: center; }
-.mc-name { font-size: 9px; font-weight: bold; color: var(--link); text-align: center; line-height: 1.3; font-family: Verdana, sans-serif; }
-.mini-card:hover .mc-name { color: var(--link-hover); }
-.mc-count { font-size: 8px; color: var(--midgrey); text-align: center; margin-top: 2px; font-family: Verdana, sans-serif; }
-
-/* ============================================================
-   ALERT / PROMO BOX (GameSpot "register" box style)
-   ============================================================ */
-.promo-box {
-  background: #FFFBE6; border: 1px solid #DDAA00;
-  border-left: 4px solid var(--gold); padding: 8px 10px; margin-bottom: 8px;
-}
-.promo-head { font-size: 11px; font-weight: bold; color: #884400; font-family: Verdana, sans-serif; margin-bottom: 4px; }
-.promo-body { font-size: 10px; color: var(--darkgrey); font-family: Verdana, sans-serif; line-height: 1.5; }
-.promo-link { color: var(--link); font-weight: bold; cursor: pointer; }
-.promo-link:hover { text-decoration: underline; }
-
-/* ============================================================
-   PROTOCOL MODAL
+   PROTOCOL MODAL (Windows dialog box)
    ============================================================ */
 #protocol-modal {
-  position: fixed; inset: 0; z-index: 400;
-  background: rgba(0,0,0,0.65);
-  display: flex; align-items: center; justify-content: center; padding: 20px;
-  transition: opacity 0.3s;
+  position: fixed; inset: 0; z-index: 500;
+  background: var(--win-bg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
 }
 #protocol-modal.hidden { display: none; }
-.modal-box {
-  background: var(--panel3); border: 2px solid var(--red); max-width: 420px; width: 100%;
-  box-shadow: 4px 4px 0 rgba(0,0,0,0.4); animation: modalIn 0.25s ease forwards;
+.dialog-box {
+  background: var(--win-face);
+  border-top:    2px solid var(--bevel-light);
+  border-left:   2px solid var(--bevel-light);
+  border-right:  2px solid var(--bevel-darker);
+  border-bottom: 2px solid var(--bevel-darker);
+  max-width: 420px; width: 100%;
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.5);
+  animation: dialogIn 0.15s ease forwards;
 }
-@keyframes modalIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
-.modal-head { background: linear-gradient(180deg, var(--red3), var(--red2)); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
-.modal-title { font-size: 12px; font-weight: bold; color: var(--white); font-family: Verdana, sans-serif; text-transform: uppercase; }
-.modal-body { padding: 14px 16px; }
-.modal-rule { background: var(--white); border: 1px solid var(--border); padding: 8px 10px; margin-bottom: 8px; display: flex; gap: 10px; }
-.modal-rule-num { font-size: 10px; font-weight: bold; color: var(--red); min-width: 20px; font-family: Verdana, sans-serif; margin-top: 1px; }
-.modal-rule-text { font-size: 11px; color: var(--darkgrey); line-height: 1.5; font-family: Verdana, sans-serif; }
-.modal-rule-text strong { color: var(--red); }
-.modal-btn {
-  width: 100%; margin-top: 12px; background: var(--red); color: var(--white);
-  border: 1px solid var(--redbg); padding: 10px; font-size: 11px; font-weight: bold;
-  cursor: pointer; font-family: Verdana, sans-serif; text-transform: uppercase; letter-spacing: 0.05em;
-  transition: background 0.15s;
+@keyframes dialogIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+.dialog-body { padding: 14px 16px; }
+.dialog-icon-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.dialog-bigicon { font-size: 32px; flex-shrink: 0; margin-top: 2px; }
+.dialog-text { font-size: 11px; line-height: 1.6; color: var(--win-black); font-family: 'Tahoma', Arial, sans-serif; }
+.dialog-text strong { font-weight: bold; }
+.dialog-divider { height: 1px; background: var(--bevel-dark); margin: 0 -2px; border-bottom: 1px solid var(--bevel-light); }
+.dialog-rule-box {
+  background: var(--win-input-bg);
+  border-top:    1px solid var(--bevel-darker);
+  border-left:   1px solid var(--bevel-darker);
+  border-right:  1px solid var(--bevel-light);
+  border-bottom: 1px solid var(--bevel-light);
+  padding: 8px 10px; margin-bottom: 8px;
+  display: flex; gap: 8px; align-items: flex-start;
 }
-.modal-btn:hover { background: var(--red3); }
+.dialog-rule-num { font-size: 10px; font-weight: bold; color: var(--win-red); min-width: 18px; margin-top: 1px; }
+.dialog-rule-text { font-size: 11px; color: var(--win-black); line-height: 1.5; }
+.dialog-rule-text strong { color: var(--win-red); }
+.dialog-btns { padding: 10px 14px 12px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.dialog-blok-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--win-blue); color: #FFF; font-size: 9px; font-weight: bold;
+  padding: 2px 8px; margin-bottom: 8px;
+  font-family: 'Tahoma', Arial, sans-serif; text-transform: uppercase;
+}
 
 /* ============================================================
-   VIEWER
+   VIEWER WINDOW
    ============================================================ */
-#viewer-overlay { position: fixed; inset: 0; z-index: 300; background: var(--body-bg); display: none; flex-direction: column; }
+#viewer-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: var(--win-bg); display: none; flex-direction: column;
+  padding-top: 20px; padding-bottom: 32px;
+}
 #viewer-overlay.open { display: flex; }
-#viewer-bar { height: 36px; background: var(--dark); border-bottom: 2px solid var(--red); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; flex-shrink: 0; }
-#viewer-frame { flex: 1; border: none; }
-.viewer-label { font-size: 10px; font-weight: bold; color: #33FF33; font-family: Verdana, sans-serif; display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
-.viewer-close-btn { background: var(--red); color: var(--white); border: 1px solid var(--redbg); padding: 4px 10px; font-size: 10px; font-weight: bold; cursor: pointer; font-family: Verdana, sans-serif; transition: background 0.15s; }
-.viewer-close-btn:hover { background: var(--red3); }
+#viewer-win {
+  flex: 1; display: flex; flex-direction: column;
+  background: var(--win-face); overflow: hidden;
+  border-top:    2px solid var(--bevel-light);
+  border-left:   2px solid var(--bevel-light);
+  border-right:  2px solid var(--bevel-darker);
+  border-bottom: 2px solid var(--bevel-darker);
+  margin: 4px;
+}
+#viewer-frame { flex: 1; border: none; background: #FFF; }
 
 /* ============================================================
-   COMMAND DRAWER
+   START MENU OVERLAY
    ============================================================ */
-#drawer-backdrop { position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
-#drawer-backdrop.open { opacity: 1; pointer-events: auto; }
-#cmd-drawer {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 260;
-  background: var(--panel3); border-top: 3px solid var(--red);
-  box-shadow: 0 -6px 30px rgba(0,0,0,0.4); max-height: 72vh;
-  display: flex; flex-direction: column;
-  transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.16,1,0.3,1);
-}
-#cmd-drawer.open { transform: translateY(0); }
-.drawer-handle { display: flex; justify-content: center; padding: 8px 0 4px; cursor: pointer; flex-shrink: 0; background: var(--panel2); border-bottom: 1px solid var(--border); }
-.drawer-handle-bar { width: 40px; height: 3px; background: var(--border); }
-.drawer-head { background: linear-gradient(180deg, var(--red3), var(--red2)); padding: 5px 14px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.drawer-title { font-size: 10px; font-weight: bold; color: var(--white); font-family: Verdana, sans-serif; text-transform: uppercase; }
-.drawer-x { background: none; border: 1px solid rgba(255,255,255,0.4); color: var(--white); font-size: 10px; font-weight: bold; padding: 2px 8px; cursor: pointer; font-family: Verdana, sans-serif; }
-.cmd-action-row { display: flex; gap: 6px; padding: 10px 12px; flex-shrink: 0; border-bottom: 1px solid var(--border); background: var(--panel2); flex-wrap: wrap; }
-.cmd-btn {
-  display: flex; align-items: center; gap: 5px;
-  padding: 5px 10px; background: var(--white); border: 1px solid var(--border);
-  font-size: 10px; font-weight: bold; color: var(--darkgrey); cursor: pointer;
-  font-family: Verdana, sans-serif; transition: border-color 0.1s, color 0.1s;
-  text-decoration: none; text-transform: uppercase;
-}
-.cmd-btn:hover { border-color: var(--red); color: var(--red); background: #FFF5F5; text-decoration: none; }
-.cmd-btn-icon { font-size: 12px; }
-.link-row { display: flex; gap: 6px; padding: 8px 12px; flex-shrink: 0; border-bottom: 1px solid var(--border); background: var(--panel2); flex-wrap: wrap; }
-.link-btn { padding: 4px 10px; background: var(--white); border: 1px solid var(--border); font-size: 10px; color: var(--link); font-family: Verdana, sans-serif; text-decoration: none; transition: background 0.1s; }
-.link-btn:hover { background: #FFEEEE; color: var(--link-hover); text-decoration: none; }
-.link-btn.donate { border-color: #AA8800; background: #FFFBE6; color: #884400; font-weight: bold; }
-.link-btn.donate:hover { background: #FFDD44; color: var(--dark); }
-#drawer-file-section { display: none; flex: 1; min-height: 0; flex-direction: column; overflow: hidden; }
-.dfile-head { padding: 6px 12px; font-size: 9px; font-weight: bold; color: var(--midgrey); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--panel2); text-transform: uppercase; font-family: Verdana, sans-serif; }
-.dfile-close { color: var(--link); background: none; border: none; font-size: 10px; font-weight: bold; cursor: pointer; font-family: Verdana, sans-serif; }
-#drawer-file-list { padding: 8px; overflow-y: auto; flex: 1; }
-.dfile-row {
-  display: flex; align-items: center; gap: 8px; padding: 4px 6px;
-  border-bottom: 1px dotted var(--border2); cursor: pointer; font-size: 10px;
-  font-family: Verdana, sans-serif; background: none; border-left: none; border-right: none; border-top: none; width: 100%; text-align: left;
-  transition: background 0.1s;
-}
-.dfile-row:hover { background: #FFEEEE; }
-.dfile-row.active { background: #FFFDE0; font-weight: bold; }
-.dfile-row .dr-icon { font-size: 12px; }
-.dfile-row .dr-name { color: var(--link); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dfile-row.active .dr-name { color: var(--red); }
+#sm-backdrop { position: fixed; inset: 0; z-index: 350; display: none; }
+#sm-backdrop.open { display: block; }
 
 /* ============================================================
-   CMD TRIGGER
+   SCROLLBAR CUSTOM (WebKit)
    ============================================================ */
-#cmd-trigger {
-  position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
-  z-index: 240;
-  background: var(--dark); border: 2px solid var(--red);
-  box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
-  padding: 7px 20px; cursor: pointer; display: flex; align-items: center; gap: 8px;
-  font-family: Verdana, sans-serif;
-  transition: background 0.1s, transform 0.1s;
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track { background: var(--win-face); border: 1px solid var(--bevel-dark); }
+::-webkit-scrollbar-thumb {
+  background: var(--win-face);
+  border-top:    1px solid var(--bevel-light);
+  border-left:   1px solid var(--bevel-light);
+  border-right:  1px solid var(--bevel-darker);
+  border-bottom: 1px solid var(--bevel-darker);
+  min-height: 20px;
 }
-#cmd-trigger:hover { background: var(--red2); transform: translateX(-50%) translateY(-1px); }
-#cmd-trigger:active { transform: translateX(-50%) translate(1px,1px); }
-.ct-logo { font-family: Impact, sans-serif; font-size: 15px; color: var(--white); font-weight: 900; letter-spacing: -0.5px; }
-.ct-logo span { color: var(--red); }
-.ct-label { font-size: 9px; font-weight: bold; color: var(--lightgrey); text-transform: uppercase; }
-.ct-dot { width: 7px; height: 7px; border-radius: 50%; background: #33FF33; animation: blink 1.4s ease-in-out infinite; }
-.ct-arrow { font-size: 9px; color: var(--lightgrey); }
+::-webkit-scrollbar-button { background: var(--win-face); height: 16px; border: 1px solid var(--bevel-dark); }
 
 /* ============================================================
-   FOOTER
+   PROMO / INFO BOXES
    ============================================================ */
-footer {
-  background: var(--dark); border-top: 2px solid var(--red);
-  padding: 10px 0; margin-top: 12px; margin-bottom: 60px;
+.info-box {
+  background: var(--win-face);
+  border-top:    2px solid var(--bevel-light);
+  border-left:   2px solid var(--bevel-light);
+  border-right:  2px solid var(--bevel-darker);
+  border-bottom: 2px solid var(--bevel-darker);
+  margin-bottom: 6px; overflow: hidden;
 }
-.footer-inner { max-width: 1100px; margin: 0 auto; padding: 0 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-.footer-logo { font-family: Impact, sans-serif; font-size: 18px; color: var(--white); font-weight: 900; }
-.footer-logo span { color: var(--red); }
-.footer-links { display: flex; gap: 10px; flex-wrap: wrap; }
-.footer-links a { font-size: 9px; color: var(--lightgrey); font-family: Verdana, sans-serif; }
-.footer-links a:hover { color: var(--white); text-decoration: underline; }
-.footer-copy { font-size: 9px; color: var(--midgrey); font-family: Verdana, sans-serif; }
+.info-box-title {
+  background: linear-gradient(90deg, var(--win-title), var(--win-title-end));
+  color: var(--win-title-txt); font-weight: bold; font-size: 11px;
+  padding: 3px 6px; display: flex; align-items: center; gap: 5px;
+}
+.info-box-body { padding: 8px 10px; font-size: 11px; line-height: 1.6; color: var(--win-black); font-family: 'Tahoma', Arial, sans-serif; }
+.info-box-body a { color: var(--win-link); }
 
 /* ============================================================
-   NO RESULTS
+   PHONE HELPERS
    ============================================================ */
-.no-results { padding: 20px; text-align: center; font-size: 11px; color: var(--midgrey); font-family: Verdana, sans-serif; }
+@media (max-width: 480px) {
+  .col-hd-size, .exp-row-size { display: none; }
+  .col-hd-info, .exp-row-info { display: none; }
+  .col-hd-type { width: 70px; }
+  .exp-row-type { width: 70px; }
+  body { font-size: 12px; }
+  .hw-app-name { font-size: 26px !important; }
+  .hw-tagline { font-size: 11px !important; }
+  .hw-blok-badge { font-size: 9px !important; padding: 2px 6px !important; }
+  #main-window { margin: 6px 4px; }
+  .hw-body { padding: 10px 8px; gap: 8px; }
+  .hw-stat-val { font-size: 14px !important; }
+  .hw-stat { padding: 3px 5px; min-width: 60px; }
+  .title-bar-text { font-size: 11px !important; }
+  .info-box-title { font-size: 11px !important; }
+  .ticker-seg { font-size: 10px !important; letter-spacing: 0.08em !important; }
+  .exp-row { padding: 5px 6px; }
+  .exp-row-name { font-size: 13px !important; }
+  #taskbar { height: 36px; }
+  #start-btn { padding: 2px 10px 2px 6px; font-size: 13px !important; }
+  .taskbar-clock { font-size: 10px; }
+  #header-win { margin-bottom: 10px; }
+  .window { margin-bottom: 10px !important; }
+}
 
 /* ============================================================
-   MISC
+   Y2K COLORFUL FONTS
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Lilita+One&family=Righteous&family=Fredoka+One&family=Bubblegum+Sans&display=swap');
+
+:root {
+  --y2k-pink:   #FF2DAF;
+  --y2k-cyan:   #00FFEE;
+  --y2k-yellow: #FFE400;
+  --y2k-green:  #39FF14;
+  --y2k-orange: #FF7700;
+  --y2k-purple: #CC00FF;
+}
+
+.hw-app-name {
+  font-family: 'Lilita One', 'Fredoka One', Impact, Arial Black, sans-serif !important;
+  font-size: clamp(22px, 8vw, 42px) !important;
+  background: linear-gradient(90deg, #FF2DAF 0%, #FF7700 25%, #FFE400 50%, #39FF14 75%, #00FFEE 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none !important;
+  letter-spacing: 2px;
+  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.3));
+}
+.hw-app-name span {
+  background: linear-gradient(90deg, #00FFEE 0%, #CC00FF 50%, #FF2DAF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hw-tagline {
+  font-family: 'Bubblegum Sans', 'Boogaloo', Arial, sans-serif !important;
+  font-size: 12px !important;
+  color: var(--y2k-pink) !important;
+  font-style: normal !important;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+  letter-spacing: 0.05em;
+}
+
+.hw-blok-badge {
+  font-family: 'Righteous', 'Boogaloo', Arial, sans-serif !important;
+  background: linear-gradient(135deg, #CC00FF, #FF2DAF) !important;
+  border: 2px solid #FFE400;
+  font-size: 10px !important;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+
+#start-btn {
+  font-family: 'Righteous', 'Boogaloo', Arial, sans-serif !important;
+  font-size: 12px !important;
+  color: var(--win-black) !important;
+}
+
+.sm-sidebar-text {
+  font-family: 'Lilita One', Impact, Arial Black, sans-serif !important;
+  font-size: 15px !important;
+  background: linear-gradient(180deg, #FF2DAF, #FFE400, #39FF14);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hw-stat-val {
+  font-family: 'Righteous', 'Boogaloo', Arial, sans-serif !important;
+  font-size: 16px !important;
+  color: var(--y2k-pink) !important;
+}
+
+.info-box-title {
+  font-family: 'Righteous', 'Boogaloo', Arial, sans-serif !important;
+  font-size: 12px !important;
+  background: linear-gradient(90deg, #000080, #CC00FF) !important;
+  letter-spacing: 0.05em;
+}
+
+.ticker-seg {
+  font-family: 'Boogaloo', 'Righteous', Arial, sans-serif !important;
+  font-size: 11px !important;
+  letter-spacing: 0.12em !important;
+  color: var(--y2k-yellow) !important;
+  text-shadow: 0 0 8px rgba(255,228,0,0.6);
+}
+.ticker-seg a { color: var(--y2k-cyan) !important; text-shadow: 0 0 8px rgba(0,255,238,0.6); }
+
+#ticker-bar {
+  background: rgba(0, 0, 60, 0.88) !important;
+  border-bottom: 1px solid var(--y2k-purple) !important;
+}
+
+.title-bar-text {
+  font-family: 'Boogaloo', Arial, sans-serif !important;
+  font-size: 12px !important;
+  letter-spacing: 0.04em;
+}
+
+.exp-row-name {
+  font-family: 'Bubblegum Sans', Arial, sans-serif !important;
+  font-size: 12px !important;
+}
+
+.dialog-text strong, .dialog-rule-text strong {
+  color: var(--y2k-pink) !important;
+}
+
+.win-btn.win-btn-default {
+  font-family: 'Righteous', Arial, sans-serif !important;
+  background: linear-gradient(135deg, var(--win-face), #D8D0FF) !important;
+}
+
+/* ============================================================
+   SPACIOUS LAYOUT — more breathing room so background shows
    ============================================================ */
 button { cursor: pointer; }
-
-/* ============================================================
-   MOBILE / SMARTPHONE FIXES
-   ============================================================ */
-@media (max-width: 768px) {
-  .masthead-inner { flex-direction: column; padding-bottom: 10px; gap: 8px; }
-  .masthead-right { padding-left: 16px; padding-right: 16px; justify-content: space-between; width: 100%; }
-  
-  .top-nav-inner { flex-wrap: wrap; }
-  .top-nav-link { flex: 1 1 auto; justify-content: center; }
-  .top-nav-right { width: 100%; margin-left: 0; justify-content: center; padding: 6px 10px; border-top: 1px solid var(--redbg); }
-  
-  #hero-banner { flex-direction: column; }
-  .hero-right { width: 100%; border-left: none; border-top: 1px solid rgba(255,0,0,0.3); }
-  
-  .ticker-seg { padding: 0 20px; }
-  
-  .footer-inner { flex-direction: column; text-align: center; justify-content: center; gap: 12px; }
-  .footer-links { justify-content: center; }
-}
-
-@media (max-width: 480px) {
-  .logo-text { font-size: 26px; }
-  .hero-title { font-size: 24px; }
-  
-  .search-inner-row { flex-wrap: wrap; }
-  .search-label { width: 100%; margin-bottom: 2px; }
-  #search-input { width: 100%; flex: none; }
-  .search-go { width: 100%; padding: 6px 8px; margin-top: 2px; }
-  
-  .mini-cards { grid-template-columns: 1fr; }
-}
+a { color: var(--win-link); text-decoration: underline; }
+#app { padding-top: 20px; padding-bottom: 32px; }
+.no-results { padding: 20px; text-align: center; color: var(--win-dark); font-family: 'Tahoma', Arial, sans-serif; font-size: 11px; }
 </style>
 </head>
 <body>
+<!-- Windows 7 Sky Background -->
+<div id="win7-sky"></div>
+<canvas id="sky-canvas" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
 <audio id="party-audio" loop></audio>
 
-<!-- PROTOCOL MODAL -->
+<script>
+(function(){
+  const c = document.getElementById('sky-canvas');
+  const ctx = c.getContext('2d');
+
+  function resize(){
+    c.width  = window.innerWidth;
+    c.height = window.innerHeight;
+    // Regenerate clouds on resize so they fill the new size
+    initClouds();
+  }
+  window.addEventListener('resize', resize);
+
+  /* ── SKY GRADIENT ── */
+  function drawSky(){
+    const h = c.height, w = c.width;
+    const g = ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0.00, '#1a5490');
+    g.addColorStop(0.15, '#2E6FA8');
+    g.addColorStop(0.35, '#4A90C8');
+    g.addColorStop(0.55, '#6BAED6');
+    g.addColorStop(0.72, '#93C9E3');
+    g.addColorStop(0.85, '#BDE0F0');
+    g.addColorStop(0.93, '#D8EFF7');
+    g.addColorStop(1.00, '#EAF6FC');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,w,h);
+  }
+
+  /* ── CLOUD PUFF HELPER ── */
+  function cloudPuff(x, y, r, alpha){
+    const g = ctx.createRadialGradient(x, y-r*0.15, r*0.05, x, y, r);
+    g.addColorStop(0,   `rgba(255,255,255,${alpha})`);
+    g.addColorStop(0.5, `rgba(248,252,255,${alpha*0.7})`);
+    g.addColorStop(1,   `rgba(220,238,250,0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  /* ── DRAW ONE CLOUD ── */
+  function drawCloud(cx, cy, scale, alpha){
+    // Bottom shadow puffs (light grey-blue)
+    cloudPuff(cx,        cy + scale*8,  scale*28, alpha*0.22);
+    cloudPuff(cx+scale*30, cy + scale*10, scale*22, alpha*0.18);
+    cloudPuff(cx-scale*28, cy + scale*10, scale*20, alpha*0.18);
+
+    // Middle body puffs
+    cloudPuff(cx - scale*32, cy,           scale*30, alpha*0.72);
+    cloudPuff(cx + scale*32, cy,           scale*28, alpha*0.72);
+    cloudPuff(cx,            cy + scale*5, scale*38, alpha*0.80);
+
+    // Top highlight puffs
+    cloudPuff(cx - scale*14, cy - scale*18, scale*26, alpha*0.90);
+    cloudPuff(cx + scale*18, cy - scale*14, scale*24, alpha*0.85);
+    cloudPuff(cx,            cy - scale*26, scale*30, alpha*0.95);
+
+    // Bright top cap
+    cloudPuff(cx + scale*4, cy - scale*30, scale*18, alpha*0.80);
+  }
+
+  /* ── CLOUD SYSTEM ── */
+  let clouds = [];
+
+  function initClouds(){
+    const w = c.width, h = c.height;
+    clouds = [];
+
+    // Layer 0 — distant tiny (top zone)
+    for(let i=0;i<6;i++){
+      clouds.push({
+        x: Math.random()*(w+400)-200,
+        y: h*(0.04 + Math.random()*0.12),
+        scale: 0.35 + Math.random()*0.3,
+        speed: 0.12 + Math.random()*0.12,
+        alpha: 0.35 + Math.random()*0.2,
+        layer: 0
+      });
+    }
+    // Layer 1 — medium upper
+    for(let i=0;i<7;i++){
+      clouds.push({
+        x: Math.random()*(w+600)-300,
+        y: h*(0.10 + Math.random()*0.22),
+        scale: 0.55 + Math.random()*0.5,
+        speed: 0.22 + Math.random()*0.18,
+        alpha: 0.55 + Math.random()*0.25,
+        layer: 1
+      });
+    }
+    // Layer 2 — big mid
+    for(let i=0;i<6;i++){
+      clouds.push({
+        x: Math.random()*(w+800)-400,
+        y: h*(0.28 + Math.random()*0.22),
+        scale: 0.9 + Math.random()*0.7,
+        speed: 0.35 + Math.random()*0.25,
+        alpha: 0.50 + Math.random()*0.25,
+        layer: 2
+      });
+    }
+    // Layer 3 — large lower (perspective closer)
+    for(let i=0;i<5;i++){
+      clouds.push({
+        x: Math.random()*(w+1000)-500,
+        y: h*(0.50 + Math.random()*0.22),
+        scale: 1.3 + Math.random()*1.0,
+        speed: 0.55 + Math.random()*0.35,
+        alpha: 0.40 + Math.random()*0.20,
+        layer: 3
+      });
+    }
+    // Layer 4 — huge foreground near-horizon
+    for(let i=0;i<4;i++){
+      clouds.push({
+        x: Math.random()*(w+1200)-600,
+        y: h*(0.72 + Math.random()*0.18),
+        scale: 2.0 + Math.random()*1.4,
+        speed: 0.80 + Math.random()*0.5,
+        alpha: 0.28 + Math.random()*0.18,
+        layer: 4
+      });
+    }
+
+    // Sort by layer so far ones draw first
+    clouds.sort((a,b)=>a.layer-b.layer);
+  }
+
+  /* ── BIRD SYSTEM ── */
+  const birds = [];
+  function initBirds(){
+    // Birds scattered across ALL heights, not just top
+    const configs = [
+      // [count, yMin%, yMax%, speedMin, speedMax, sizeMin, sizeMax]
+      [4,  0.05, 0.25, 0.5, 1.1, 3, 5.5],  // high altitude — tiny fast
+      [5,  0.22, 0.50, 0.4, 0.9, 4, 7],    // mid altitude
+      [4,  0.48, 0.72, 0.3, 0.7, 5, 9],    // low altitude — bigger slower
+      [3,  0.68, 0.88, 0.25,0.55,6, 11],   // near horizon — large slow
+    ];
+    configs.forEach(([n, yLo, yHi, sLo, sHi, szLo, szHi])=>{
+      for(let i=0;i<n;i++){
+        const h = c.height;
+        birds.push({
+          x:     Math.random()*c.width,
+          yBase: h*(yLo + Math.random()*(yHi-yLo)),
+          yPct:  yLo + Math.random()*(yHi-yLo),
+          speed: sLo + Math.random()*(sHi-sLo),
+          size:  szLo + Math.random()*(szHi-szLo),
+          wing:  Math.random()*Math.PI*2,
+          wSpeed:0.10 + Math.random()*0.12,
+          yOff:  Math.random()*Math.PI*2,
+          dir:   Math.random()<0.15 ? -1 : 1,   // 15% fly left
+        });
+      }
+    });
+  }
+
+  function drawBird(x, y, size, wingAngle, dir){
+    const w = size*3.2;
+    const dip = Math.sin(wingAngle)*size*0.9;
+    ctx.save();
+    if(dir < 0) { ctx.translate(x, y); ctx.scale(-1,1); ctx.translate(-x,-y); }
+    ctx.beginPath();
+    // body curve
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x - w*0.5, y - dip, x - w, y - dip*0.2);
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + w*0.5, y - dip, x + w, y - dip*0.2);
+
+    // Depth: birds lower = slightly darker alpha
+    const depthAlpha = 0.35 + (y / c.height)*0.3;
+    ctx.strokeStyle = `rgba(20,25,55,${Math.min(depthAlpha, 0.65)})`;
+    ctx.lineWidth = Math.max(1, size*0.28);
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  let t = 0;
+  function frame(){
+    ctx.clearRect(0,0,c.width,c.height);
+    drawSky();
+    t += 0.016;
+
+    // Update & draw clouds
+    clouds.forEach(cl=>{
+      cl.x += cl.speed;
+      const wrap = c.width + cl.scale*200;
+      if(cl.x > wrap) cl.x = -cl.scale*200;
+      drawCloud(cl.x, cl.y, cl.scale, cl.alpha);
+    });
+
+    // Update & draw birds
+    birds.forEach(b=>{
+      b.x += b.speed * b.dir;
+      const wrap = c.width + b.size*10;
+      if(b.dir > 0 && b.x > wrap)  { b.x = -b.size*10; b.yBase = c.height*(b.yPct + (Math.random()-0.5)*0.05); }
+      if(b.dir < 0 && b.x < -wrap) { b.x = c.width + b.size*10; b.yBase = c.height*(b.yPct + (Math.random()-0.5)*0.05); }
+      b.wing += b.wSpeed;
+      const y = b.yBase + Math.sin(t*0.6 + b.yOff)*b.size*1.2;
+      drawBird(b.x, y, b.size, b.wing, b.dir);
+    });
+
+    requestAnimationFrame(frame);
+  }
+
+  resize();
+  initBirds();
+  frame();
+})();
+</script>
+
+<!-- ============================================================
+     PROTOCOL DIALOG
+     ============================================================ -->
 <div id="protocol-modal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span class="modal-title">⚠ Mandatory Protocol — 174 Archive</span>
+  <div class="dialog-box" style="max-width:460px;">
+    <div class="title-bar">
+      <div class="title-bar-left">
+        <span class="title-bar-icon">⚠️</span>
+        <span class="title-bar-text">174.exe — Mandatory Protocol</span>
+      </div>
+      <div class="title-bar-btns">
+        <div class="title-btn" style="font-size:11px;">?</div>
+      </div>
     </div>
-    <div class="modal-body">
-      <div style="font-size:10px;color:var(--midgrey);font-family:Verdana,sans-serif;margin-bottom:10px;">DUNGEON ARCHIVE v2.2 · BLOK DIGESTIF &amp; NEFROUROINER · CLASSIFIED</div>
-      <div class="modal-rule">
-        <span class="modal-rule-num">01</span>
-        <p class="modal-rule-text">The first rule of the 174 Archive is: <strong>You do not share the Archive.</strong></p>
+    <div class="dialog-body">
+      <div style="margin-bottom:10px;">
+        <div class="dialog-blok-tag">📋 BLOK 2.3 — BASIC SCIENCE OF CONTINUITY &amp; LIFE CYCLE</div>
       </div>
-      <div class="modal-rule">
-        <span class="modal-rule-num">02</span>
-        <p class="modal-rule-text">The second rule of the 174 Archive is: <strong>YOU DO NOT SHARE THE LINK.</strong></p>
+      <div class="dialog-icon-row">
+        <span class="dialog-bigicon">🗂️</span>
+        <div class="dialog-text">
+          <strong>174 Archive — Classified Access Protocol</strong><br><br>
+          The first thing you need to know before you walk through that door.
+        </div>
       </div>
-      <button class="modal-btn" onclick="toggleProtocol(false)">▶ SIR, YES SIR — ENTER ARCHIVE</button>
+      <div class="dialog-rule-box">
+        <span class="dialog-rule-num">01</span>
+        <p class="dialog-rule-text">The <strong>first rule</strong> of the 174 Archive: <strong>you do not talk about the 174 Archive.</strong> Guard who gets this link like your GPA depends on it — because it does.</p>
+      </div>
+      <div class="dialog-rule-box">
+        <span class="dialog-rule-num">02</span>
+        <p class="dialog-rule-text">The <strong>second rule</strong> of the 174 Archive: <strong>you DO NOT share this link to public groups or random chats.</strong> If this gets out, the whole archive goes dark. You understand that.</p>
+      </div>
+      <div class="dialog-rule-box">
+        <span class="dialog-rule-num">03</span>
+        <p class="dialog-rule-text">If this is your <strong>first time</strong> here — you have to study. That's not a request. Welcome to the fight.</p>
+      </div>
+      <div class="dialog-rule-box" style="border-color:var(--bevel-dark);background:#FFFDE0;">
+        <span class="dialog-rule-num" style="color:#886600;">ℹ</span>
+        <p class="dialog-rule-text" style="color:#664400;">You may pass this to trusted friends in your batch. The responsibility is yours. Keep it in the circle. Someone you don't know does NOT get this link.</p>
+      </div>
+    </div>
+    <div class="dialog-divider"></div>
+    <div class="dialog-btns">
+      <button class="win-btn win-btn-default" onclick="toggleProtocol(false)">SIR, YES SIR</button>
+      <button class="win-btn" onclick="toggleProtocol(false)">I Understand</button>
     </div>
   </div>
 </div>
 
-<!-- VIEWER -->
+<!-- ============================================================
+     VIEWER OVERLAY
+     ============================================================ -->
 <div id="viewer-overlay">
-  <div id="viewer-bar">
-    <div class="viewer-label">
-      <span style="width:8px;height:8px;border-radius:50%;background:#33FF33;display:block;animation:blink 1.4s ease-in-out infinite;"></span>
-      LIVE VIEWER — 174SPOT
+  <div id="viewer-win">
+    <div class="title-bar">
+      <div class="title-bar-left">
+        <span class="title-bar-icon">📄</span>
+        <span class="title-bar-text" id="viewer-title">Document Viewer — 174.exe</span>
+      </div>
+      <div class="title-bar-btns">
+        <div class="title-btn">_</div>
+        <div class="title-btn">□</div>
+        <div class="title-btn" onclick="closeViewer()" style="color:var(--win-red);font-weight:bold;">✕</div>
+      </div>
     </div>
-    <button class="viewer-close-btn" onclick="closeViewer()">✕ CLOSE [ESC]</button>
-  </div>
-  <iframe id="viewer-frame" loading="lazy"></iframe>
-</div>
-
-<!-- DRAWER BACKDROP -->
-<div id="drawer-backdrop" onclick="closeDrawer()"></div>
-
-<!-- COMMAND DRAWER -->
-<div id="cmd-drawer">
-  <div class="drawer-handle" onclick="closeDrawer()"><div class="drawer-handle-bar"></div></div>
-  <div class="drawer-head">
-    <div>
-      <div class="drawer-title">⚙ Command Center</div>
-      <div id="drawer-status" style="font-size:9px;color:#FFAA88;font-family:Verdana,sans-serif;">SYS_ACTIVE</div>
+    <div class="menu-bar">
+      <span class="menu-item"><span class="underline">F</span>ile</span>
+      <span class="menu-item"><span class="underline">E</span>dit</span>
+      <span class="menu-item"><span class="underline">V</span>iew</span>
+      <span class="menu-item" onclick="closeViewer()" style="margin-left:auto;">✕ Close</span>
     </div>
-    <button class="drawer-x" onclick="closeDrawer()">✕</button>
-  </div>
-  <div class="cmd-action-row">
-    <button class="cmd-btn" onclick="navigateTo('home')"><span class="cmd-btn-icon">🏠</span>Home</button>
-    <button class="cmd-btn" onclick="toggleProtocol(true);closeDrawer();"><span class="cmd-btn-icon">📋</span>Rules</button>
-    <button class="cmd-btn" onclick="copyUrl();closeDrawer();"><span class="cmd-btn-icon">🔗</span>Copy URL</button>
-    <button class="cmd-btn" onclick="focusSearch();closeDrawer();"><span class="cmd-btn-icon">🔍</span>Search</button>
-  </div>
-  <div class="link-row">
-    <a href="https://wa.me/6281372406462" target="_blank" class="link-btn">📞 The Alchemist</a>
-    <a href="https://wa.me/6281280702747" target="_blank" class="link-btn">📞 The Grace</a>
-    <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank" class="link-btn donate">💰 DONATE — Keep Us Alive</a>
-  </div>
-  <div id="drawer-file-section">
-    <div class="dfile-head">
-      <span>Active Directory</span>
-      <button class="dfile-close" onclick="closeViewer()">✕ Close Document</button>
+    <div id="viewer-file-bar" style="background:var(--win-face);border-bottom:1px solid var(--bevel-dark);padding:3px 6px;display:none;overflow-x:auto;">
+      <div id="viewer-file-list" style="display:flex;gap:4px;"></div>
     </div>
-    <div id="drawer-file-list"></div>
+    <iframe id="viewer-frame" loading="lazy" style="flex:1;border:none;"></iframe>
+    <div style="background:var(--win-face);border-top:1px solid var(--bevel-dark);padding:2px 8px;font-size:10px;color:var(--win-dark);font-family:Tahoma,Arial,sans-serif;display:flex;align-items:center;gap:8px;">
+      <span class="sys-tray-dot"></span>
+      <span id="viewer-status">Ready</span>
+    </div>
   </div>
 </div>
 
-<!-- CMD TRIGGER -->
-<button id="cmd-trigger" onclick="openDrawer()">
-  <div class="ct-dot"></div>
-  <span class="ct-logo">174<span>SPOT</span></span>
-  <span class="ct-label">Menu ▲</span>
-</button>
+<!-- ============================================================
+     START MENU BACKDROP
+     ============================================================ -->
+<div id="sm-backdrop" onclick="closeStartMenu()"></div>
 
-<!-- TICKER -->
+<!-- ============================================================
+     START MENU
+     ============================================================ -->
+<div id="start-menu">
+  <div class="sm-sidebar"><span class="sm-sidebar-text">174.exe</span></div>
+  <div class="sm-items">
+    <button class="sm-item" onclick="navigateTo('home');closeStartMenu();">
+      <span class="sm-item-icon">🏠</span>
+      <span><span class="sm-item-label">Home</span><span class="sm-item-sub">Back to main index</span></span>
+    </button>
+    <button class="sm-item" onclick="toggleProtocol(true);closeStartMenu();">
+      <span class="sm-item-icon">📋</span>
+      <span><span class="sm-item-label">Protocol</span><span class="sm-item-sub">View archive rules</span></span>
+    </button>
+    <div class="sm-sep"></div>
+    <button class="sm-item" onclick="focusSearch();closeStartMenu();">
+      <span class="sm-item-icon">🔍</span>
+      <span><span class="sm-item-label">Find...</span><span class="sm-item-sub">Search archive files</span></span>
+    </button>
+    <button class="sm-item" onclick="copyUrl();closeStartMenu();">
+      <span class="sm-item-icon">🔗</span>
+      <span><span class="sm-item-label">Copy URL</span><span class="sm-item-sub">Share with trusted friends</span></span>
+    </button>
+    <div class="sm-sep"></div>
+    <a href="https://wa.me/6281372406462" target="_blank" class="sm-item" onclick="closeStartMenu();">
+      <span class="sm-item-icon">📞</span>
+      <span><span class="sm-item-label">The Alchemist</span><span class="sm-item-sub">WA support</span></span>
+    </a>
+    <a href="https://wa.me/6281280702747" target="_blank" class="sm-item" onclick="closeStartMenu();">
+      <span class="sm-item-icon">📞</span>
+      <span><span class="sm-item-label">The Grace</span><span class="sm-item-sub">WA support</span></span>
+    </a>
+    <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank" class="sm-item" onclick="closeStartMenu();" style="color:var(--win-red);">
+      <span class="sm-item-icon">💰</span>
+      <span><span class="sm-item-label" style="color:var(--win-red);">Donate — Sociabuzz</span><span class="sm-item-sub">Keep the server alive</span></span>
+    </a>
+    <div class="sm-sep"></div>
+    <button class="sm-item" onclick="closeStartMenu();" style="color:var(--win-dark);">
+      <span class="sm-item-icon">🔌</span>
+      <span><span class="sm-item-label">Shut Down...</span><span class="sm-item-sub">closes the menu</span></span>
+    </button>
+  </div>
+</div>
+
+<!-- ============================================================
+     TICKER
+     ============================================================ -->
 <div id="ticker-bar">
   <div class="ticker-scroll">
-    <span class="ticker-seg">⚡ YO, FOR REAL — YOU THINK THIS MAGIC JUST HAPPENS? NAH. SERVER RUNS ON FUMES &amp; PRAYERS. SLIDE SOME LOVE TO <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">SOCIABUZZ</a>. DON'T GHOST US. YOUR FUTURE EXAM-PASSING SELF WILL THANK YOU. /// BLOK 2.2 ONLINE — DIGESTIF, HEPAR, GINJAL, SALURAN KEMIH. STAY SHARP, SIR. ///</span>
-    <span class="ticker-seg">⚡ YO, FOR REAL — YOU THINK THIS MAGIC JUST HAPPENS? NAH. SERVER RUNS ON FUMES &amp; PRAYERS. SLIDE SOME LOVE TO <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">SOCIABUZZ</a>. DON'T GHOST US. YOUR FUTURE EXAM-PASSING SELF WILL THANK YOU. /// BLOK 2.2 ONLINE — DIGESTIF, HEPAR, GINJAL, SALURAN KEMIH. STAY SHARP, SIR. ///</span>
+    <span class="ticker-seg">⚡ YOU THINK THIS ARCHIVE RUNS ON GOOD VIBES ALONE? SERVER RUNS ON FUMES &amp; PRAYERS. SLIDE SOME LOVE TO <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">SOCIABUZZ</a>. DON'T BE A GHOST. YOUR FUTURE EXAM-PASSING SELF WILL THANK YOU. /// BLOK 2.3 ONLINE — CONTINUITY &amp; LIFE CYCLE. STAY SHARP, SIR. ///</span>
+    <span class="ticker-seg">⚡ YOU THINK THIS ARCHIVE RUNS ON GOOD VIBES ALONE? SERVER RUNS ON FUMES &amp; PRAYERS. SLIDE SOME LOVE TO <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">SOCIABUZZ</a>. DON'T BE A GHOST. YOUR FUTURE EXAM-PASSING SELF WILL THANK YOU. /// BLOK 2.3 ONLINE — CONTINUITY &amp; LIFE CYCLE. STAY SHARP, SIR. ///</span>
   </div>
 </div>
 
-<!-- MASTHEAD -->
-<div id="masthead">
-  <div class="masthead-inner">
-    <div class="logo-area">
-      <div>
-        <div class="logo-text">174<span>SPOT</span></div>
-        <div class="logo-sub">WHERE STUDENTS GO TO STUDY</div>
+<!-- ============================================================
+     MAIN APP
+     ============================================================ -->
+<div id="app">
+<div id="main-window">
+
+  <!-- HEADER WINDOW -->
+  <div class="window" id="header-win">
+    <div class="title-bar">
+      <div class="title-bar-left">
+        <span class="title-bar-icon">🗂️</span>
+        <span class="title-bar-text">174.exe — Archive</span>
+      </div>
+      <div class="title-bar-btns">
+        <div class="title-btn">_</div>
+        <div class="title-btn">□</div>
+        <div class="title-btn" style="color:var(--win-red);">✕</div>
       </div>
     </div>
-    <div class="masthead-right">
-      <div class="hud-bars">
-        <div class="hud-row">
-          <span class="hud-label">HP</span>
-          <div class="hud-track"><div class="hud-fill hud-hp"></div></div>
-          <span class="hud-num">75/100</span>
+    <div class="menu-bar">
+      <button class="menu-item" onclick="navigateTo('home')"><span class="underline">H</span>ome</button>
+      <button class="menu-item" onclick="toggleProtocol(true)"><span class="underline">P</span>rotocol</button>
+      <button class="menu-item" id="nav-back-btn" onclick="navBack()" style="display:none;">◀ <span class="underline">B</span>ack</button>
+      <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank" class="menu-item" style="margin-left:auto;color:#CC0000;font-weight:bold;text-decoration:none;">💰 Donate</a>
+    </div>
+    <div class="hw-body">
+      <div class="hw-top">
+        <div class="hw-title-block">
+          <div class="hw-app-name">174<span>ARCHIVE</span></div>
+          <div class="hw-tagline">Where FK Unsoed students go to study. And pass. Hopefully.</div>
         </div>
-        <div class="hud-row">
-          <span class="hud-label">XP</span>
-          <div class="hud-track"><div class="hud-fill hud-xp" id="xp-bar"></div></div>
-          <span class="hud-num" id="xp-val">0</span>
+        <div class="hw-blok-badge">📋 BLOK 2.3<br>CONTINUITY &amp; LIFE CYCLE</div>
+      </div>
+      <div class="hw-stats">
+        <div class="hw-stat">
+          <span class="hw-stat-label">Semesters</span>
+          <span class="hw-stat-val" id="stat-sem">—</span>
+        </div>
+        <div class="hw-stat">
+          <span class="hw-stat-label">Bloks</span>
+          <span class="hw-stat-val" id="stat-blok">—</span>
+        </div>
+        <div class="hw-stat">
+          <span class="hw-stat-label">Files</span>
+          <span class="hw-stat-val" id="stat-files">—</span>
+        </div>
+        <div class="hw-stat">
+          <span class="hw-stat-label">Status</span>
+          <span class="hw-stat-val" id="stat-status" style="color:green;font-size:11px;">ONLINE</span>
         </div>
       </div>
-      <div class="sys-status-chip">
-        <div class="sys-dot"></div>
-        <span id="sys-status">SYS_ACTIVE</span>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="window" style="margin-bottom:14px;">
+    <div id="toolbar">
+      <button class="tb-btn" onclick="navigateTo('home')"><span class="tb-btn-icon">🏠</span></button>
+      <button class="tb-btn" id="tb-back-btn" onclick="navBack()" style="display:none;"><span class="tb-btn-icon">◀</span></button>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" onclick="navigateTo('home')"><span class="tb-btn-icon">🔄</span></button>
+      <div class="tb-sep"></div>
+      <div class="tb-address">
+        <span class="tb-address-label">Address:</span>
+        <span id="address-path">174://archive/home</span>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- TOP NAV -->
-<div id="top-nav">
-  <div class="top-nav-inner">
-    <button class="top-nav-link" onclick="navigateTo('home')">Home</button>
-    <button class="top-nav-link" onclick="toggleProtocol(true)">Protocol</button>
-    <button class="top-nav-link" id="nav-btn-back" style="display:none;" onclick="navBack()">◀ Back</button>
-    <div class="top-nav-right">
-      <a href="https://wa.me/6281372406462" target="_blank" class="top-nav-link">📞 Support</a>
-      <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank" class="donate-btn">💰 DONATE</a>
-    </div>
-  </div>
-</div>
-
-<!-- BREADCRUMB -->
-<div id="breadcrumb-bar">
-  <div class="bc-inner" id="bc-inner"></div>
-</div>
-
-<!-- SEARCH BAR -->
-<div id="search-bar">
-  <div class="search-inner-row">
-    <span class="search-label">Search Archive:</span>
-    <input type="text" id="search-input" placeholder="Search by name...">
-    <button class="search-go" onclick="doSearch()">GO!</button>
-  </div>
-</div>
-
-<!-- MAIN PAGE -->
-<div id="page-wrap">
-
-  <!-- HERO BANNER -->
-  <div id="hero-banner">
-    <div class="hero-bg-text">174</div>
-    <div class="hero-left">
-      <div class="hero-eyebrow">⚡ BLOK 2.2 — DIGESTIF &amp; NEFROUROINER — ONLINE</div>
-      <div class="hero-title" onclick="navigateTo('home')">174<span>SPOT</span></div>
-      <div class="hero-tagline">The underground archive. Where FK Unsoed students go to pass.</div>
-      <div class="hero-meta">
-        <div class="hero-chip"><span class="hero-chip-dot" style="background:#33FF33;"></span>🫀 DIGESTIF</div>
-        <div class="hero-chip"><span class="hero-chip-dot" style="background:#FF6600;"></span>🫁 HEPAR</div>
-        <div class="hero-chip"><span class="hero-chip-dot" style="background:#4488FF;"></span>🫘 GINJAL</div>
-      </div>
-    </div>
-    <div class="hero-right">
-      <div class="hero-right-head">📊 ARCHIVE STATS</div>
-      <div class="quick-stat"><span class="qs-label">Status</span><span class="qs-val" style="color:#33FF33;" id="hero-status">ONLINE</span></div>
-      <div class="quick-stat"><span class="qs-label">Semesters</span><span class="qs-val" id="stat-sem">—</span></div>
-      <div class="quick-stat"><span class="qs-label">Bloks</span><span class="qs-val" id="stat-blok">—</span></div>
-      <div class="quick-stat"><span class="qs-label">Files</span><span class="qs-val" id="stat-files">—</span></div>
-      <div class="quick-stat"><span class="qs-label">Your XP</span><span class="qs-val" id="stat-xp" style="color:#FFCC00;">0</span></div>
+    <!-- SEARCH -->
+    <div id="search-row">
+      <span style="font-size:10px;font-weight:bold;color:var(--win-dark);white-space:nowrap;">🔍 Search:</span>
+      <input type="text" id="search-input" placeholder="Type to find files...">
+      <button class="win-btn win-btn-sm" onclick="doSearch()">Go</button>
     </div>
   </div>
 
   <!-- PROMO BOX -->
-  <div class="promo-box">
-    <div class="promo-head">⚠ Keep the Archive Alive!</div>
-    <div class="promo-body">The server runs on fumes and prayers. If this archive has saved your grades, consider <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank" class="promo-link">donating via SociaBuzz</a>. Every contribution keeps this running. Don't be a ghost, Sir.</div>
-  </div>
-
-  <!-- MAIN GRID -->
-  <div id="main-grid">
-    <div class="main-col" id="main-col"></div>
-    <div class="side-col" id="side-col"></div>
-  </div>
-
-</div><!-- end page-wrap -->
-
-<footer>
-  <div class="footer-inner">
-    <div class="footer-logo">174<span>SPOT</span></div>
-    <div class="footer-links">
-      <a href="https://wa.me/6281372406462" target="_blank">Contact: Alchemist</a>
-      <a href="https://wa.me/6281280702747" target="_blank">Contact: Grace</a>
-      <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">Donate via SociaBuzz</a>
+  <div class="info-box" id="promo-box" style="margin-bottom:14px;">
+    <div class="info-box-title">⚠️ System Message — Keep The Archive Running</div>
+    <div class="info-box-body">
+      This server doesn't run itself, Sir. If this archive has ever saved your grade, consider <a href="https://sociabuzz.com/alchemist4real/donate" target="_blank"><strong>donating via Sociabuzz</strong></a>. Every bit helps. Don't be a ghost. 👻
     </div>
-    <div class="footer-copy">© 2026 174Archive. FK Unsoed · G1A025174 · Maintained by Yaeon &amp; B$4BE!N.</div>
   </div>
-</footer>
 
+
+  <!-- SPOTIFY NOW PLAYING -->
+  <div class="info-box" id="spotify-box" style="margin-bottom:14px;">
+    <div class="info-box-title">🎵 Now Playing — The Alchemist's Station</div>
+    <div class="info-box-body" id="spotify-body" style="display:flex;align-items:center;gap:10px;padding:8px 10px;">
+      <div id="spotify-art" style="width:40px;height:40px;flex-shrink:0;background:var(--win-face);border:1px solid var(--bevel-dark);display:flex;align-items:center;justify-content:center;font-size:20px;">🎵</div>
+      <div style="flex:1;min-width:0;">
+        <div id="spotify-track" style="font-weight:bold;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading...</div>
+        <div id="spotify-artist" style="font-size:10px;color:var(--win-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+        <div id="spotify-progress-wrap" style="margin-top:4px;height:6px;background:var(--win-face);border-top:1px solid var(--bevel-darker);border-left:1px solid var(--bevel-darker);border-right:1px solid var(--bevel-light);border-bottom:1px solid var(--bevel-light);overflow:hidden;">
+          <div id="spotify-progress-bar" style="height:100%;width:0%;background:var(--win-title);transition:width 1s linear;"></div>
+        </div>
+      </div>
+      <div id="spotify-status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--win-dark);flex-shrink:0;" title="Not playing"></div>
+    </div>
+  </div>
+
+  <!-- EXPLORER WINDOW -->
+  <div class="window" id="explorer-win">
+    <div class="title-bar" id="explorer-title-bar">
+      <div class="title-bar-left">
+        <span class="title-bar-icon" id="explorer-icon">💻</span>
+        <span class="title-bar-text" id="explorer-title">My Computer — 174 Archive</span>
+      </div>
+      <div class="title-bar-btns">
+        <div class="title-btn">_</div>
+        <div class="title-btn">□</div>
+        <div class="title-btn" style="color:var(--win-red);">✕</div>
+      </div>
+    </div>
+    <div id="explorer-pane">
+      <div class="col-header">
+        <div class="col-hd col-hd-name">Name</div>
+        <div class="col-hd col-hd-type">Type</div>
+        <div class="col-hd col-hd-size">Size</div>
+        <div class="col-hd col-hd-info">Items</div>
+      </div>
+      <div id="exp-rows"></div>
+      <div class="exp-status-bar" id="exp-status-bar">
+        <span class="exp-status-seg" id="exp-status-count">Loading...</span>
+        <span class="exp-status-seg" id="exp-status-path">174://archive</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end main-window -->
+</div><!-- end app -->
+
+<!-- ============================================================
+     TASKBAR
+     ============================================================ -->
+<div id="taskbar">
+  <button id="start-btn" onclick="toggleStartMenu()">
+    <span class="start-icon">🪟</span>
+    <span>Start</span>
+  </button>
+  <div class="taskbar-sep"></div>
+  <div class="taskbar-app" id="taskbar-app-main">
+    <span>🗂️</span> 174 Archive
+  </div>
+  <div id="taskbar-viewer-btn" class="taskbar-app" style="display:none;" onclick="toggleViewerTask()">
+    <span>📄</span> Viewer
+  </div>
+  <div class="taskbar-clock">
+    <div class="sys-tray-dot" id="sys-dot"></div>
+    <span id="sys-status-bar">SYS_ACTIVE</span>
+    <span>|</span>
+    <span id="clock-display">--:--</span>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
 <script>
 /* ============================================================
    STATE
@@ -761,87 +1269,90 @@ const partyAudio = document.getElementById('party-audio');
 let foundMusicUrl = null;
 
 /* ============================================================
+   CLOCK
+   ============================================================ */
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock-display').innerText = `${h}:${m}`;
+}
+setInterval(updateClock, 10000); updateClock();
+
+/* ============================================================
    UTILS
    ============================================================ */
 function setStatus(txt) {
-  document.getElementById('sys-status').innerText = txt;
-  document.getElementById('drawer-status').innerText = txt;
-}
-function addXP(n) {
-  xpCount = Math.min(xpCount + n, 9999);
-  const pct = Math.min((xpCount / 500) * 100, 100);
-  document.getElementById('xp-bar').style.width = pct + '%';
-  document.getElementById('xp-val').innerText = xpCount;
-  document.getElementById('stat-xp').innerText = xpCount;
+  document.getElementById('sys-status-bar').innerText = txt;
+  if (txt === 'SYS_ERROR') {
+    document.getElementById('sys-dot').style.background = 'var(--win-red)';
+    document.getElementById('stat-status').innerText = 'ERROR';
+    document.getElementById('stat-status').style.color = 'red';
+  } else if (txt === 'SYS_ONLINE') {
+    document.getElementById('stat-status').innerText = 'ONLINE';
+  }
 }
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
-function copyUrl() { navigator.clipboard.writeText(window.location.href).then(() => alert('URL copied to clipboard!')); }
-function focusSearch() { document.getElementById('search-input').focus(); }
-function doSearch() { const q = document.getElementById('search-input').value.trim(); if (q) renderSemesters(q); else renderSemesters(); }
+function copyUrl() { navigator.clipboard.writeText(window.location.href).then(() => showMsgBox('URL copied to clipboard!\n\nShare this only with trusted friends, Sir. Keep it in the circle.', 'Copy URL')); }
+function focusSearch() { document.getElementById('search-input').focus(); document.getElementById('search-input').select(); }
+function doSearch() { const q = document.getElementById('search-input').value.trim(); renderSemesters(q); }
 window.copyUrl = copyUrl; window.focusSearch = focusSearch; window.doSearch = doSearch;
+
+/* ============================================================
+   MINI MSG BOX
+   ============================================================ */
+function showMsgBox(msg, title) {
+  // simple alert styled-ish
+  alert(msg);
+}
 
 /* ============================================================
    PROTOCOL
    ============================================================ */
 window.toggleProtocol = function(show) {
   const m = document.getElementById('protocol-modal');
-  if (show) { m.classList.remove('hidden'); m.style.opacity = '1'; }
-  else { m.style.opacity = '0'; setTimeout(() => { m.classList.add('hidden'); }, 280); }
+  if (show) m.classList.remove('hidden');
+  else m.classList.add('hidden');
 };
 
 /* ============================================================
-   DRAWER
+   START MENU
    ============================================================ */
-window.openDrawer = () => {
-  document.getElementById('cmd-drawer').classList.add('open');
-  document.getElementById('drawer-backdrop').classList.add('open');
-  document.getElementById('cmd-trigger').style.display = 'none';
+window.toggleStartMenu = function() {
+  const sm = document.getElementById('start-menu');
+  const bd = document.getElementById('sm-backdrop');
+  const isOpen = sm.classList.contains('open');
+  if (isOpen) { sm.classList.remove('open'); bd.classList.remove('open'); }
+  else { sm.classList.add('open'); bd.classList.add('open'); }
 };
-window.closeDrawer = () => {
-  document.getElementById('cmd-drawer').classList.remove('open');
-  document.getElementById('drawer-backdrop').classList.remove('open');
-  document.getElementById('cmd-trigger').style.display = '';
+window.closeStartMenu = function() {
+  document.getElementById('start-menu').classList.remove('open');
+  document.getElementById('sm-backdrop').classList.remove('open');
 };
 
 /* ============================================================
-   BREADCRUMB
+   ADDRESS BAR & BACK BTN
    ============================================================ */
-function updateBreadcrumb() {
-  const bar = document.getElementById('breadcrumb-bar');
-  const inner = document.getElementById('bc-inner');
-  const backBtn = document.getElementById('nav-btn-back');
+function updateAddressBar() {
+  const parts = ['174://archive'];
+  navStack.forEach(n => parts.push(n.label));
+  document.getElementById('address-path').innerText = parts.join('/');
 
-  if (!navStack.length) {
-    bar.classList.remove('visible');
-    backBtn.style.display = 'none';
-    return;
-  }
-  bar.classList.add('visible');
-  backBtn.style.display = '';
-
-  let html = `<span class="bc-home" onclick="navigateTo('home')">🏠 Home</span>`;
-  navStack.forEach((item, i) => {
-    html += `<span class="bc-sep">»</span>`;
-    if (i < navStack.length - 1) {
-      html += `<span class="bc-item-link" onclick="navigateTo('stack',${i})">${item.label}</span>`;
-    } else {
-      html += `<span class="bc-item-cur">${item.label}</span>`;
-    }
-  });
-  inner.innerHTML = html;
+  const showBack = navStack.length > 0;
+  document.getElementById('nav-back-btn').style.display = showBack ? '' : 'none';
+  document.getElementById('tb-back-btn').style.display = showBack ? '' : 'none';
 }
 
 window.navigateTo = function(type, idx) {
   if (type === 'home') {
-    navStack = [];
-    updateBreadcrumb();
+    navStack = []; updateAddressBar();
     renderSemesters();
   } else if (type === 'stack') {
     const target = navStack[idx];
     navStack = navStack.slice(0, idx + 1);
-    updateBreadcrumb();
+    updateAddressBar();
     if (target.level === 'semester') renderBloks(target.key);
-    else if (target.level === 'blok')    renderSubFolders(target.semKey, target.key);
+    else if (target.level === 'blok') renderSubFolders(target.semKey, target.key);
   }
 };
 
@@ -850,66 +1361,27 @@ window.navBack = function() {
   if (navStack.length === 1) { navigateTo('home'); return; }
   const prev = navStack[navStack.length - 2];
   navStack = navStack.slice(0, navStack.length - 1);
-  updateBreadcrumb();
+  updateAddressBar();
   if (prev.level === 'semester') renderBloks(prev.key);
   else if (prev.level === 'blok') renderSubFolders(prev.semKey, prev.key);
   else navigateTo('home');
 };
 
 /* ============================================================
-   SIDEBAR RENDER
+   EXPLORER HELPERS
    ============================================================ */
-function renderSidebar(semKeys) {
-  const side = document.getElementById('side-col');
-  let totalBloks = 0, totalFiles = 0;
-  semKeys.forEach(sk => {
-    Object.keys(quizzes[sk]).forEach(bk => {
-      totalBloks++;
-      Object.values(quizzes[sk][bk]).forEach(arr => totalFiles += arr.length);
-    });
-  });
-
-  // Stats update
-  document.getElementById('stat-sem').innerText = semKeys.length;
-  document.getElementById('stat-blok').innerText = totalBloks;
-  document.getElementById('stat-files').innerText = totalFiles;
-
-  let html = '';
-
-  // Navigate panel
-  html += `<div class="side-panel">
-    <div class="side-section-head">📁 Quick Navigate</div>
-    <div class="side-panel-body">`;
-  semKeys.forEach(sk => {
-    html += `<div class="side-link-item" onclick="onSemesterClick('${sk}')">
-      <span class="side-link-arrow">›</span>
-      ${sk}
-    </div>`;
-  });
-  html += `</div></div>`;
-
-  // Archive info
-  html += `<div class="side-panel">
-    <div class="side-section-head">ℹ Archive Info</div>
-    <div class="side-panel-body">
-      <div class="side-info-row"><span class="side-info-label">Blok</span><span class="side-info-val">2.2</span></div>
-      <div class="side-info-row"><span class="side-info-label">Tahun</span><span class="side-info-val">2025/2026</span></div>
-      <div class="side-info-row"><span class="side-info-label">Topik</span><span class="side-info-val">Digestif</span></div>
-      <div class="side-info-row"><span class="side-info-label">Status</span><span class="side-info-val" style="color:green;">ONLINE</span></div>
-    </div>
-  </div>`;
-
-  // Support
-  html += `<div class="side-panel">
-    <div class="side-section-head">⚡ Support Archive</div>
-    <div class="side-panel-body">
-      <div class="side-link-item"><span class="side-link-arrow">›</span><a href="https://sociabuzz.com/alchemist4real/donate" target="_blank">Donate via SociaBuzz</a></div>
-      <div class="side-link-item"><span class="side-link-arrow">›</span><a href="https://wa.me/6281372406462" target="_blank">Contact Alchemist</a></div>
-      <div class="side-link-item"><span class="side-link-arrow">›</span><a href="https://wa.me/6281280702747" target="_blank">Contact Grace</a></div>
-    </div>
-  </div>`;
-
-  side.innerHTML = html;
+function setExplorerTitle(icon, title) {
+  document.getElementById('explorer-icon').innerText = icon;
+  document.getElementById('explorer-title').innerText = title;
+}
+function setExpStatus(count, path) {
+  document.getElementById('exp-status-count').innerText = count;
+  document.getElementById('exp-status-path').innerText = path;
+}
+function renderColHeaders(cols) {
+  // cols = [{label, cls}]
+  const ch = document.querySelector('.col-header');
+  ch.innerHTML = cols.map(c => `<div class="col-hd ${c.cls}">${c.label}</div>`).join('');
 }
 
 /* ============================================================
@@ -919,37 +1391,45 @@ async function init() {
   setStatus('LOADING...');
   try {
     const res = await fetch('/api/content?folder=kuis');
-    if (!res.ok) throw new Error('API Error');
+    if (!res.ok) throw new Error('API fetch failed');
     const files = await res.json();
-    if (!files || !files.length) throw new Error('EMPTY');
+    if (!files || !files.length) throw new Error('EMPTY_DIRECTORY');
 
     quizzes = {};
     files.filter(f => /\.(html|mp3|wav)$/i.test(f.name)).forEach(f => {
       const parts = f.name.split('_');
       if (parts.length < 2) return;
       const originalCat = parts[0].trim();
-      const name = parts.slice(1).join(' ').replace(/\.(html|mp3|wav)$/i, '').replace(/_/g, ' ').trim();
+      const name = parts.slice(1).join(' ').replace(/\.(html|mp3|wav)$/i,'').replace(/_/g,' ').trim();
       const semMatch = originalCat.match(/^(\d+)\./);
       const semNum = semMatch ? semMatch[1] : null;
-      const semKey = semNum ? `SEMESTER ${semNum}` : 'OTHER';
+      const semKey = semNum ? `Semester ${semNum}` : 'Other';
       const blokMatch = originalCat.match(/^(\d+\.\d+)/);
-      const blokKey = blokMatch ? `BLOK ${blokMatch[1]}` : 'BLOK LAINNYA';
-      const subCat = originalCat.replace(/\./g, ' ').trim().toUpperCase();
+      const blokKey = blokMatch ? `Blok ${blokMatch[1]}` : 'Blok Lainnya';
+      const subCat = originalCat.replace(/\./g,' ').trim().toUpperCase();
       const isSecret = /secret/i.test(originalCat);
       if (!quizzes[semKey]) quizzes[semKey] = {};
       if (!quizzes[semKey][blokKey]) quizzes[semKey][blokKey] = {};
       if (!quizzes[semKey][blokKey][subCat]) quizzes[semKey][blokKey][subCat] = [];
       quizzes[semKey][blokKey][subCat].push({ name, subCat, originalCat, file: f.name, url: `kuis/${f.name}`, isSecret });
     });
+
+    // Stats
+    const semKeys = Object.keys(quizzes);
+    let totalBloks = 0, totalFiles = 0;
+    semKeys.forEach(sk => { Object.keys(quizzes[sk]).forEach(bk => { totalBloks++; Object.values(quizzes[sk][bk]).forEach(a => totalFiles += a.length); }); });
+    document.getElementById('stat-sem').innerText = semKeys.length;
+    document.getElementById('stat-blok').innerText = totalBloks;
+    document.getElementById('stat-files').innerText = totalFiles;
+
     setStatus('SYS_ONLINE');
-    document.getElementById('hero-status').innerText = 'ONLINE';
     renderSemesters();
   } catch(e) {
     setStatus('SYS_ERROR');
-    document.getElementById('hero-status').style.color = 'var(--red)';
-    document.getElementById('hero-status').innerText = 'ERROR';
-    document.getElementById('main-col').innerHTML = `<div class="no-results">ERROR: ${e.message}</div>`;
+    document.getElementById('exp-rows').innerHTML = `<div class="no-results">❌ ERROR: ${e.message}</div>`;
+    setExpStatus('Error', '174://archive');
   }
+
   try {
     const rm = await fetch('/api/content?folder=music');
     if (rm.ok) { const mf = await rm.json(); const ta = mf.find(f => /\.(mp3|wav)$/i.test(f.name)); if (ta) foundMusicUrl = `music/${ta.name}`; }
@@ -957,12 +1437,21 @@ async function init() {
 }
 
 /* ============================================================
+   SEMESTER ICONS & FOLDER TYPES
+   ============================================================ */
+const SEM_ICONS   = ['💾','📀','🖥️','🖨️','📟','📠'];
+const BLOK_ICONS  = ['📁','📂','🗂️','📋','🗃️','📑','📌','📎','🔖','📏'];
+const SUB_ICONS   = ['📦','🗂️','📋','🗃️','📑','📌'];
+const FILE_ICONS  = { html:'📄', mp3:'🎵', wav:'🎵', default:'📄' };
+
+/* ============================================================
    RENDER SEMESTERS
    ============================================================ */
 function renderSemesters(filter = '') {
-  navStack = []; updateBreadcrumb();
-  const main = document.getElementById('main-col');
-  const semKeys = Object.keys(quizzes).sort((a,b) => (parseInt(a)||99) - (parseInt(b)||99));
+  navStack = []; updateAddressBar();
+  setExplorerTitle('💻', 'My Computer — 174 Archive');
+  const rows = document.getElementById('exp-rows');
+  const semKeys = Object.keys(quizzes).sort((a,b) => (parseInt(a.replace(/\D/g,''))||99) - (parseInt(b.replace(/\D/g,''))||99));
 
   const filtered = filter ? semKeys.filter(k => {
     if (k.toLowerCase().includes(filter.toLowerCase())) return true;
@@ -975,123 +1464,80 @@ function renderSemesters(filter = '') {
     );
   }) : semKeys;
 
-  renderSidebar(semKeys);
+  // Reset col headers
+  document.querySelector('.col-header').innerHTML = `
+    <div class="col-hd col-hd-name">Name</div>
+    <div class="col-hd col-hd-type">Type</div>
+    <div class="col-hd col-hd-size col-hd-size">Size</div>
+    <div class="col-hd col-hd-info">Items</div>`;
 
   if (!filtered.length) {
-    main.innerHTML = `<div class="no-results">No results for "${filter}".</div>`;
+    rows.innerHTML = `<div class="no-results">No results for "${filter}".</div>`;
+    setExpStatus('0 items', '174://archive');
     return;
   }
 
-  let html = `<div class="gs-section-head">📚 BROWSE BY SEMESTER <span class="more-link">${filtered.length} semesters found</span></div>
-  <div class="gs-panel">
-    <table class="gs-table">
-      <thead><tr>
-        <th class="td-icon"></th>
-        <th>Semester</th>
-        <th>Bloks</th>
-        <th>Files</th>
-        <th></th>
-      </tr></thead>
-      <tbody>`;
+  rows.innerHTML = filtered.map((sk, i) => {
+    const blokCount = Object.keys(quizzes[sk]).length;
+    const fileCount = Object.values(quizzes[sk]).reduce((a,b) => a + Object.values(b).reduce((c,d) => c+d.length, 0), 0);
+    const icon = SEM_ICONS[i % SEM_ICONS.length];
+    return `<div class="exp-row" onclick="onSemClick('${sk}')">
+      <span class="exp-row-icon">${icon}</span>
+      <span class="exp-row-name">${sk}</span>
+      <span class="exp-row-type">File Folder</span>
+      <span class="exp-row-size">—</span>
+      <span class="exp-row-info">${blokCount} Blok${blokCount!==1?'s':''}</span>
+    </div>`;
+  }).join('');
 
-  filtered.forEach((semKey, idx) => {
-    const blokCount = Object.keys(quizzes[semKey]).length;
-    const fileCount = Object.values(quizzes[semKey]).reduce((a,b) => a + Object.values(b).reduce((c,d) => c+d.length, 0), 0);
-    const icons = ['🏰','⚔️','🐉','🗡️','💎','🔮'];
-    const icon = icons[idx % icons.length];
-    const isNew = idx === 0;
-    html += `<tr onclick="onSemesterClick('${semKey}')">
-      <td class="td-icon">${icon}</td>
-      <td class="td-name">${semKey} ${isNew ? '<span class="td-badge badge-hot">HOT</span>' : ''}</td>
-      <td class="td-count">${blokCount} blok${blokCount !== 1 ? 's' : ''}</td>
-      <td class="td-count">${fileCount} file${fileCount !== 1 ? 's' : ''}</td>
-      <td class="td-arrow">›</td>
-    </tr>`;
-  });
-
-  html += `</tbody></table></div>`;
-
-  // Mini cards for quick blok access if available
-  if (!filter && semKeys.length > 0) {
-    const firstSem = semKeys[0];
-    const blokKeys = Object.keys(quizzes[firstSem]).sort();
-    if (blokKeys.length) {
-      html += `<div class="gs-section-head" style="margin-top:8px;">⚡ QUICK ACCESS — ${firstSem} <span class="more-link">click to open</span></div>
-      <div class="gs-panel"><div class="mini-cards">`;
-      blokKeys.slice(0, 6).forEach((bk, i) => {
-        const fc = Object.values(quizzes[firstSem][bk]).reduce((a,b) => a+b.length, 0);
-        const blokIcons = ['📜','🧪','💀','🧬','🫀','🫁'];
-        html += `<div class="mini-card" onclick="onSemesterClick('${firstSem}');setTimeout(()=>onBlokClick('${firstSem}','${bk}'),50);">
-          <div class="mc-icon">${blokIcons[i % blokIcons.length]}</div>
-          <div class="mc-name">${bk.replace('BLOK ','')}</div>
-          <div class="mc-count">${fc} files</div>
-        </div>`;
-      });
-      html += `</div></div>`;
-    }
-  }
-
-  main.innerHTML = html;
-  addXP(5);
+  setExpStatus(`${filtered.length} object${filtered.length!==1?'s':''}`, '174://archive');
 }
 window.renderSemesters = renderSemesters;
+
+function onSemClick(semKey) {
+  navStack = [{ level:'semester', key:semKey, label:semKey }];
+  updateAddressBar();
+  renderBloks(semKey);
+}
+window.onSemClick = onSemClick;
 
 /* ============================================================
    RENDER BLOKS
    ============================================================ */
 function renderBloks(semKey) {
-  const main = document.getElementById('main-col');
+  setExplorerTitle('📁', `${semKey} — 174 Archive`);
+  const rows = document.getElementById('exp-rows');
   const blokKeys = Object.keys(quizzes[semKey]).sort();
 
-  let html = `<div class="back-row">
-    <span class="back-link" onclick="navigateTo('home')">◀ Back to Home</span>
-    <span class="section-path">📁 ${semKey}</span>
-  </div>
-  <div class="gs-section-head">📂 BLOKS IN ${semKey} <span class="more-link">${blokKeys.length} bloks</span></div>
-  <div class="gs-panel">
-    <table class="gs-table">
-      <thead><tr>
-        <th class="td-icon"></th>
-        <th>Blok</th>
-        <th>Sub-folders</th>
-        <th>Files</th>
-        <th></th>
-      </tr></thead>
-      <tbody>`;
+  document.querySelector('.col-header').innerHTML = `
+    <div class="col-hd col-hd-name">Name</div>
+    <div class="col-hd col-hd-type">Type</div>
+    <div class="col-hd col-hd-size">Size</div>
+    <div class="col-hd col-hd-info">Sub-folders</div>`;
 
-  blokKeys.forEach((bk, i) => {
+  rows.innerHTML = blokKeys.map((bk, i) => {
     const subCount = Object.keys(quizzes[semKey][bk]).length;
     const fc = Object.values(quizzes[semKey][bk]).reduce((a,b) => a+b.length, 0);
-    const blokIcons = ['📜','🧪','💀','🧬','🫀','🫁','🫘','🧠','🦴','🩸'];
-    html += `<tr onclick="onBlokClick('${semKey}','${bk}')">
-      <td class="td-icon">${blokIcons[i % blokIcons.length]}</td>
-      <td class="td-name">${bk}</td>
-      <td class="td-count">${subCount} folder${subCount !== 1 ? 's' : ''}</td>
-      <td class="td-count">${fc} file${fc !== 1 ? 's' : ''}</td>
-      <td class="td-arrow">›</td>
-    </tr>`;
-  });
+    const icon = BLOK_ICONS[i % BLOK_ICONS.length];
+    return `<div class="exp-row" onclick="onBlokClick('${semKey}','${bk}')">
+      <span class="exp-row-icon">${icon}</span>
+      <span class="exp-row-name">${bk}</span>
+      <span class="exp-row-type">File Folder</span>
+      <span class="exp-row-size">${fc} files</span>
+      <span class="exp-row-info">${subCount} folder${subCount!==1?'s':''}</span>
+    </div>`;
+  }).join('');
 
-  html += `</tbody></table></div>`;
-  main.innerHTML = html;
-  addXP(10);
+  setExpStatus(`${blokKeys.length} object${blokKeys.length!==1?'s':''}`, `174://archive/${semKey}`);
 }
-
-function onSemesterClick(semKey) {
-  navStack = [{ level:'semester', key:semKey, label:semKey }];
-  updateBreadcrumb();
-  renderBloks(semKey);
-}
-window.onSemesterClick = onSemesterClick;
 
 function onBlokClick(semKey, blokKey) {
   navStack = [
     { level:'semester', key:semKey, label:semKey },
     { level:'blok', semKey, key:blokKey, label:blokKey }
   ];
-  updateBreadcrumb();
+  updateAddressBar();
   renderSubFolders(semKey, blokKey);
-  addXP(15);
 }
 window.onBlokClick = onBlokClick;
 
@@ -1099,40 +1545,32 @@ window.onBlokClick = onBlokClick;
    RENDER SUB FOLDERS
    ============================================================ */
 function renderSubFolders(semKey, blokKey) {
-  const main = document.getElementById('main-col');
+  setExplorerTitle('🗂️', `${blokKey} — 174 Archive`);
+  const rows = document.getElementById('exp-rows');
   const subKeys = Object.keys(quizzes[semKey][blokKey]).sort();
 
-  let html = `<div class="back-row">
-    <span class="back-link" onclick="onSemesterClick('${semKey}')">◀ Back to ${semKey}</span>
-    <span class="section-path">📁 ${semKey} » ${blokKey}</span>
-  </div>
-  <div class="gs-section-head">🗂 SUB-FOLDERS IN ${blokKey} <span class="more-link">${subKeys.length} folders</span></div>
-  <div class="gs-panel">
-    <table class="gs-table">
-      <thead><tr>
-        <th class="td-icon"></th>
-        <th>Sub-folder</th>
-        <th>Files</th>
-        <th></th>
-      </tr></thead>
-      <tbody>`;
+  document.querySelector('.col-header').innerHTML = `
+    <div class="col-hd col-hd-name">Name</div>
+    <div class="col-hd col-hd-type">Type</div>
+    <div class="col-hd col-hd-size">Size</div>
+    <div class="col-hd col-hd-info">Files</div>`;
 
-  subKeys.forEach((sk, i) => {
+  rows.innerHTML = subKeys.map((sk, i) => {
     const files = quizzes[semKey][blokKey][sk];
     const isSecret = files.some(f => f.isSecret);
-    const folderIcons = ['📦','🗂️','📋','🗃️','📑','📌'];
-    const icon = isSecret ? '🔒' : folderIcons[i % folderIcons.length];
-    html += `<tr onclick="${isSecret ? "alert('ACCESS DENIED — RESTRICTED FOLDER.')" : `onSubClick('${semKey}','${blokKey}','${sk.replace(/'/g,"\\'")}')`}">
-      <td class="td-icon">${icon}</td>
-      <td class="td-name">${sk} ${isSecret ? '<span class="td-badge badge-secret">SECRET</span>' : ''}</td>
-      <td class="td-count">${files.length} file${files.length !== 1 ? 's' : ''}</td>
-      <td class="td-arrow">›</td>
-    </tr>`;
-  });
+    const icon = isSecret ? '🔒' : SUB_ICONS[i % SUB_ICONS.length];
+    const secretBadge = isSecret ? `<span class="exp-badge badge-secret">SECRET</span>` : '';
+    const onClick = isSecret ? `alert('Access Denied — Restricted Folder.')` : `onSubClick('${semKey}','${blokKey}','${sk.replace(/'/g,"\\'")}')`;
+    return `<div class="exp-row" onclick="${onClick}">
+      <span class="exp-row-icon">${icon}</span>
+      <span class="exp-row-name">${sk}${secretBadge}</span>
+      <span class="exp-row-type">File Folder</span>
+      <span class="exp-row-size">—</span>
+      <span class="exp-row-info">${files.length} file${files.length!==1?'s':''}</span>
+    </div>`;
+  }).join('');
 
-  html += `</tbody></table></div>`;
-  main.innerHTML = html;
-  addXP(15);
+  setExpStatus(`${subKeys.length} object${subKeys.length!==1?'s':''}`, `174://archive/${semKey}/${blokKey}`);
 }
 
 function onSubClick(semKey, blokKey, subKey) {
@@ -1141,10 +1579,9 @@ function onSubClick(semKey, blokKey, subKey) {
     { level:'blok', semKey, key:blokKey, label:blokKey },
     { level:'sub', semKey, blokKey, key:subKey, label:subKey }
   ];
-  updateBreadcrumb();
+  updateAddressBar();
   activeSubFolderFiles = quizzes[semKey][blokKey][subKey];
   renderFiles(semKey, blokKey, subKey);
-  addXP(20);
 }
 window.onSubClick = onSubClick;
 
@@ -1152,90 +1589,95 @@ window.onSubClick = onSubClick;
    RENDER FILES
    ============================================================ */
 function renderFiles(semKey, blokKey, subKey) {
-  const main = document.getElementById('main-col');
+  setExplorerTitle('📋', `${subKey} — 174 Archive`);
+  const rows = document.getElementById('exp-rows');
   const files = quizzes[semKey][blokKey][subKey];
 
-  let html = `<div class="back-row">
-    <span class="back-link" onclick="onBlokClick('${semKey}','${blokKey}')">◀ Back to ${blokKey}</span>
-    <span class="section-path">📁 ${semKey} » ${blokKey} » ${subKey}</span>
-  </div>
-  <div class="gs-section-head">📄 FILES IN ${subKey} <span class="more-link">${files.length} file${files.length !== 1 ? 's' : ''}</span></div>
-  <div class="gs-panel">
-    <table class="file-table">
-      <thead><tr>
-        <th class="td-icon"></th>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Action</th>
-      </tr></thead>
-      <tbody>`;
+  document.querySelector('.col-header').innerHTML = `
+    <div class="col-hd col-hd-name">Name</div>
+    <div class="col-hd col-hd-type">Type</div>
+    <div class="col-hd col-hd-size">Action</div>
+    <div class="col-hd col-hd-info">Format</div>`;
 
-  files.forEach((f, i) => {
+  rows.innerHTML = files.map((f, i) => {
     const ext = f.file.split('.').pop().toLowerCase();
     const isAudio = ext === 'mp3' || ext === 'wav';
     const icon = isAudio ? '🎵' : '📄';
+    const typeLabel = isAudio ? 'Audio File' : 'HTML Document';
+    const action = isAudio ? '▶ Play' : '→ Open';
+    const fmt = ext.toUpperCase();
     const onClick = isAudio ? `playAudio('${f.url}')` : `openViewer('${f.url}',\`${f.name}\`)`;
-    const typeLabel = isAudio ? 'AUDIO' : 'HTML';
-    const typeColor = isAudio ? 'color:#006600;' : 'color:#000066;';
-    html += `<tr onclick="${onClick}" id="file-row-${i}">
-      <td class="td-icon">${icon}</td>
-      <td class="ft-name">${f.name}</td>
-      <td class="ft-type" style="${typeColor}">${typeLabel}</td>
-      <td class="ft-size">${isAudio ? '▶ Play' : '→ Open'}</td>
-    </tr>`;
-  });
+    return `<div class="exp-row" id="frow-${i}" onclick="${onClick}">
+      <span class="exp-row-icon">${icon}</span>
+      <span class="exp-row-name">${f.name}</span>
+      <span class="exp-row-type">${typeLabel}</span>
+      <span class="exp-row-size">${action}</span>
+      <span class="exp-row-info">${fmt}</span>
+    </div>`;
+  }).join('');
 
-  html += `</tbody></table></div>`;
-  main.innerHTML = html;
-  addXP(20);
+  setExpStatus(`${files.length} file${files.length!==1?'s':''}`, `174://archive/${semKey}/${blokKey}/${subKey}`);
 }
-window.renderFiles = renderFiles;
 
 /* ============================================================
    VIEWER
    ============================================================ */
 window.openViewer = function(url, name) {
   document.getElementById('viewer-frame').src = url;
+  document.getElementById('viewer-title').innerText = `${name} — 174 Archive`;
+  document.getElementById('viewer-status').innerText = `Viewing: ${name}`;
   document.getElementById('viewer-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  buildDrawerFileList(name);
-  const fs = document.getElementById('drawer-file-section');
-  fs.style.display = 'flex'; fs.style.flexDirection = 'column';
-  addXP(25);
+  document.getElementById('taskbar-viewer-btn').style.display = '';
+  buildViewerFileBar(name);
 };
+
 window.closeViewer = function() {
   document.getElementById('viewer-overlay').classList.remove('open');
   document.body.style.overflow = '';
-  document.getElementById('drawer-file-section').style.display = 'none';
+  document.getElementById('taskbar-viewer-btn').style.display = 'none';
   setTimeout(() => { document.getElementById('viewer-frame').src = ''; }, 300);
-  closeDrawer();
 };
-function buildDrawerFileList(activeName) {
-  const c = document.getElementById('drawer-file-list');
-  if (!activeSubFolderFiles.length) return;
-  c.innerHTML = activeSubFolderFiles.map(f => {
+
+window.toggleViewerTask = function() {
+  const vo = document.getElementById('viewer-overlay');
+  if (vo.classList.contains('open')) closeViewer();
+  else vo.classList.add('open');
+};
+
+function buildViewerFileBar(activeName) {
+  const bar = document.getElementById('viewer-file-bar');
+  const list = document.getElementById('viewer-file-list');
+  if (!activeSubFolderFiles.length) { bar.style.display = 'none'; return; }
+  bar.style.display = '';
+  list.innerHTML = activeSubFolderFiles.map(f => {
     const isActive = f.name === activeName;
     const isAudio = /\.(mp3|wav)$/i.test(f.file);
-    const onClick = isAudio ? `playAudio('${f.url}')` : `document.getElementById('viewer-frame').src='${f.url}';updateActive(\`${f.name}\`)`;
-    const icon = isAudio ? '🎵' : '📄';
-    return `<button onclick="${onClick}" class="dfile-row ${isActive?'active':''}">
-      <span class="dr-icon">${icon}</span>
-      <span class="dr-name">${f.name}</span>
-    </button>`;
+    const onClick = isAudio ? `playAudio('${f.url}')` : `document.getElementById('viewer-frame').src='${f.url}';updateViewerActive(\`${f.name}\`)`;
+    return `<button onclick="${onClick}" style="display:flex;align-items:center;gap:3px;padding:2px 8px;font-size:10px;font-family:Tahoma,Arial,sans-serif;background:${isActive?'var(--win-select)':'var(--win-face)'};color:${isActive?'var(--win-select-txt)':'var(--win-black)'};border-top:1px solid ${isActive?'var(--bevel-darker)':'var(--bevel-light)'};border-left:1px solid ${isActive?'var(--bevel-darker)':'var(--bevel-light)'};border-right:1px solid ${isActive?'var(--bevel-light)':'var(--bevel-darker)'};border-bottom:1px solid ${isActive?'var(--bevel-light)':'var(--bevel-darker)'};cursor:pointer;white-space:nowrap;">${isAudio?'🎵':'📄'} ${f.name}</button>`;
   }).join('');
 }
-window.updateActive = function(name) { buildDrawerFileList(name); };
+
+window.updateViewerActive = function(name) {
+  document.getElementById('viewer-title').innerText = `${name} — 174 Archive`;
+  document.getElementById('viewer-status').innerText = `Viewing: ${name}`;
+  buildViewerFileBar(name);
+};
+
 window.playAudio = function(url) { partyAudio.src = url; partyAudio.play(); };
 
 /* ============================================================
    SEARCH
    ============================================================ */
-document.getElementById('search-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
-document.getElementById('search-input').addEventListener('input', debounce(e => {
-  const q = e.target.value.trim();
-  if (q.length >= 2) renderSemesters(q);
-  else if (!q) renderSemesters();
-}, 350));
+document.addEventListener('DOMContentLoaded', () => {
+  const si = document.getElementById('search-input');
+  si.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+  si.addEventListener('input', debounce(e => {
+    const q = e.target.value.trim();
+    if (q.length >= 2) renderSemesters(q);
+    else if (!q) renderSemesters();
+  }, 350));
+});
 
 /* ============================================================
    BOOT
@@ -1243,13 +1685,74 @@ document.getElementById('search-input').addEventListener('input', debounce(e => 
 document.addEventListener('DOMContentLoaded', () => {
   toggleProtocol(true);
   init();
-
-  // Set search bar sticky top dynamically
-  const topNavH = document.getElementById('top-nav').offsetHeight;
-  document.getElementById('search-bar').style.top = `calc(22px + ${topNavH}px)`;
+  initSpotify();
 });
 
-function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+/* ============================================================
+   SPOTIFY NOW PLAYING
+   Polls /api/spotify-now-playing (Vercel serverless function).
+   Expected response: { isPlaying, title, artist, albumArt, progress, duration }
+   If the endpoint doesn't exist yet, it degrades silently.
+   ============================================================ */
+let spotifyTimer = null;
+
+async function fetchNowPlaying() {
+  try {
+    const res = await fetch('/api/spotify-now-playing');
+    if (!res.ok) { hideSpotifyBox(); return; }
+    const data = await res.json();
+
+    const trackEl   = document.getElementById('spotify-track');
+    const artistEl  = document.getElementById('spotify-artist');
+    const artEl     = document.getElementById('spotify-art');
+    const bar       = document.getElementById('spotify-progress-bar');
+    const dot       = document.getElementById('spotify-status-dot');
+
+    if (!data || !data.isPlaying) {
+      trackEl.innerText  = 'Nothing playing right now';
+      artistEl.innerText = '— offline mode —';
+      bar.style.width    = '0%';
+      dot.style.background = 'var(--win-dark)';
+      dot.title = 'Not playing';
+      artEl.innerHTML = '🎵';
+      artEl.style.backgroundImage = '';
+      return;
+    }
+
+    trackEl.innerText  = data.title  || '—';
+    artistEl.innerText = data.artist || '—';
+    dot.style.background = '#00CC44';
+    dot.title = 'Now playing';
+
+    if (data.albumArt) {
+      artEl.style.backgroundImage = `url(${data.albumArt})`;
+      artEl.style.backgroundSize  = 'cover';
+      artEl.style.backgroundPosition = 'center';
+      artEl.innerHTML = '';
+    } else {
+      artEl.innerHTML = '🎵';
+      artEl.style.backgroundImage = '';
+    }
+
+    if (data.duration && data.progress !== undefined) {
+      const pct = Math.min(100, Math.round((data.progress / data.duration) * 100));
+      bar.style.width = pct + '%';
+    }
+  } catch(e) {
+    // API not set up yet — hide gracefully
+    hideSpotifyBox();
+  }
+}
+
+function hideSpotifyBox() {
+  const box = document.getElementById('spotify-box');
+  if (box) box.style.display = 'none';
+}
+
+function initSpotify() {
+  fetchNowPlaying();
+  spotifyTimer = setInterval(fetchNowPlaying, 15000); // poll every 15s
+}
 </script>
 </body>
 </html>
