@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>VIRUS DOPAMIN 2.2 — CARDIOVICTUS</title>
+<title>DEATHPAMIN — CARDIOVICTUS 2.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -243,13 +243,13 @@ kbd { background: var(--surface-2); border: 1px solid var(--border); border-radi
 <!-- START -->
 <div id="start-screen">
   <div class="logo-row">
-    <div class="logo-wordmark">VIRUS <span>DOPAMIN</span> 2.2</div>
-    <div class="logo-tag">CARDIOVICTUS</div>
+    <div class="logo-wordmark">DEATHPAMIN <span>CARDIOVICTUS</span></div>
+    <div class="logo-tag">KAPSUL 2.2</div>
   </div>
   <div class="divider"></div>
   <div class="meta-row">
     <div class="meta-chip"><span class="dot"></span> Blok 2.2 — FK Unsoed</div>
-    <div class="meta-chip"><span class="dot"></span> Soal CBT 2 CARDIOVICTUS</div>
+    <div class="meta-chip"><span class="dot"></span> 82 Soal CARDIOVICTUS 2.2</div>
     <div class="meta-chip"><span class="dot"></span> Digestive & Nephrourinary System</div>
   </div>
   <div class="card" style="margin-bottom:12px;">
@@ -262,7 +262,7 @@ kbd { background: var(--surface-2); border: 1px solid var(--border); border-radi
       </button>
       <button class="mode-btn exam" onclick="startQuiz('exam')">
         <div class="mode-icon">⏱</div>
-        <div class="mode-text"><h3>Exam Mode</h3><p>Simulasi CBT nyata</p></div>
+        <div class="mode-text"><h3>Exam Mode</h3><p>Simulasi CBT nyata (82 soal, 82 menit)</p></div>
         <div class="mode-arr">›</div>
       </button>
       <button class="mode-btn drill" onclick="startQuiz('drill')">
@@ -451,13 +451,11 @@ const Q = [
 {n:77, q:"apakah yang dimaksud dengan laju filtrasi glomerulus (glomerular filtration rate)?", o:["jumlah urin yang dikeluarkan per hari","jumlah plasma yang difiltrasi glomerulus per satuan waktu (jawaban)","jumlah plasma yang masuk ke aorta","banyaknya reabsorpsi Na di ginjal","banyaknya glukosa yang difiltrasi di kapsula bowman"], a:"jumlah plasma yang difiltrasi glomerulus per satuan waktu (jawaban)", exp:"<strong>Penjelasan Panjang:</strong> GFR = volume filtrat yang dibentuk per menit (~125 ml/menit) = Kf × NFP.<br><br><strong>Penjelasan Ringkas:</strong> GFR = plasma difiltrasi per satuan waktu di glomerulus.", src:"K24 - 2026 - fisiologi nefro urin 2"},
 {n:78, q:"13. Berdasarkan prinsip Specific Dynamic Action (SDA) atau efek termik makanan, makronutrien dengan penyerapan/metabolisme tertinggi dan pelepasan panas terbesar adalah", o:["Glukosa sederhana","Asam lemak","Protein (jawaban)","Glukosa kompleks","Serat makanan"], a:"Protein (jawaban)", exp:"<strong>Penjelasan Panjang:</strong> SDA/TEF tertinggi pada protein (~30%) karena proses deaminasi, transaminasi, sintesis urea.<br><br><strong>Penjelasan Ringkas:</strong> Protein punya SDA tertinggi (panas metabolik terbesar).", src:"K19_Fisiologi Metabolisme dan Bioenergi"},
 {n:79, q:"Seorang pria 45 tahun mengeluhkan nyeri kolik pada abdomen/punggung yang berpindah-pindah dan sering terasa saat berdiri. Pasien didiagnosis dengan ren mobilis. Penyebab utama kondisi tersebut adalah...", o:["Penurunan jumlah lemak pararenal yang mengganggu fiksasi ginjal","Atrofi lemak perirenal yang menyebabkan ginjal mudah bergerak","Peningkatan tekanan intraabdomen","Kapsula fibrosa sebagai penopang utama"], a:"Atrofi lemak perirenal yang menyebabkan ginjal mudah bergerak", exp:"<strong>Penjelasan Panjang:</strong> Ren mobilis (wandering kidney) karena hilangnya bantalan lemak perirenal → ginjal turun saat berdiri.<br><br><strong>Penjelasan Ringkas:</strong> Ren mobilis = atrofi lemak perirenal.", src:"PPT K20 ANATOMI URINARIA"},
-// Soal 80-82 diisi sesuai kapsul halaman terakhir (PDF page 30)
 {n:80, q:"apakah yang dimaksud dengan laju filtrasi glomerulus (glomerular filtration rate)?", o:["jumlah urin yang dikeluarkan per hari","jumlah plasma yang difiltrasi glomerulus per satuan waktu","jumlah plasma yang masuk ke aorta","banyaknya reabsorpsi Na di ginjal","banyaknya glukosa yang difiltrasi di kapsula bowman"], a:"jumlah plasma yang difiltrasi glomerulus per satuan waktu", exp:"<strong>Penjelasan Panjang:</strong> GFR adalah laju pembentukan filtrat per menit. Koefisien filtrasi (Kf) tergantung pada permeabilitas dan luas permukaan membran filtrasi. GFR = NFP × Kf ≈ 125 ml/min atau 180 L/hari. NFP ≈ 10 mmHg, Kf ≈ 12,5 ml/min.mmHg. 99% filtrat direabsorbsi → 1 s/d 2 L ekskresi urin.<br><br><strong>Penjelasan Ringkas:</strong> GFR = jumlah plasma yang difiltrasi glomerulus per satuan waktu.", src:"K24 - 2026 - fisiologi nefro urin 2"},
 {n:81, q:"13. Berdasarkan prinsip Specific Dynamic Action (SDA) atau efek termik makanan, makronutrien dengan penyerapan/metabolisme tertinggi dan pelepasan panas terbesar adalah", o:["Glukosa sederhana","Asam lemak","Protein","Glukosa kompleks","Serat makanan"], a:"Protein", exp:"<strong>Penjelasan Panjang:</strong> Dikenal juga sebagai Thermic Effect of Food (TEF). Peningkatan laju metabolisme akibat proses ingestif dan pengolahan makanan. Energi dibutuhkan untuk sekresi enzim, transpor aktif nutrien, dan sintesis protein. Protein memiliki efek SDA tertinggi (~30% di atas basal). Karbohidrat dan lemak memiliki efek SDA yang lebih rendah (~5-10%).<br><br><strong>Penjelasan Ringkas:</strong> Protein punya SDA tertinggi (panas metabolik terbesar).", src:"K19_Fisiologi Metabolisme dan Bioenergi"},
 {n:82, q:"Seorang pria 45 tahun mengeluhkan nyeri kolik pada abdomen/punggung yang berpindah-pindah dan sering terasa saat berdiri. Pasien didiagnosis dengan ren mobilis. Penyebab utama kondisi tersebut adalah...", o:["Penurunan jumlah lemak pararenal yang mengganggu fiksasi ginjal","Atrofi lemak perirenal yang menyebabkan ginjal mudah bergerak","Peningkatan tekanan intraabdomen","Kapsula fibrosa sebagai penopang utama"], a:"Atrofi lemak perirenal yang menyebabkan ginjal mudah bergerak", exp:"<strong>Penjelasan Panjang:</strong> Ren mobilis (wandering kidney) disebabkan hilangnya bantalan lemak perirenal sehingga ginjal mudah bergerak/turun saat berdiri (fiksasi ginjal terganggu).<br><br><strong>Penjelasan Ringkas:</strong> Ren mobilis = atrofi lemak perirenal.", src:"PPT K20 ANATOMI URINARIA"}
 ];
 
- // ═══ STATE & fungsi lain sama persis seperti template asli (tidak diubah) ═══
 let mode='study', current=0, answered={}, flags=new Set(), streak=0;
 let timerInterval=null, timeLeft=0, drillActive=false;
 
@@ -472,7 +470,7 @@ function startQuiz(m){
   const labels={study:'Study',exam:'Exam',drill:'Drill ⚡'};
   document.getElementById('mode-lbl').textContent=labels[m];
   if(m==='exam'){
-    timeLeft=Q.length*60; // sesuaikan dengan jumlah soal
+    timeLeft=82*60;
     document.getElementById('timer-el').style.display='block';
     updateTimer();
     timerInterval=setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){clearInterval(timerInterval);showResult();} },1000);
@@ -486,8 +484,6 @@ function updateTimer(){
   el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   el.className='timer-badge'+(timeLeft<300?' danger':timeLeft<600?' warning':'');
 }
-
-// renderQ, selectAnswer, drillReset, navigate, goToQ, submitExam, closeOverlay, toggleFlag, buildMap, updateMap, showResult, reviewMode, updateStats, showStreak, goHome, keydown listener — SEMUA SAMA PERSIS DENGAN TEMPLATE ASLI (tidak diubah)
 
 function renderQ(){
   const q=Q[current];
@@ -557,8 +553,50 @@ function selectAnswer(ci){
   updateMap(); updateStats();
 }
 
-// fungsi-fungsi lain (drillReset, navigate, dll) tetap sama seperti di template asli
-// (kode lengkap fungsi-fungsi tersebut sama persis, hanya Q.length yang otomatis menyesuaikan)
+function drillReset(){
+  document.getElementById('drill-reset-overlay').classList.remove('show');
+  answered={}; flags=new Set(); streak=0; current=0; renderQ();
+}
+
+function navigate(dir){
+  if(mode==='drill'){ if(dir<0) return; if(answered[current]===undefined&&dir>0) return; if(current===Q.length-1&&dir>0){showResult();return;} current+=dir; renderQ(); return; }
+  if(mode==='exam'&&dir>0&&current===Q.length-1){ document.getElementById('exam-overlay').classList.add('show'); return; }
+  if(mode==='study'&&dir>0&&current===Q.length-1){ showResult(); return; }
+  current=Math.max(0,Math.min(Q.length-1,current+dir)); renderQ();
+}
+
+function goToQ(idx){ if(mode==='drill') return; current=idx; renderQ(); }
+function submitExam(){ clearInterval(timerInterval); closeOverlay(); showResult(); }
+function closeOverlay(){ document.getElementById('exam-overlay').classList.remove('show'); }
+function toggleFlag(){ if(flags.has(current)) flags.delete(current); else flags.add(current); document.getElementById('btn-flag').classList.toggle('flagged',flags.has(current)); updateMap(); }
+
+function buildMap(){
+  const g=document.getElementById('q-map'); g.innerHTML='';
+  Q.forEach((_,i)=>{ const d=document.createElement('button'); d.className='q-dot'; d.textContent=i+1; d.setAttribute('aria-label',`Soal ${i+1}`); d.onclick=()=>goToQ(i); g.appendChild(d); });
+}
+function updateMap(){
+  document.querySelectorAll('.q-dot').forEach((d,i)=>{ d.className='q-dot'; if(i===current) d.classList.add('current'); if(answered[i]!==undefined) d.classList.add(answered[i].correct?'answered':'wrong'); if(flags.has(i)) d.classList.add('flagged-dot'); });
+}
+
+function showResult(){
+  if(timerInterval) clearInterval(timerInterval);
+  const corr=Object.values(answered).filter(a=>a.correct).length;
+  const wrong=Object.values(answered).filter(a=>!a.correct).length;
+  const skip=Q.length-Object.keys(answered).length;
+  document.getElementById('quiz-screen').style.display='none';
+  document.getElementById('result-screen').style.display='block';
+  document.getElementById('r-score').innerHTML=`${corr}<span>/${Q.length}</span>`;
+  document.getElementById('r-sub').textContent=`Kamu menjawab ${corr} benar dari ${Q.length} soal`;
+  document.getElementById('r-correct').textContent=corr;
+  document.getElementById('r-wrong').textContent=wrong;
+  document.getElementById('r-skip').textContent=skip;
+  updateStats();
+}
+
+function reviewMode(){ document.getElementById('result-screen').style.display='none'; document.getElementById('quiz-screen').style.display='block'; current=0; mode='study'; document.getElementById('mode-lbl').textContent='Review'; document.getElementById('q-map-wrap').style.display='block'; buildMap(); renderQ(); }
+function updateStats(){ const done=Object.keys(answered).length; const corr=Object.values(answered).filter(a=>a.correct).length; document.getElementById('s-done').textContent=done; document.getElementById('s-pct').textContent=done>0?Math.round(corr/done*100)+'%':'—'; }
+function showStreak(n){ const t=document.getElementById('streak-toast'); t.textContent=`🔥 ${n}× Streak Benar!`; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+function goHome(){ if(timerInterval) clearInterval(timerInterval); document.getElementById('drill-reset-overlay').classList.remove('show'); document.getElementById('exam-overlay').classList.remove('show'); document.getElementById('quiz-screen').style.display='none'; document.getElementById('result-screen').style.display='none'; document.getElementById('start-screen').style.display='block'; answered={}; updateStats(); }
 
 document.addEventListener('keydown',(e)=>{
   if(document.getElementById('quiz-screen').style.display==='none') return;
