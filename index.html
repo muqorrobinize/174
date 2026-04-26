@@ -193,6 +193,7 @@ body {
 .ticker-seg { white-space: nowrap; padding: 0 48px; font-size: 10px; color: #FFFFFF; font-weight: bold; font-family: 'Tahoma', Arial, sans-serif; letter-spacing: 0.03em; }
 .ticker-seg a { color: #FFFF88; text-decoration: underline; }
 @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+@keyframes vNpW { 0%,100%{transform:scaleY(0.3)} 50%{transform:scaleY(1)} }
 
 /* ============================================================
    TASKBAR (bottom)
@@ -1056,6 +1057,20 @@ a { color: var(--win-link); text-decoration: underline; }
       <span class="menu-item"><span class="underline">E</span>dit</span>
       <span class="menu-item"><span class="underline">V</span>iew</span>
       <span class="menu-item" onclick="toggleViewerFullscreen()" style="gap:3px;">⛶ Fullscreen</span>
+      <!-- SOUND CONTROL (hidden until CBT iframe announces hasSoundEngine) -->
+      <span id="viewer-sound-ctrl" class="menu-item" style="display:none;gap:4px;margin-left:8px;cursor:pointer;" onclick="toggleIframeSound()" title="Toggle Sound Effects">
+        <span id="viewer-sound-icon">🔇</span>
+        <span id="viewer-sound-label" style="font-size:10px;letter-spacing:0.03em;">SFX</span>
+      </span>
+      <!-- NOW PLAYING STRIP -->
+      <span id="viewer-np-strip" style="display:none;align-items:center;gap:4px;margin-left:4px;font-size:10px;color:#00AA44;font-family:Tahoma,Arial,sans-serif;max-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">
+        <span style="display:flex;align-items:flex-end;gap:1px;height:12px;" id="viewer-np-waves">
+          <span style="width:2px;background:#00AA44;border-radius:1px;animation:vNpW 0.8s ease-in-out infinite;height:4px;"></span>
+          <span style="width:2px;background:#00AA44;border-radius:1px;animation:vNpW 0.8s ease-in-out 0.15s infinite;height:10px;"></span>
+          <span style="width:2px;background:#00AA44;border-radius:1px;animation:vNpW 0.8s ease-in-out 0.3s infinite;height:7px;"></span>
+        </span>
+        <span id="viewer-np-text" style="overflow:hidden;text-overflow:ellipsis;">—</span>
+      </span>
       <span class="menu-item" onclick="closeViewer()" style="margin-left:auto;">✕ Close</span>
     </div>
     <div id="viewer-file-bar" style="background:var(--win-face);border-bottom:1px solid var(--bevel-dark);padding:3px 6px;display:none;overflow-x:auto;">
@@ -1777,7 +1792,77 @@ function renderFiles(semKey, blokKey, subKey) {
 /* ============================================================
    VIEWER
    ============================================================ */
+/* ============================================================
+   IFRAME SOUND BRIDGE
+   ============================================================ */
+let iframeSoundEnabled = false;
+let iframeHasSoundEngine = false;
+
+function setViewerSoundUI(enabled, track) {
+  const ctrl = document.getElementById('viewer-sound-ctrl');
+  const icon = document.getElementById('viewer-sound-icon');
+  const label = document.getElementById('viewer-sound-label');
+  const npStrip = document.getElementById('viewer-np-strip');
+  const npText = document.getElementById('viewer-np-text');
+
+  iframeSoundEnabled = enabled;
+  icon.textContent = enabled ? '🔊' : '🔇';
+  label.textContent = enabled ? 'SFX: ON' : 'SFX';
+  ctrl.style.color = enabled ? '#00AA44' : '';
+
+  if (track && enabled) {
+    npStrip.style.display = 'flex';
+    npText.textContent = track;
+  } else {
+    npStrip.style.display = 'none';
+  }
+}
+
+window.toggleIframeSound = function() {
+  const frame = document.getElementById('viewer-frame');
+  if (!frame.contentWindow || !iframeHasSoundEngine) return;
+  iframeSoundEnabled = !iframeSoundEnabled;
+  frame.contentWindow.postMessage({
+    __source: '174-archive',
+    cmd: iframeSoundEnabled ? 'sound-on' : 'sound-off'
+  }, '*');
+  setViewerSoundUI(iframeSoundEnabled, null);
+};
+
+window.addEventListener('message', function(e) {
+  if (!e.data || typeof e.data !== 'object' || e.data.__source !== 'cbt-child') return;
+  const d = e.data;
+  const frame = document.getElementById('viewer-frame');
+
+  switch(d.cmd) {
+    case 'ready':
+      if (d.hasSoundEngine) {
+        iframeHasSoundEngine = true;
+        document.getElementById('viewer-sound-ctrl').style.display = '';
+        // Query current state
+        if (frame.contentWindow) {
+          frame.contentWindow.postMessage({ __source: '174-archive', cmd: 'sound-query' }, '*');
+        }
+      }
+      break;
+    case 'sound-status':
+      setViewerSoundUI(d.enabled, d.npVisible ? d.nowPlaying : null);
+      break;
+    case 'now-playing-update':
+      setViewerSoundUI(d.enabled, d.track);
+      break;
+  }
+});
+
+function resetViewerSoundUI() {
+  iframeHasSoundEngine = false;
+  iframeSoundEnabled = false;
+  document.getElementById('viewer-sound-ctrl').style.display = 'none';
+  document.getElementById('viewer-np-strip').style.display = 'none';
+}
+
 window.openViewer = function(url, name) {
+  resetViewerSoundUI();
   document.getElementById('viewer-frame').src = url;
   document.getElementById('viewer-title').innerText = `${name} — 174 Archive`;
   document.getElementById('viewer-status').innerText = `Viewing: ${name}`;
@@ -1791,6 +1876,7 @@ window.closeViewer = function() {
   document.getElementById('viewer-overlay').classList.remove('open');
   document.body.style.overflow = '';
   document.getElementById('taskbar-viewer-btn').style.display = 'none';
+  resetViewerSoundUI();
   setTimeout(() => { document.getElementById('viewer-frame').src = ''; }, 300);
 };
 
