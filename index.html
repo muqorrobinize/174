@@ -539,6 +539,12 @@ body {
   padding-top: 20px; padding-bottom: 32px;
 }
 #viewer-overlay.open { display: flex; }
+/* fullscreen-browser mode: expand to cover ticker & taskbar */
+#viewer-overlay.fullscreen-browser {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  z-index: 9999;
+}
 #viewer-win {
   flex: 1; display: flex; flex-direction: column;
   background: var(--win-face); overflow: hidden;
@@ -548,7 +554,8 @@ body {
   border-bottom: 2px solid var(--bevel-darker);
   margin: 4px;
 }
-#viewer-frame { flex: 1; border: none; background: #FFF; }
+#viewer-overlay.fullscreen-browser #viewer-win { margin: 0; border: none; }
+#viewer-frame { flex: 1; border: none; background: #FFF; width: 100%; }
 
 /* ============================================================
    START MENU OVERLAY
@@ -616,6 +623,26 @@ body {
   .taskbar-clock { font-size: 10px; }
   #header-win { margin-bottom: 10px; }
   .window { margin-bottom: 10px !important; }
+
+  /* Mobile: exp-row bigger tap target */
+  .exp-row { min-height: 38px; }
+  /* Mobile: viewer fullscreen by default when opened */
+  #viewer-overlay { padding-top: 20px; padding-bottom: 36px; }
+  /* Mobile: hide col-hd-type on very narrow */
+  .menu-item { padding: 2px 5px; font-size: 10px; }
+  /* Mobile: taskbar compact */
+  .taskbar-app { padding: 3px 6px; font-size: 10px; max-width: 80px; }
+  /* Mobile: start-menu wider */
+  #start-menu { width: 200px; }
+  /* Mobile: dialog fits screen */
+  .dialog-box { max-width: 98vw !important; }
+  .dialog-body { padding: 10px 10px; }
+  .dialog-rule-box { padding: 6px 8px; }
+
+  /* Mobile viewer: file bar scroll friendly */
+  #viewer-file-bar { padding: 4px; }
+  #viewer-file-list { gap: 3px; }
+  #viewer-file-list button { padding: 4px 8px !important; font-size: 11px !important; }
 }
 
 /* ============================================================
@@ -624,7 +651,7 @@ body {
 @import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Lilita+One&family=Righteous&family=Fredoka+One&family=Bubblegum+Sans&display=swap');
 
 :root {
-  --y2k-pink:   #FF2DAF;
+  --y2k-pink:   #FFD700;
   --y2k-cyan:   #00FFEE;
   --y2k-yellow: #FFE400;
   --y2k-green:  #39FF14;
@@ -635,7 +662,7 @@ body {
 .hw-app-name {
   font-family: 'Lilita One', 'Fredoka One', Impact, Arial Black, sans-serif !important;
   font-size: clamp(22px, 8vw, 42px) !important;
-  background: linear-gradient(90deg, #FF2DAF 0%, #FF7700 25%, #FFE400 50%, #39FF14 75%, #00FFEE 100%);
+  background: linear-gradient(90deg, #FFD700 0%, #FF7700 25%, #FFE400 50%, #39FF14 75%, #00FFEE 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -644,7 +671,7 @@ body {
   filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.3));
 }
 .hw-app-name span {
-  background: linear-gradient(90deg, #00FFEE 0%, #CC00FF 50%, #FF2DAF 100%);
+  background: linear-gradient(90deg, #00FFEE 0%, #CC00FF 50%, #FFD700 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -661,7 +688,7 @@ body {
 
 .hw-blok-badge {
   font-family: 'Righteous', 'Boogaloo', Arial, sans-serif !important;
-  background: linear-gradient(135deg, #CC00FF, #FF2DAF) !important;
+  background: linear-gradient(135deg, #CC00FF, #FFD700) !important;
   border: 2px solid #FFE400;
   font-size: 10px !important;
   letter-spacing: 0.08em;
@@ -677,7 +704,7 @@ body {
 .sm-sidebar-text {
   font-family: 'Lilita One', Impact, Arial Black, sans-serif !important;
   font-size: 15px !important;
-  background: linear-gradient(180deg, #FF2DAF, #FFE400, #39FF14);
+  background: linear-gradient(180deg, #FFD700, #FFE400, #39FF14);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -692,7 +719,7 @@ body {
 .info-box-title {
   font-family: 'Righteous', 'Boogaloo', Arial, sans-serif !important;
   font-size: 12px !important;
-  background: linear-gradient(90deg, #000080, #CC00FF) !important;
+  background: linear-gradient(90deg, #000080, #CC8800) !important;
   letter-spacing: 0.05em;
 }
 
@@ -722,12 +749,12 @@ body {
 }
 
 .dialog-text strong, .dialog-rule-text strong {
-  color: var(--y2k-pink) !important;
+  color: var(--y2k-yellow) !important;
 }
 
 .win-btn.win-btn-default {
   font-family: 'Righteous', Arial, sans-serif !important;
-  background: linear-gradient(135deg, var(--win-face), #D8D0FF) !important;
+  background: linear-gradient(135deg, var(--win-face), #FFFDD0) !important;
 }
 
 /* ============================================================
@@ -1019,15 +1046,16 @@ a { color: var(--win-link); text-decoration: underline; }
         <span class="title-bar-text" id="viewer-title">Document Viewer — 174.exe</span>
       </div>
       <div class="title-bar-btns">
-        <div class="title-btn">_</div>
-        <div class="title-btn">□</div>
-        <div class="title-btn" onclick="closeViewer()" style="color:var(--win-red);font-weight:bold;">✕</div>
+        <div class="title-btn" onclick="minimizeViewer()" title="Minimize">_</div>
+        <div class="title-btn" onclick="toggleViewerFullscreen()" id="viewer-fs-btn" title="Fullscreen">□</div>
+        <div class="title-btn" onclick="closeViewer()" style="color:var(--win-red);font-weight:bold;" title="Close">✕</div>
       </div>
     </div>
     <div class="menu-bar">
       <span class="menu-item"><span class="underline">F</span>ile</span>
       <span class="menu-item"><span class="underline">E</span>dit</span>
       <span class="menu-item"><span class="underline">V</span>iew</span>
+      <span class="menu-item" onclick="toggleViewerFullscreen()" style="gap:3px;">⛶ Fullscreen</span>
       <span class="menu-item" onclick="closeViewer()" style="margin-left:auto;">✕ Close</span>
     </div>
     <div id="viewer-file-bar" style="background:var(--win-face);border-bottom:1px solid var(--bevel-dark);padding:3px 6px;display:none;overflow-x:auto;">
@@ -1114,9 +1142,9 @@ a { color: var(--win-link); text-decoration: underline; }
         <span class="title-bar-text">174.exe — Archive</span>
       </div>
       <div class="title-bar-btns">
-        <div class="title-btn">_</div>
-        <div class="title-btn">□</div>
-        <div class="title-btn" style="color:var(--win-red);">✕</div>
+        <div class="title-btn" onclick="minimizeWindow('header-win','header-taskbar-btn')" title="Minimize">_</div>
+        <div class="title-btn" onclick="maximizeWindow('header-win')" title="Maximize">□</div>
+        <div class="title-btn" onclick="hideWindow('header-win','header-taskbar-btn')" style="color:var(--win-red);" title="Close">✕</div>
       </div>
     </div>
     <div class="menu-bar">
@@ -1208,9 +1236,9 @@ a { color: var(--win-link); text-decoration: underline; }
         <span class="title-bar-text" id="explorer-title">My Computer — 174 Archive</span>
       </div>
       <div class="title-bar-btns">
-        <div class="title-btn">_</div>
-        <div class="title-btn">□</div>
-        <div class="title-btn" style="color:var(--win-red);">✕</div>
+        <div class="title-btn" onclick="minimizeWindow('explorer-win','explorer-taskbar-btn')" title="Minimize">_</div>
+        <div class="title-btn" onclick="maximizeWindow('explorer-win')" title="Maximize">□</div>
+        <div class="title-btn" onclick="hideWindow('explorer-win','explorer-taskbar-btn')" style="color:var(--win-red);" title="Close">✕</div>
       </div>
     </div>
     <div id="explorer-pane">
@@ -1246,6 +1274,12 @@ a { color: var(--win-link); text-decoration: underline; }
   <div id="taskbar-viewer-btn" class="taskbar-app" style="display:none;" onclick="toggleViewerTask()">
     <span>📄</span> Viewer
   </div>
+  <div id="header-taskbar-btn" class="taskbar-app" style="display:none;" onclick="restoreWindow('header-win','header-taskbar-btn')">
+    <span>🗂️</span> Header
+  </div>
+  <div id="explorer-taskbar-btn" class="taskbar-app" style="display:none;" onclick="restoreWindow('explorer-win','explorer-taskbar-btn')">
+    <span>💻</span> Explorer
+  </div>
   <div class="taskbar-clock">
     <div class="sys-tray-dot" id="sys-dot"></div>
     <span id="sys-status-bar">SYS_ACTIVE</span>
@@ -1267,6 +1301,127 @@ let activeSubFolderFiles = [];
 let xpCount = 0;
 const partyAudio = document.getElementById('party-audio');
 let foundMusicUrl = null;
+
+/* ============================================================
+   WINDOW MANAGEMENT (minimize / maximize / hide / restore)
+   ============================================================ */
+const winState = {}; // { winId: { minimized, maximized, origStyle } }
+
+window.hideWindow = function(winId, taskBtnId) {
+  const el = document.getElementById(winId);
+  if (!el) return;
+  el.style.display = 'none';
+  if (taskBtnId) {
+    const btn = document.getElementById(taskBtnId);
+    if (btn) btn.style.display = '';
+  }
+};
+
+window.restoreWindow = function(winId, taskBtnId) {
+  const el = document.getElementById(winId);
+  if (!el) return;
+  el.style.display = '';
+  if (taskBtnId) {
+    const btn = document.getElementById(taskBtnId);
+    if (btn) btn.style.display = 'none';
+  }
+};
+
+window.minimizeWindow = function(winId, taskBtnId) {
+  // Collapse to title bar only
+  const el = document.getElementById(winId);
+  if (!el) return;
+  if (!winState[winId]) winState[winId] = {};
+  if (winState[winId].minimized) {
+    // restore
+    winState[winId].minimized = false;
+    Array.from(el.children).forEach((c, i) => { if (i > 0) c.style.display = ''; });
+    if (taskBtnId) { const b = document.getElementById(taskBtnId); if(b) b.style.display='none'; }
+  } else {
+    // minimize
+    winState[winId].minimized = true;
+    Array.from(el.children).forEach((c, i) => { if (i > 0) c.style.display = 'none'; });
+    if (taskBtnId) { const b = document.getElementById(taskBtnId); if(b) b.style.display=''; }
+  }
+};
+
+window.maximizeWindow = function(winId) {
+  const el = document.getElementById(winId);
+  if (!el) return;
+  if (!winState[winId]) winState[winId] = {};
+  if (winState[winId].maximized) {
+    // restore
+    winState[winId].maximized = false;
+    el.style.position = '';
+    el.style.top = '';
+    el.style.left = '';
+    el.style.right = '';
+    el.style.bottom = '';
+    el.style.zIndex = '';
+    el.style.margin = '';
+    el.style.width = '';
+  } else {
+    // maximize — overlay the desktop
+    winState[winId].maximized = true;
+    el.style.position = 'fixed';
+    el.style.top = '20px';
+    el.style.left = '0';
+    el.style.right = '0';
+    el.style.bottom = '32px';
+    el.style.zIndex = '350';
+    el.style.margin = '0';
+    el.style.width = '100%';
+  }
+};
+
+/* ============================================================
+   VIEWER FULLSCREEN (browser-level, no padding)
+   ============================================================ */
+window.toggleViewerFullscreen = function() {
+  const vo = document.getElementById('viewer-overlay');
+  const btn = document.getElementById('viewer-fs-btn');
+  const isFull = vo.classList.contains('fullscreen-browser');
+
+  if (!isFull) {
+    // Try native fullscreen API first (device fullscreen)
+    const el = document.getElementById('viewer-win');
+    if (el.requestFullscreen) {
+      el.requestFullscreen().catch(() => {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    vo.classList.add('fullscreen-browser');
+    if (btn) btn.textContent = '❐';
+    if (btn) btn.title = 'Restore';
+  } else {
+    // Exit fullscreen
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+    vo.classList.remove('fullscreen-browser');
+    if (btn) btn.textContent = '□';
+    if (btn) btn.title = 'Fullscreen';
+  }
+};
+
+// Sync when user presses ESC to exit native fullscreen
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    const vo = document.getElementById('viewer-overlay');
+    const btn = document.getElementById('viewer-fs-btn');
+    vo && vo.classList.remove('fullscreen-browser');
+    if (btn) { btn.textContent = '□'; btn.title = 'Fullscreen'; }
+  }
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  if (!document.webkitFullscreenElement) {
+    const vo = document.getElementById('viewer-overlay');
+    const btn = document.getElementById('viewer-fs-btn');
+    vo && vo.classList.remove('fullscreen-browser');
+    if (btn) { btn.textContent = '□'; btn.title = 'Fullscreen'; }
+  }
+});
 
 /* ============================================================
    CLOCK
