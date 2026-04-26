@@ -1078,10 +1078,10 @@ let winFadeTimer = null;
 // Probe a specific list of filenames in a folder prefix
 function probeFileList(prefix, names){
   return Promise.all(names.map(name => new Promise(resolve => {
-    const path = prefix + name;
+    const path = prefix + encodeURIComponent(name);
     const a = new Audio();
-    a.addEventListener('canplaythrough', ()=>resolve(path), {once:true});
-    a.addEventListener('loadedmetadata', ()=>resolve(path), {once:true});
+    a.addEventListener('canplaythrough', ()=>resolve(prefix + name), {once:true});
+    a.addEventListener('loadedmetadata', ()=>resolve(prefix + name), {once:true});
     a.addEventListener('error', ()=>resolve(null), {once:true});
     a.preload = 'metadata';
     a.src = path;
@@ -1089,44 +1089,36 @@ function probeFileList(prefix, names){
   }))).then(r => r.filter(Boolean));
 }
 
-// Known filenames in the repo (from alchemist4real/174)
-const WIN_FILES  = [
-  'DJ DORA DORA BOOTLEG VIRAL TIKTOK DIRGA YETE YANG KALIAN CARI CARI\uD83C\uDFA7.mp3',
-  'DJ NAMAKU BENTO RUMAH REAL ESTATE MOBILKU BANYAK SLOWED VERSI TIKTOK VIRAL TERBARU 2026_join.mp3',
-  'DJ SAYANG CINTAKU INI ISTIMEWA TAK PEDULI ENGKAU SIAPA BREAKBEAT REMIX TIKTOK VIRAL TERBARU 2026 \uD83D\uDD25\uD83D\uDD25_[cut_31sec].mp3',
-  'dj-kicau-mania.mp3'
-];
-const LOSE_FILES = [
-  'hidup-jokowi.mp3',
-  'jokowi-saya-akan-lawan.mp3',
-  'wiwok-detok.mp3'
-];
+async function fetchDirectory(folder) {
+  try {
+    const res = await fetch(`/api/content?folder=${folder}`);
+    if(res.ok) {
+      const data = await res.json();
+      return data.filter(f => /\.mp3$/i.test(f.name)).map(f => f.name);
+    }
+  } catch(e) {}
+  
+  try {
+    const res = await fetch(`https://api.github.com/repos/alchemist4real/174/contents/${folder}`);
+    if(res.ok) {
+      const data = await res.json();
+      return data.filter(f => /\.mp3$/i.test(f.name)).map(f => f.name);
+    }
+  } catch(e) {}
+  
+  return Array.from({length: 20}, (_, i) => `${i+1}.mp3`);
+}
 
 async function initAudio(){
   if(audioReady) return;
   audioReady = true;
   try {
-    // 1) Try fetching file list via Vercel API
-    let wNames = WIN_FILES, lNames = LOSE_FILES;
-    try {
-      const [rw, rl] = await Promise.all([
-        fetch('/api/content?folder=win').then(r=>r.ok?r.json():[]),
-        fetch('/api/content?folder=lose').then(r=>r.ok?r.json():[])
-      ]);
-      if(rw.length) wNames = rw.filter(f=>/\.mp3$/i.test(f.name)).map(f=>f.name);
-      if(rl.length) lNames = rl.filter(f=>/\.mp3$/i.test(f.name)).map(f=>f.name);
-    } catch(e){ /* API unavailable, use hardcoded names */ }
+    const [wNames, lNames] = await Promise.all([ fetchDirectory('win'), fetchDirectory('lose') ]);
 
-    // 2) Probe ../win/ (from kuis/ subfolder) then ./win/ (same level)
-    const [wA, wB] = await Promise.all([
-      probeFileList('../win/', wNames),
-      probeFileList('./win/', wNames)
-    ]);
+    const [wA, wB] = await Promise.all([ probeFileList('../win/', wNames), probeFileList('./win/', wNames) ]);
     winFiles = wA.length ? wA : wB;
-    const [lA, lB] = await Promise.all([
-      probeFileList('../lose/', lNames),
-      probeFileList('./lose/', lNames)
-    ]);
+
+    const [lA, lB] = await Promise.all([ probeFileList('../lose/', lNames), probeFileList('./lose/', lNames) ]);
     loseFiles = lA.length ? lA : lB;
   } catch(e){
     winFiles=[]; loseFiles=[];
@@ -1299,6 +1291,13 @@ function toggleSound(enabled){
     stat.textContent = 'OFF';
     stopWinMusic(false);
     updateNowPlaying(null);
+  } 
+  if(window.parent && window.parent !== window){
+    window.parent.postMessage({
+      __source: 'cbt-child', cmd: 'sound-status', enabled: soundEnabled,
+      nowPlaying: document.getElementById('np-text') ? document.getElementById('np-text').textContent : null,
+      npVisible: document.getElementById('now-playing-bar') ? document.getElementById('now-playing-bar').classList.contains('show') : false
+    }, '*');
   }
 }
 
