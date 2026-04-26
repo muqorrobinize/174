@@ -1115,11 +1115,19 @@ async function initAudio(){
   try {
     const [wNames, lNames] = await Promise.all([ fetchDirectory('win'), fetchDirectory('lose') ]);
 
-    const [wA, wB] = await Promise.all([ probeFileList('../win/', wNames), probeFileList('./win/', wNames) ]);
-    winFiles = wA.length ? wA : wB;
+    const [wA, wB, wC] = await Promise.all([ 
+      probeFileList('../win/', wNames), 
+      probeFileList('./win/', wNames),
+      probeFileList('https://raw.githubusercontent.com/alchemist4real/174/main/win/', wNames)
+    ]);
+    winFiles = wA.length ? wA : (wB.length ? wB : wC);
 
-    const [lA, lB] = await Promise.all([ probeFileList('../lose/', lNames), probeFileList('./lose/', lNames) ]);
-    loseFiles = lA.length ? lA : lB;
+    const [lA, lB, lC] = await Promise.all([ 
+      probeFileList('../lose/', lNames), 
+      probeFileList('./lose/', lNames),
+      probeFileList('https://raw.githubusercontent.com/alchemist4real/174/main/lose/', lNames)
+    ]);
+    loseFiles = lA.length ? lA : (lB.length ? lB : lC);
   } catch(e){
     winFiles=[]; loseFiles=[];
   }
