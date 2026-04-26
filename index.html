@@ -1605,7 +1605,6 @@ async function init() {
     if (rm.ok) { const mf = await rm.json(); const ta = mf.find(f => /\.(mp3|wav)$/i.test(f.name)); if (ta) foundMusicUrl = `music/${ta.name}`; }
   } catch(e) {}
 }
-
 /* ============================================================
    SEMESTER ICONS & FOLDER TYPES
    ============================================================ */
