@@ -1231,6 +1231,57 @@ function toggleSound(enabled){
 // END AUDIO ENGINE
 // ══════════════════════════════════════════
 
+// ══════════════════════════════════════════
+// POSTMESSAGE BRIDGE (parent iframe controller)
+// ══════════════════════════════════════════
+window.addEventListener('message', function(e) {
+  const d = e.data;
+  if (!d || typeof d !== 'object' || d.__source !== '174-archive') return;
+  switch(d.cmd) {
+    case 'sound-on':
+      toggleSound(true);
+      const inp = document.getElementById('sound-toggle-input');
+      if (inp) inp.checked = true;
+      break;
+    case 'sound-off':
+      toggleSound(false);
+      const inp2 = document.getElementById('sound-toggle-input');
+      if (inp2) inp2.checked = false;
+      break;
+    case 'sound-query':
+      // reply with current sound state + now-playing info
+      e.source.postMessage({
+        __source: 'cbt-child',
+        cmd: 'sound-status',
+        enabled: soundEnabled,
+        nowPlaying: document.getElementById('np-text') ? document.getElementById('np-text').textContent : null,
+        npVisible: document.getElementById('now-playing-bar') ? document.getElementById('now-playing-bar').classList.contains('show') : false
+      }, '*');
+      break;
+  }
+});
+
+// Notify parent when now-playing changes
+const _origUpdateNowPlaying = updateNowPlaying;
+function updateNowPlaying(filename) {
+  _origUpdateNowPlaying(filename);
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      __source: 'cbt-child',
+      cmd: 'now-playing-update',
+      track: filename,
+      enabled: soundEnabled
+    }, '*');
+  }
+}
+
+// Announce readiness to parent
+window.addEventListener('load', function() {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ __source: 'cbt-child', cmd: 'ready', hasSoundEngine: true }, '*');
+  }
+});
+
 document.addEventListener('keydown',e=>{
   if(document.getElementById('quiz-screen').style.display==='none') return;
   const k=e.key.toLowerCase();
