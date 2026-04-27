@@ -1222,6 +1222,7 @@ function fadeOutWin(duration=400){
 
 function playWinMusic(){
   if(!soundEnabled) return;
+  if(loseAudio){ loseAudio.pause(); loseAudio.src=''; loseAudio=null; }
   // If already playing, keep going (streak continues)
   if(winAudio && !winAudio.paused) return;
   if(winFiles.length === 0){
