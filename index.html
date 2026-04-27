@@ -1996,3 +1996,9 @@ function hideSpotifyBox() {
 }
 
 function initSpotify() {
+  fetchNowPlaying();
+  spotifyTimer = setInterval(fetchNowPlaying, 15000); // poll every 15s
+}
+</script>
+</body>
+</html>
