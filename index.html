@@ -1062,207 +1062,418 @@ body.crt-on {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-  const c = document.getElementById('sky-canvas');
-  const ctx = c.getContext('2d');
+  /* ═══════════════════════════════════════════════════════════
+     PHOTOREALISTIC SKY ENGINE v3.0
+     Perlin clouds · Volumetric lighting · Realistic birds
+     ═══════════════════════════════════════════════════════════ */
+  var c = document.getElementById('sky-canvas');
+  var ctx = c.getContext('2d');
+  var W, H, t = 0;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
   function resize(){
-    c.width  = window.innerWidth;
-    c.height = window.innerHeight;
-    // Regenerate clouds on resize so they fill the new size
-    initClouds();
+    W = window.innerWidth;
+    H = window.innerHeight;
+    c.width  = W * dpr;
+    c.height = H * dpr;
+    c.style.width  = W + 'px';
+    c.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    generateCloudTextures();
   }
   window.addEventListener('resize', resize);
 
-  /* ── SKY GRADIENT ── */
+  /* ── SIMPLEX-LIKE NOISE (fast, no deps) ── */
+  var perm = new Uint8Array(512);
+  (function(){
+    var p = [];
+    for(var i=0;i<256;i++) p[i]=i;
+    for(var i=255;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp=p[i]; p[i]=p[j]; p[j]=tmp;
+    }
+    for(var i=0;i<512;i++) perm[i]=p[i&255];
+  })();
+
+  function fade(t){return t*t*t*(t*(t*6-15)+10);}
+  function lerp(a,b,t){return a+t*(b-a);}
+  function grad(hash,x,y){
+    var h=hash&3;
+    var u=h<2?x:y, v=h<2?y:x;
+    return ((h&1)?-u:u)+((h&2)?-v:v);
+  }
+  function noise2d(x,y){
+    var X=Math.floor(x)&255, Y=Math.floor(y)&255;
+    x-=Math.floor(x); y-=Math.floor(y);
+    var u=fade(x), v=fade(y);
+    var a=perm[X]+Y, b=perm[X+1]+Y;
+    return lerp(
+      lerp(grad(perm[a],x,y),grad(perm[b],x-1,y),u),
+      lerp(grad(perm[a+1],x,y-1),grad(perm[b+1],x-1,y-1),u),v
+    );
+  }
+  function fbm(x,y,oct){
+    var v=0,a=0.5,f=1;
+    for(var i=0;i<oct;i++){
+      v+=a*noise2d(x*f,y*f);
+      f*=2.1; a*=0.48;
+    }
+    return v;
+  }
+
+  /* ── SUN POSITION ── */
+  var sunX = 0.78, sunY = 0.18; // normalized
+
+  /* ── SKY GRADIENT — rich atmospheric ── */
   function drawSky(){
-    const h = c.height, w = c.width;
-    const g = ctx.createLinearGradient(0,0,0,h);
-    g.addColorStop(0.00, '#1a5490');
-    g.addColorStop(0.15, '#2E6FA8');
-    g.addColorStop(0.35, '#4A90C8');
-    g.addColorStop(0.55, '#6BAED6');
-    g.addColorStop(0.72, '#93C9E3');
-    g.addColorStop(0.85, '#BDE0F0');
-    g.addColorStop(0.93, '#D8EFF7');
-    g.addColorStop(1.00, '#EAF6FC');
+    var sx = W*sunX, sy = H*sunY;
+    /* Main sky gradient */
+    var g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0.00, '#0B2E5C');  // deep zenith
+    g.addColorStop(0.08, '#14437A');
+    g.addColorStop(0.18, '#1D5E9E');
+    g.addColorStop(0.32, '#3178B5');
+    g.addColorStop(0.48, '#5A9ACA');
+    g.addColorStop(0.62, '#7BB5D8');
+    g.addColorStop(0.74, '#A0D0E8');
+    g.addColorStop(0.84, '#C8E4F2');
+    g.addColorStop(0.92, '#E0EFF8');
+    g.addColorStop(0.97, '#EEF5FA');
+    g.addColorStop(1.00, '#F2F8FC');
     ctx.fillStyle = g;
-    ctx.fillRect(0,0,w,h);
-  }
+    ctx.fillRect(0,0,W,H);
 
-  /* ── CLOUD PUFF HELPER ── */
-  function cloudPuff(x, y, r, alpha){
-    const g = ctx.createRadialGradient(x, y-r*0.15, r*0.05, x, y, r);
-    g.addColorStop(0,   `rgba(255,255,255,${alpha})`);
-    g.addColorStop(0.5, `rgba(248,252,255,${alpha*0.7})`);
-    g.addColorStop(1,   `rgba(220,238,250,0)`);
-    ctx.fillStyle = g;
+    /* Warm sun glow */
+    var sunGlow = ctx.createRadialGradient(sx,sy,0, sx,sy, H*0.6);
+    sunGlow.addColorStop(0.00, 'rgba(255,240,200,0.35)');
+    sunGlow.addColorStop(0.08, 'rgba(255,230,180,0.20)');
+    sunGlow.addColorStop(0.20, 'rgba(255,220,160,0.10)');
+    sunGlow.addColorStop(0.40, 'rgba(200,210,230,0.05)');
+    sunGlow.addColorStop(1.00, 'rgba(180,200,220,0)');
+    ctx.fillStyle = sunGlow;
+    ctx.fillRect(0,0,W,H);
+
+    /* Sun disk */
+    var sunR = Math.min(W,H)*0.025;
+    var diskG = ctx.createRadialGradient(sx,sy,0, sx,sy, sunR*3);
+    diskG.addColorStop(0, 'rgba(255,255,240,0.95)');
+    diskG.addColorStop(0.3, 'rgba(255,245,220,0.6)');
+    diskG.addColorStop(0.6, 'rgba(255,230,180,0.2)');
+    diskG.addColorStop(1, 'rgba(255,220,160,0)');
+    ctx.fillStyle = diskG;
     ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI*2);
+    ctx.arc(sx,sy,sunR*3,0,Math.PI*2);
     ctx.fill();
+
+    /* Atmospheric haze near horizon */
+    var hazeG = ctx.createLinearGradient(0,H*0.7,0,H);
+    hazeG.addColorStop(0, 'rgba(200,220,240,0)');
+    hazeG.addColorStop(0.5, 'rgba(210,225,240,0.15)');
+    hazeG.addColorStop(1, 'rgba(220,230,245,0.35)');
+    ctx.fillStyle = hazeG;
+    ctx.fillRect(0,0,W,H);
   }
 
-  /* ── DRAW ONE CLOUD ── */
-  function drawCloud(cx, cy, scale, alpha){
-    // Bottom shadow puffs (light grey-blue)
-    cloudPuff(cx,        cy + scale*8,  scale*28, alpha*0.22);
-    cloudPuff(cx+scale*30, cy + scale*10, scale*22, alpha*0.18);
-    cloudPuff(cx-scale*28, cy + scale*10, scale*20, alpha*0.18);
+  /* ── CLOUD TEXTURE SYSTEM — pre-rendered Perlin noise canvases ── */
+  var cloudTextures = [];
+  var NUM_CLOUDS = 14;
 
-    // Middle body puffs
-    cloudPuff(cx - scale*32, cy,           scale*30, alpha*0.72);
-    cloudPuff(cx + scale*32, cy,           scale*28, alpha*0.72);
-    cloudPuff(cx,            cy + scale*5, scale*38, alpha*0.80);
+  function generateCloudTextures(){
+    cloudTextures = [];
+    for(var i=0;i<NUM_CLOUDS;i++){
+      var cw = 200 + Math.floor(Math.random()*180);
+      var ch = 80 + Math.floor(Math.random()*60);
+      var offCanvas = document.createElement('canvas');
+      offCanvas.width = cw; offCanvas.height = ch;
+      var octx = offCanvas.getContext('2d');
+      var imgData = octx.createImageData(cw,ch);
+      var d = imgData.data;
+      var ox = Math.random()*100, oy = Math.random()*100;
+      var aspect = cw/ch;
 
-    // Top highlight puffs
-    cloudPuff(cx - scale*14, cy - scale*18, scale*26, alpha*0.90);
-    cloudPuff(cx + scale*18, cy - scale*14, scale*24, alpha*0.85);
-    cloudPuff(cx,            cy - scale*26, scale*30, alpha*0.95);
+      for(var py=0;py<ch;py++){
+        for(var px=0;px<cw;px++){
+          var nx = (px/cw)*3 + ox;
+          var ny = (py/ch)*3 + oy;
+          var n = fbm(nx,ny,5);
+          n = (n+0.5); // remap to ~0-1
 
-    // Bright top cap
-    cloudPuff(cx + scale*4, cy - scale*30, scale*18, alpha*0.80);
+          /* Cloud shape: elliptical falloff */
+          var dx = (px/cw-0.5)*2;
+          var dy = (py/ch-0.5)*2;
+          var dist = Math.sqrt(dx*dx*0.7 + dy*dy*1.5);
+          var shape = 1.0 - Math.min(1, dist);
+          shape = shape*shape*shape; // sharper edge
+
+          /* Density */
+          var density = n * shape;
+          density = Math.max(0, density - 0.15) * 3.0;
+          density = Math.min(1, density);
+
+          /* Self-shadowing: darken bottom */
+          var shadow = 1.0 - (py/ch)*0.25;
+          /* Top highlight */
+          var highlight = py < ch*0.35 ? 1.0 + (1.0-py/(ch*0.35))*0.15 : 1.0;
+
+          var brightness = shadow * highlight;
+          var r = Math.min(255, Math.floor(255 * brightness));
+          var g = Math.min(255, Math.floor(253 * brightness));
+          var b = Math.min(255, Math.floor(250 * brightness));
+          var a = Math.floor(density * 220);
+
+          var idx = (py*cw+px)*4;
+          d[idx]=r; d[idx+1]=g; d[idx+2]=b; d[idx+3]=a;
+        }
+      }
+      octx.putImageData(imgData,0,0);
+      cloudTextures.push({
+        canvas: offCanvas,
+        w: cw, h: ch
+      });
+    }
+    initClouds();
   }
 
-  /* ── CLOUD SYSTEM ── */
-  let clouds = [];
-
+  /* ── CLOUD INSTANCES ── */
+  var clouds = [];
   function initClouds(){
-    const w = c.width, h = c.height;
     clouds = [];
-
-    // Layer 0 — distant tiny (top zone)
-    for(let i=0;i<6;i++){
-      clouds.push({
-        x: Math.random()*(w+400)-200,
-        y: h*(0.04 + Math.random()*0.12),
-        scale: 0.35 + Math.random()*0.3,
-        speed: 0.12 + Math.random()*0.12,
-        alpha: 0.35 + Math.random()*0.2,
-        layer: 0
-      });
-    }
-    // Layer 1 — medium upper
-    for(let i=0;i<7;i++){
-      clouds.push({
-        x: Math.random()*(w+600)-300,
-        y: h*(0.10 + Math.random()*0.22),
-        scale: 0.55 + Math.random()*0.5,
-        speed: 0.22 + Math.random()*0.18,
-        alpha: 0.55 + Math.random()*0.25,
-        layer: 1
-      });
-    }
-    // Layer 2 — big mid
-    for(let i=0;i<6;i++){
-      clouds.push({
-        x: Math.random()*(w+800)-400,
-        y: h*(0.28 + Math.random()*0.22),
-        scale: 0.9 + Math.random()*0.7,
-        speed: 0.35 + Math.random()*0.25,
-        alpha: 0.50 + Math.random()*0.25,
-        layer: 2
-      });
-    }
-    // Layer 3 — large lower (perspective closer)
-    for(let i=0;i<5;i++){
-      clouds.push({
-        x: Math.random()*(w+1000)-500,
-        y: h*(0.50 + Math.random()*0.22),
-        scale: 1.3 + Math.random()*1.0,
-        speed: 0.55 + Math.random()*0.35,
-        alpha: 0.40 + Math.random()*0.20,
-        layer: 3
-      });
-    }
-    // Layer 4 — huge foreground near-horizon
-    for(let i=0;i<4;i++){
-      clouds.push({
-        x: Math.random()*(w+1200)-600,
-        y: h*(0.72 + Math.random()*0.18),
-        scale: 2.0 + Math.random()*1.4,
-        speed: 0.80 + Math.random()*0.5,
-        alpha: 0.28 + Math.random()*0.18,
-        layer: 4
-      });
-    }
-
-    // Sort by layer so far ones draw first
-    clouds.sort((a,b)=>a.layer-b.layer);
-  }
-
-  /* ── BIRD SYSTEM ── */
-  const birds = [];
-  function initBirds(){
-    // Birds scattered across ALL heights, not just top
-    const configs = [
-      // [count, yMin%, yMax%, speedMin, speedMax, sizeMin, sizeMax]
-      [4,  0.05, 0.25, 0.5, 1.1, 3, 5.5],  // high altitude — tiny fast
-      [5,  0.22, 0.50, 0.4, 0.9, 4, 7],    // mid altitude
-      [4,  0.48, 0.72, 0.3, 0.7, 5, 9],    // low altitude — bigger slower
-      [3,  0.68, 0.88, 0.25,0.55,6, 11],   // near horizon — large slow
+    var layers = [
+      {count:4, yMin:0.04, yMax:0.15, scaleMin:0.8, scaleMax:1.4, speedMin:0.08, speedMax:0.15, alphaMin:0.4, alphaMax:0.6},
+      {count:4, yMin:0.12, yMax:0.30, scaleMin:1.2, scaleMax:2.0, speedMin:0.15, speedMax:0.28, alphaMin:0.5, alphaMax:0.75},
+      {count:4, yMin:0.28, yMax:0.50, scaleMin:1.8, scaleMax:3.0, speedMin:0.25, speedMax:0.45, alphaMin:0.5, alphaMax:0.80},
+      {count:3, yMin:0.50, yMax:0.72, scaleMin:2.5, scaleMax:4.5, speedMin:0.40, speedMax:0.70, alphaMin:0.35, alphaMax:0.6},
+      {count:2, yMin:0.72, yMax:0.88, scaleMin:4.0, scaleMax:6.0, speedMin:0.60, speedMax:1.00, alphaMin:0.2, alphaMax:0.4},
     ];
-    configs.forEach(([n, yLo, yHi, sLo, sHi, szLo, szHi])=>{
-      for(let i=0;i<n;i++){
-        const h = c.height;
-        birds.push({
-          x:     Math.random()*c.width,
-          yBase: h*(yLo + Math.random()*(yHi-yLo)),
-          yPct:  yLo + Math.random()*(yHi-yLo),
-          speed: sLo + Math.random()*(sHi-sLo),
-          size:  szLo + Math.random()*(szHi-szLo),
-          wing:  Math.random()*Math.PI*2,
-          wSpeed:0.10 + Math.random()*0.12,
-          yOff:  Math.random()*Math.PI*2,
-          dir:   Math.random()<0.15 ? -1 : 1,   // 15% fly left
+    var li = 0;
+    layers.forEach(function(L){
+      for(var i=0;i<L.count;i++){
+        var tex = cloudTextures[Math.floor(Math.random()*cloudTextures.length)];
+        var sc = L.scaleMin + Math.random()*(L.scaleMax-L.scaleMin);
+        clouds.push({
+          x: Math.random()*(W+tex.w*sc) - tex.w*sc*0.5,
+          y: H*(L.yMin + Math.random()*(L.yMax-L.yMin)),
+          scale: sc,
+          speed: L.speedMin + Math.random()*(L.speedMax-L.speedMin),
+          alpha: L.alphaMin + Math.random()*(L.alphaMax-L.alphaMin),
+          tex: tex,
+          layer: li
         });
       }
+      li++;
     });
+    clouds.sort(function(a,b){return a.layer-b.layer;});
   }
 
-  function drawBird(x, y, size, wingAngle, dir){
-    const w = size*3.2;
-    const dip = Math.sin(wingAngle)*size*0.9;
-    ctx.save();
-    if(dir < 0) { ctx.translate(x, y); ctx.scale(-1,1); ctx.translate(-x,-y); }
-    ctx.beginPath();
-    // body curve
-    ctx.moveTo(x, y);
-    ctx.quadraticCurveTo(x - w*0.5, y - dip, x - w, y - dip*0.2);
-    ctx.moveTo(x, y);
-    ctx.quadraticCurveTo(x + w*0.5, y - dip, x + w, y - dip*0.2);
+  function drawClouds(){
+    clouds.forEach(function(cl){
+      cl.x += cl.speed;
+      var cw = cl.tex.w * cl.scale;
+      if(cl.x > W + cw) cl.x = -cw;
+      ctx.globalAlpha = cl.alpha;
+      ctx.drawImage(cl.tex.canvas, cl.x, cl.y, cw, cl.tex.h*cl.scale);
+    });
+    ctx.globalAlpha = 1;
+  }
 
-    // Depth: birds lower = slightly darker alpha
-    const depthAlpha = 0.35 + (y / c.height)*0.3;
-    ctx.strokeStyle = `rgba(20,25,55,${Math.min(depthAlpha, 0.65)})`;
-    ctx.lineWidth = Math.max(1, size*0.28);
+  /* ── REALISTIC BIRD SYSTEM ── */
+  var birds = [];
+  var flocks = [];
+
+  function createBird(x, y, size, speed, dir){
+    return {
+      x: x, y: y, baseY: y,
+      size: size,
+      speed: speed,
+      dir: dir,
+      phase: Math.random()*Math.PI*2,
+      flapSpeed: 0.06 + Math.random()*0.04,
+      soarTimer: 0,
+      soaring: false,
+      soarDur: 0,
+      bankAngle: 0,
+      yDrift: Math.random()*Math.PI*2,
+    };
+  }
+
+  function initBirds(){
+    birds = [];
+    flocks = [];
+
+    /* Solo birds */
+    var soloConfigs = [
+      {n:3, yLo:0.05, yHi:0.20, spLo:0.6, spHi:1.2, szLo:2.5, szHi:4},
+      {n:3, yLo:0.20, yHi:0.45, spLo:0.4, spHi:0.9, szLo:3.5, szHi:6},
+      {n:2, yLo:0.45, yHi:0.70, spLo:0.3, spHi:0.7, szLo:5,   szHi:8},
+      {n:2, yLo:0.65, yHi:0.85, spLo:0.2, spHi:0.5, szLo:6,   szHi:10},
+    ];
+    soloConfigs.forEach(function(cfg){
+      for(var i=0;i<cfg.n;i++){
+        var d = Math.random()<0.12 ? -1 : 1;
+        birds.push(createBird(
+          Math.random()*W,
+          H*(cfg.yLo+Math.random()*(cfg.yHi-cfg.yLo)),
+          cfg.szLo+Math.random()*(cfg.szHi-cfg.szLo),
+          cfg.spLo+Math.random()*(cfg.spHi-cfg.spLo),
+          d
+        ));
+      }
+    });
+
+    /* V-Formation flocks */
+    for(var f=0;f<2;f++){
+      var fSize = 4 + Math.floor(Math.random()*4); // 4-7 birds
+      var leaderY = H*(0.12+Math.random()*0.35);
+      var leaderX = Math.random()*W;
+      var fDir = Math.random()<0.15 ? -1 : 1;
+      var fSpeed = 0.5+Math.random()*0.4;
+      var bSize = 3+Math.random()*2;
+      var flock = {birds:[], dir:fDir};
+      for(var i=0;i<fSize;i++){
+        var side = (i%2===0) ? 1 : -1;
+        var rank = Math.ceil(i/2);
+        var ox = -rank*bSize*4*fDir;
+        var oy = rank*bSize*2.5*side;
+        var b = createBird(
+          leaderX+ox, leaderY+oy,
+          bSize*(1-rank*0.04),
+          fSpeed,
+          fDir
+        );
+        b.flockOffX = ox;
+        b.flockOffY = oy;
+        flock.birds.push(b);
+        birds.push(b);
+      }
+      flocks.push(flock);
+    }
+  }
+
+  function drawBird(b){
+    var x=b.x, y=b.y, sz=b.size;
+    var wingPhase = b.soaring ? Math.sin(t*0.3+b.phase)*0.15 : Math.sin(b.phase)*0.85;
+
+    /* Wing span and flap */
+    var span = sz*3.5;
+    var flapH = wingPhase*sz*1.2;
+    var bankTilt = b.bankAngle*0.3;
+
+    /* Atmospheric perspective: distant birds are more blue/transparent */
+    var depthRatio = y/H;
+    var alphaBase = 0.3 + depthRatio*0.45;
+    var blueShift = depthRatio*30;
+
+    ctx.save();
+    ctx.translate(x,y);
+    if(b.dir<0) ctx.scale(-1,1);
+    ctx.rotate(bankTilt);
+
+    /* Body */
+    ctx.beginPath();
+    ctx.ellipse(0, 0, sz*0.9, sz*0.3, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba('+(15+blueShift)+','+(18+blueShift)+','+(40+blueShift)+','+Math.min(alphaBase,0.7)+')';
+    ctx.fill();
+
+    /* Head */
+    ctx.beginPath();
+    ctx.arc(sz*0.7, -sz*0.1, sz*0.25, 0, Math.PI*2);
+    ctx.fill();
+
+    /* Beak */
+    ctx.beginPath();
+    ctx.moveTo(sz*0.95, -sz*0.1);
+    ctx.lineTo(sz*1.2, -sz*0.05);
+    ctx.lineTo(sz*0.95, sz*0.0);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(60,50,30,'+Math.min(alphaBase,0.5)+')';
+    ctx.fill();
+
+    /* Tail */
+    ctx.beginPath();
+    ctx.moveTo(-sz*0.8, 0);
+    ctx.lineTo(-sz*1.5, sz*0.3);
+    ctx.lineTo(-sz*1.3, -sz*0.1);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba('+(20+blueShift)+','+(22+blueShift)+','+(45+blueShift)+','+Math.min(alphaBase*0.8,0.5)+')';
+    ctx.fill();
+
+    /* Wings — multi-segment for realism */
+    var wingColor = 'rgba('+(18+blueShift)+','+(20+blueShift)+','+(42+blueShift)+','+Math.min(alphaBase,0.65)+')';
+    ctx.strokeStyle = wingColor;
+    ctx.fillStyle = wingColor;
+    ctx.lineWidth = Math.max(0.8, sz*0.15);
     ctx.lineCap = 'round';
-    ctx.stroke();
+    ctx.lineJoin = 'round';
+
+    /* Left wing */
+    ctx.beginPath();
+    ctx.moveTo(-sz*0.3, 0);
+    ctx.quadraticCurveTo(-span*0.4, -flapH*0.7, -span*0.7, -flapH);
+    ctx.quadraticCurveTo(-span*0.9, -flapH*1.1, -span, -flapH*0.85);
+    /* Wing feather tips */
+    ctx.lineTo(-span*0.95, -flapH*0.7);
+    ctx.quadraticCurveTo(-span*0.6, -flapH*0.4, -sz*0.3, 0);
+    ctx.fill();
+
+    /* Right wing */
+    ctx.beginPath();
+    ctx.moveTo(sz*0.3, 0);
+    ctx.quadraticCurveTo(span*0.4, -flapH*0.7, span*0.7, -flapH);
+    ctx.quadraticCurveTo(span*0.9, -flapH*1.1, span, -flapH*0.85);
+    ctx.lineTo(span*0.95, -flapH*0.7);
+    ctx.quadraticCurveTo(span*0.6, -flapH*0.4, sz*0.3, 0);
+    ctx.fill();
+
     ctx.restore();
   }
 
-  let t = 0;
+  function updateBirds(){
+    birds.forEach(function(b){
+      /* Flapping */
+      if(!b.soaring){
+        b.phase += b.flapSpeed;
+        /* Random soar opportunity */
+        b.soarTimer += 0.016;
+        if(b.soarTimer > 3+Math.random()*8){
+          b.soaring = true;
+          b.soarDur = 1.5+Math.random()*3;
+          b.soarTimer = 0;
+        }
+      } else {
+        b.soarDur -= 0.016;
+        if(b.soarDur <= 0){
+          b.soaring = false;
+          b.soarTimer = 0;
+        }
+      }
+
+      /* Movement */
+      b.x += b.speed * b.dir;
+      b.yDrift += 0.008;
+      b.y = b.baseY + Math.sin(b.yDrift)*b.size*2;
+
+      /* Banking on direction changes (subtle) */
+      b.bankAngle *= 0.95;
+      if(Math.random()<0.002) b.bankAngle = (Math.random()-0.5)*0.3;
+
+      /* Wrap */
+      var margin = b.size*15;
+      if(b.dir>0 && b.x>W+margin){ b.x=-margin; b.baseY=b.baseY+(Math.random()-0.5)*H*0.05; }
+      if(b.dir<0 && b.x<-margin){ b.x=W+margin; b.baseY=b.baseY+(Math.random()-0.5)*H*0.05; }
+    });
+  }
+
+  /* ── RENDER LOOP ── */
   function frame(){
-    ctx.clearRect(0,0,c.width,c.height);
+    ctx.clearRect(0,0,W,H);
     drawSky();
     t += 0.016;
+    drawClouds();
+    updateBirds();
 
-    // Update & draw clouds
-    clouds.forEach(cl=>{
-      cl.x += cl.speed;
-      const wrap = c.width + cl.scale*200;
-      if(cl.x > wrap) cl.x = -cl.scale*200;
-      drawCloud(cl.x, cl.y, cl.scale, cl.alpha);
-    });
-
-    // Update & draw birds
-    birds.forEach(b=>{
-      b.x += b.speed * b.dir;
-      const wrap = c.width + b.size*10;
-      if(b.dir > 0 && b.x > wrap)  { b.x = -b.size*10; b.yBase = c.height*(b.yPct + (Math.random()-0.5)*0.05); }
-      if(b.dir < 0 && b.x < -wrap) { b.x = c.width + b.size*10; b.yBase = c.height*(b.yPct + (Math.random()-0.5)*0.05); }
-      b.wing += b.wSpeed;
-      const y = b.yBase + Math.sin(t*0.6 + b.yOff)*b.size*1.2;
-      drawBird(b.x, y, b.size, b.wing, b.dir);
-    });
+    /* Draw birds sorted by Y (depth) */
+    var sortedBirds = birds.slice().sort(function(a,b){return a.y-b.y;});
+    sortedBirds.forEach(drawBird);
 
     requestAnimationFrame(frame);
   }
