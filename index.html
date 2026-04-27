@@ -2161,11 +2161,23 @@ function renderOnlineList(){
   const list=document.getElementById('online-list');if(!list)return;
   const users=Object.entries(onlineUsers);
   if(!users.length){list.innerHTML='<div style="padding:8px;font-size:10px;color:#808080;">Tidak ada yang online.</div>';return;}
-  list.innerHTML=users.map(([uid,u])=>{
-    const isme=uid===myUserId;
-    const dmBtn=isme?'':'<button class="dm-btn" onclick="startDM(''+uid+'',''+escH(u.name||'Anon')+'')">DM</button>';
-    return '<div class="online-user-row"><span class="online-dot"></span><span class="online-name">'+escH(u.name||'Anon')+(isme?' (kamu)':'')+'</span>'+dmBtn+'</div>';
-  }).join('');
+  list.innerHTML='';
+  users.forEach(function(entry){
+    var uid=entry[0],u=entry[1];
+    var isme=uid===myUserId;
+    var uname=u.name||'Anon';
+    var row=document.createElement('div');
+    row.className='online-user-row';
+    row.innerHTML='<span class="online-dot"></span><span class="online-name">'+escH(uname)+(isme?' (kamu)':'')+'</span>';
+    if(!isme){
+      var btn=document.createElement('button');
+      btn.className='dm-btn';btn.textContent='DM';
+      btn.setAttribute('data-uid',uid);btn.setAttribute('data-name',uname);
+      btn.onclick=function(){window.startDM(this.getAttribute('data-uid'),this.getAttribute('data-name'));};
+      row.appendChild(btn);
+    }
+    list.appendChild(row);
+  });
 }
 
 window.toggleOnlinePanel=function(){document.getElementById('online-panel').classList.toggle('open');};
@@ -2218,15 +2230,21 @@ window.startDM=function(uid,uname){openDMTab(uid,uname);openChat();window.switch
 
 function openDMTab(uid,uname){
   if(document.getElementById('tab_'+uid))return;
-  const tabs=document.getElementById('chat-tabs');
-  const tab=document.createElement('div');tab.className='chat-tab';tab.id='tab_'+uid;
-  tab.innerHTML='&#x1F4AC; '+escH(uname)+'<span class="close-tab" onclick="event.stopPropagation();closeDM(''+uid+'')">&#x2715;</span>';
-  tab.onclick=()=>window.switchChatTab('dm_'+uid);
+  var tabs=document.getElementById('chat-tabs');
+  var tab=document.createElement('div');tab.className='chat-tab';tab.id='tab_'+uid;
+  var tabText=document.createTextNode('\u{1F4AC} '+escH(uname));
+  tab.appendChild(tabText);
+  var closeSpan=document.createElement('span');
+  closeSpan.className='close-tab';closeSpan.innerHTML='\u{2715}';
+  closeSpan.setAttribute('data-uid',uid);
+  closeSpan.onclick=function(e){e.stopPropagation();window.closeDM(this.getAttribute('data-uid'));};
+  tab.appendChild(closeSpan);
+  tab.onclick=function(){window.switchChatTab('dm_'+uid);};
   tabs.appendChild(tab);
-  const body=document.getElementById('chat-body');
-  const pane=document.createElement('div');pane.className='chat-pane';pane.id='pane-dm_'+uid;
+  var body=document.getElementById('chat-body');
+  var pane=document.createElement('div');pane.className='chat-pane';pane.id='pane-dm_'+uid;
   body.appendChild(pane);
-  appendSysMsg('dm_'+uid,'&#x1F4AC; DM dengan <b>'+escH(uname)+'</b>. Hanya terlihat oleh kalian berdua (real-time, tidak tersimpan).');
+  appendSysMsg('dm_'+uid,'\u{1F4AC} DM dengan <b>'+escH(uname)+'</b>. Hanya terlihat oleh kalian berdua (real-time, tidak tersimpan).');
 }
 
 window.closeDM=function(uid){
