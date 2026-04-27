@@ -871,9 +871,189 @@ a { color: var(--win-link); text-decoration: underline; }
   #online-panel { resize: vertical; overflow: hidden; }
 }
 
+
+/* ============================================================
+   BOOT SEQUENCE
+   ============================================================ */
+#boot-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #000; color: #AAA;
+  font-family: 'Courier New', monospace;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  transition: opacity 0.5s ease;
+}
+#boot-screen.done { opacity: 0; pointer-events: none; }
+#boot-bios {
+  text-align: left; font-size: 13px; line-height: 1.6;
+  max-width: 600px; width: 90%; padding: 20px;
+}
+#boot-bios span { display: block; }
+.boot-logo {
+  display: none; flex-direction: column; align-items: center;
+  gap: 16px;
+}
+.boot-logo-text {
+  font-size: 36px; font-weight: bold; color: #C0C0C0;
+  text-shadow: 2px 2px 0 #000080, 4px 4px 0 rgba(0,0,128,0.3);
+  font-family: 'Tahoma', Arial, sans-serif;
+  letter-spacing: 2px;
+}
+.boot-logo-sub { font-size: 12px; color: #808080; letter-spacing: 4px; }
+.boot-progress-track {
+  width: 240px; height: 18px;
+  background: #000080;
+  border: 2px solid #808080;
+  padding: 2px; margin-top: 20px;
+}
+.boot-progress-fill {
+  height: 100%; width: 0%;
+  background: repeating-linear-gradient(
+    90deg, #C0C0C0 0px, #C0C0C0 8px, #000080 8px, #000080 12px
+  );
+  transition: width 0.3s linear;
+}
+.boot-msg { font-size: 11px; color: #808080; margin-top: 8px; }
+
+/* ============================================================
+   CRT SCANLINE OVERLAY
+   ============================================================ */
+#crt-overlay {
+  position: fixed; inset: 0; z-index: 9990;
+  pointer-events: none; display: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 1px,
+    rgba(0,0,0,0.06) 1px, rgba(0,0,0,0.06) 2px
+  );
+  mix-blend-mode: multiply;
+}
+#crt-overlay.active { display: block; }
+body.crt-on {
+  animation: crtFlicker 8s linear infinite;
+}
+@keyframes crtFlicker {
+  0%,99.9%{filter:none}
+  50%{filter:brightness(1.02)}
+}
+
+/* ============================================================
+   BSOD EASTER EGG
+   ============================================================ */
+#bsod-screen {
+  position: fixed; inset: 0; z-index: 99999;
+  background: #0000AA; color: #FFFFFF;
+  font-family: 'Courier New', monospace;
+  font-size: 14px; line-height: 1.7;
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: 40px;
+}
+#bsod-screen.active { display: flex; }
+.bsod-title {
+  background: #AAAAAA; color: #0000AA;
+  padding: 2px 12px; font-weight: bold;
+  margin-bottom: 20px; letter-spacing: 1px;
+}
+.bsod-body { max-width: 600px; text-align: center; }
+
+/* ============================================================
+   NOTIFICATION TOASTS
+   ============================================================ */
+#toast-container {
+  position: fixed; bottom: 48px; right: 12px; z-index: 800;
+  display: flex; flex-direction: column-reverse; gap: 6px;
+  pointer-events: none;
+}
+.win-toast {
+  background: #FFFFCC;
+  border: 1px solid #000080;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  padding: 8px 12px; max-width: 260px; min-width: 180px;
+  font-family: 'Tahoma', Arial, sans-serif; font-size: 11px;
+  pointer-events: auto; cursor: pointer;
+  animation: toastIn 0.3s ease, toastOut 0.4s ease 4s forwards;
+  border-radius: 0;
+}
+.win-toast-title { font-weight: bold; color: #000080; margin-bottom: 2px; font-size: 11px; display: flex; align-items: center; gap: 4px; }
+.win-toast-body { color: #333; line-height: 1.4; }
+@keyframes toastIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(10px); } }
+
+/* ============================================================
+   WINDOW OPEN/CLOSE ANIMATION
+   ============================================================ */
+@keyframes winOpen {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes winClose {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.85) translateY(20px); opacity: 0; }
+}
+.win-opening { animation: winOpen 0.18s ease forwards; }
+.win-closing { animation: winClose 0.15s ease forwards; }
+
+/* ============================================================
+   SHUTDOWN ANIMATION
+   ============================================================ */
+#shutdown-screen {
+  position: fixed; inset: 0; z-index: 99998;
+  background: #000;
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center;
+  color: #FF8800; font-family: 'Tahoma', Arial, sans-serif;
+  font-size: 22px; font-weight: bold;
+}
+#shutdown-screen.active { display: flex; }
+.shutdown-sub { font-size: 12px; color: #808080; margin-top: 12px; font-weight: normal; }
+
 </style>
 </head>
 <body>
+
+<!-- BOOT SEQUENCE -->
+<div id="boot-screen">
+  <div id="boot-bios">
+    <span id="bios-l1"></span>
+    <span id="bios-l2"></span>
+    <span id="bios-l3"></span>
+    <span id="bios-l4"></span>
+    <span id="bios-l5"></span>
+  </div>
+  <div class="boot-logo" id="boot-logo">
+    <div class="boot-logo-text">174</div>
+    <div class="boot-logo-sub">A R C H I V E</div>
+    <div class="boot-progress-track"><div class="boot-progress-fill" id="boot-bar"></div></div>
+    <div class="boot-msg" id="boot-msg">Loading system files...</div>
+  </div>
+</div>
+
+<!-- CRT OVERLAY -->
+<div id="crt-overlay"></div>
+
+<!-- BSOD EASTER EGG -->
+<div id="bsod-screen">
+  <div class="bsod-title">&nbsp;174.exe&nbsp;</div>
+  <div class="bsod-body">
+    A fatal exception 0E has occurred at 0028:C174A1C4 in VxD ARCHIVE(01) +<br>
+    00001E84. The current application will be terminated.<br><br>
+    *  Press any key to continue your study session.<br>
+    *  Press CTRL+ALT+DEL to pretend this never happened.<br><br>
+    <span style="color:#AAAAAA;">You have survived another day in medical school.</span>
+  </div>
+</div>
+
+<!-- SHUTDOWN SCREEN -->
+<div id="shutdown-screen">
+  <div>It is now safe to turn off</div>
+  <div>your computer.</div>
+  <div class="shutdown-sub">just kidding, redirecting...</div>
+</div>
+
+<!-- NOTIFICATION TOASTS -->
+<div id="toast-container"></div>
+
 <!-- Windows 7 Sky Background -->
 <div id="win7-sky"></div>
 <canvas id="sky-canvas" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
@@ -2445,6 +2625,258 @@ window.minimizeWin = function(winId) {
     lastTap = now;
   });
 })();
+
+
+
+/* ============================================================
+   WIN95 SYNTHESIZED SOUND ENGINE (Web Audio API)
+   ============================================================ */
+var SFX_ENABLED = true;
+var audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return audioCtx;
+}
+function playTone(freq, dur, type, vol) {
+  var ctx = getAudioCtx(); if (!ctx) return;
+  if (!SFX_ENABLED) return;
+  var o = ctx.createOscillator();
+  var g = ctx.createGain();
+  o.type = type || 'square';
+  o.frequency.value = freq;
+  g.gain.value = vol || 0.08;
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime + dur);
+}
+function sfxClick() { playTone(800, 0.06, 'square', 0.04); }
+function sfxError() { playTone(200, 0.3, 'square', 0.06); playTone(150, 0.3, 'square', 0.04); }
+function sfxNotify() { playTone(880, 0.1, 'sine', 0.06); setTimeout(function(){ playTone(1100, 0.15, 'sine', 0.06); }, 120); }
+function sfxStartup() {
+  var notes = [523, 659, 784, 659, 1047];
+  var delays = [0, 200, 400, 600, 800];
+  notes.forEach(function(n, i) {
+    setTimeout(function(){ playTone(n, 0.35, 'sine', 0.07); }, delays[i]);
+  });
+}
+
+/* Attach click sound to all buttons */
+document.addEventListener('click', function(e) {
+  if (e.target.closest('button, .win-btn, .menu-item, .sm-item, .taskbar-app, #start-btn, .title-btn, .exp-row')) {
+    sfxClick();
+  }
+});
+
+/* ============================================================
+   BOOT SEQUENCE CONTROLLER
+   ============================================================ */
+(function(){
+  var bootEl = document.getElementById('boot-screen');
+  if (!bootEl) return;
+
+  /* Skip boot if returning user (visited in last 6 hours) */
+  var lastBoot = localStorage.getItem('174_lastBoot');
+  var now = Date.now();
+  if (lastBoot && (now - parseInt(lastBoot)) < 6*60*60*1000) {
+    bootEl.style.display = 'none';
+    return;
+  }
+
+  var biosLines = [
+    '174 BIOS v2.3.1 — (C) 2026 The Alchemist',
+    'Main Processor : Neural Cortex @ Unlimited MHz',
+    'Memory Test : 174MB OK',
+    '',
+    'Initializing Archive Protocol...'
+  ];
+  var biosEls = [
+    document.getElementById('bios-l1'),
+    document.getElementById('bios-l2'),
+    document.getElementById('bios-l3'),
+    document.getElementById('bios-l4'),
+    document.getElementById('bios-l5')
+  ];
+
+  var step = 0;
+  function typeBios() {
+    if (step >= biosLines.length) {
+      /* Switch to logo phase */
+      setTimeout(showLogo, 400);
+      return;
+    }
+    biosEls[step].textContent = biosLines[step];
+    step++;
+    setTimeout(typeBios, step === 4 ? 100 : 350);
+  }
+
+  function showLogo() {
+    document.getElementById('boot-bios').style.display = 'none';
+    var logo = document.getElementById('boot-logo');
+    logo.style.display = 'flex';
+    var bar = document.getElementById('boot-bar');
+    var msg = document.getElementById('boot-msg');
+    var msgs = ['Loading system files...', 'Mounting archive volumes...', 'Starting 174.exe...'];
+    var pct = 0;
+    var msgIdx = 0;
+    var iv = setInterval(function() {
+      pct += Math.random() * 18 + 5;
+      if (pct > 100) pct = 100;
+      bar.style.width = pct + '%';
+      if (pct > 33 && msgIdx === 0) { msgIdx = 1; msg.textContent = msgs[1]; }
+      if (pct > 75 && msgIdx === 1) { msgIdx = 2; msg.textContent = msgs[2]; }
+      if (pct >= 100) {
+        clearInterval(iv);
+        setTimeout(finishBoot, 500);
+      }
+    }, 200);
+  }
+
+  function finishBoot() {
+    sfxStartup();
+    bootEl.classList.add('done');
+    localStorage.setItem('174_lastBoot', Date.now().toString());
+    setTimeout(function() { bootEl.style.display = 'none'; }, 600);
+  }
+
+  typeBios();
+})();
+
+/* ============================================================
+   REAL-TIME TASKBAR CLOCK
+   ============================================================ */
+(function(){
+  function updateClock() {
+    var el = document.querySelector('.taskbar-clock');
+    if (!el) return;
+    var now = new Date();
+    var h = now.getHours().toString().padStart(2,'0');
+    var m = now.getMinutes().toString().padStart(2,'0');
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dateStr = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+
+    /* Keep the green dot but update the time text */
+    var dot = el.querySelector('.sys-tray-dot');
+    var timeSpan = el.querySelector('.clock-time');
+    if (!timeSpan) {
+      timeSpan = document.createElement('span');
+      timeSpan.className = 'clock-time';
+      el.appendChild(timeSpan);
+    }
+    timeSpan.textContent = h + ':' + m;
+    el.title = dateStr;
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+})();
+
+/* ============================================================
+   CRT MODE TOGGLE
+   ============================================================ */
+window.toggleCRT = function() {
+  var overlay = document.getElementById('crt-overlay');
+  overlay.classList.toggle('active');
+  document.body.classList.toggle('crt-on');
+  var isOn = overlay.classList.contains('active');
+  localStorage.setItem('174_crt', isOn ? '1' : '0');
+};
+/* Restore CRT preference */
+if (localStorage.getItem('174_crt') === '1') {
+  document.getElementById('crt-overlay').classList.add('active');
+  document.body.classList.add('crt-on');
+}
+
+/* ============================================================
+   BSOD EASTER EGG (Konami Code)
+   ============================================================ */
+(function(){
+  var konami = [38,38,40,40,37,39,37,39,66,65]; /* up up down down left right left right B A */
+  var pos = 0;
+  document.addEventListener('keydown', function(e) {
+    if (e.keyCode === konami[pos]) {
+      pos++;
+      if (pos === konami.length) {
+        triggerBSOD();
+        pos = 0;
+      }
+    } else {
+      pos = 0;
+    }
+  });
+})();
+
+function triggerBSOD() {
+  sfxError();
+  var bsod = document.getElementById('bsod-screen');
+  bsod.classList.add('active');
+
+  function dismiss() {
+    bsod.classList.remove('active');
+    sfxClick();
+    document.removeEventListener('keydown', dismiss);
+    document.removeEventListener('click', dismiss);
+  }
+  setTimeout(function() {
+    document.addEventListener('keydown', dismiss);
+    document.addEventListener('click', dismiss);
+  }, 500);
+}
+
+/* ============================================================
+   SHUTDOWN ANIMATION
+   ============================================================ */
+window.doShutDown = function() {
+  var screen = document.getElementById('shutdown-screen');
+  screen.classList.add('active');
+  sfxError();
+  setTimeout(function() {
+    screen.classList.remove('active');
+  }, 3000);
+};
+
+/* ============================================================
+   NOTIFICATION TOASTS (Win95 balloons)
+   ============================================================ */
+window.showToast = function(title, body, onClick) {
+  var container = document.getElementById('toast-container');
+  if (!container) return;
+  var toast = document.createElement('div');
+  toast.className = 'win-toast';
+  var titleDiv = document.createElement('div');
+  titleDiv.className = 'win-toast-title';
+  titleDiv.innerHTML = '\u{1F4E8} ' + title;
+  var bodyDiv = document.createElement('div');
+  bodyDiv.className = 'win-toast-body';
+  bodyDiv.textContent = body;
+  toast.appendChild(titleDiv);
+  toast.appendChild(bodyDiv);
+  if (onClick) toast.onclick = function() { onClick(); toast.remove(); };
+  container.appendChild(toast);
+  sfxNotify();
+  /* Auto-remove after animation */
+  setTimeout(function() { if (toast.parentNode) toast.remove(); }, 4500);
+};
+
+/* ============================================================
+   PATCH: Hook chat messages to show toasts
+   ============================================================ */
+var _origAppendMsg = window.appendChatMsg;
+window.appendChatMsg = function(tabId, sender, text, isSelf, time) {
+  if (typeof _origAppendMsg === 'function') _origAppendMsg(tabId, sender, text, isSelf, time);
+  /* Show toast for messages in non-active tabs or when chat is closed */
+  if (!isSelf) {
+    var chatWin = document.getElementById('chat-window');
+    var isOpen = chatWin && chatWin.classList.contains('open');
+    if (!isOpen || tabId !== (window.activeChatTab || 'general')) {
+      window.showToast(sender, text.length > 60 ? text.substring(0,60) + '...' : text, function() {
+        if (chatWin) chatWin.classList.add('open');
+        if (typeof window.switchChatTab === 'function') window.switchChatTab(tabId);
+      });
+    }
+  }
+};
 
 </script>
 </body>
