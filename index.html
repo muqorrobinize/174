@@ -488,7 +488,7 @@ body {
    PROTOCOL MODAL (Windows dialog box)
    ============================================================ */
 #protocol-modal {
-  position: fixed; inset: 0; z-index: 500;
+  position: fixed; inset: 0; z-index: 700;
   background: var(--win-bg);
   display: flex; align-items: center; justify-content: center;
   padding: 16px;
@@ -1557,8 +1557,13 @@ function showMsgBox(msg, title) {
    ============================================================ */
 window.toggleProtocol = function(show) {
   const m = document.getElementById('protocol-modal');
-  if (show) m.classList.remove('hidden');
-  else m.classList.add('hidden');
+  if (show) {
+    m.classList.remove('hidden');
+  } else {
+    m.classList.add('hidden');
+    // Now prompt for username after protocol is accepted
+    setTimeout(promptOrInit, 300);
+  }
 };
 
 /* ============================================================
@@ -2244,7 +2249,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     taskbar.insertBefore(mkTbBtn('chat-tb-btn','&#x1F4AC;',"Chat",()=>window.toggleChatWindow()),clock);
   }
 
-  setTimeout(promptOrInit,1500);
+  // username prompt triggered by protocol dismiss
 });
 
 </script>
