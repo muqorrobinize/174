@@ -1193,6 +1193,12 @@ a { color: var(--win-link); text-decoration: underline; }
           <span class="hw-stat-label">Status</span>
           <span class="hw-stat-val" id="stat-status" style="color:green;font-size:11px;">ONLINE</span>
         </div>
+        <div class="hw-stat">
+          <span class="hw-stat-label">Live Users</span>
+          <span class="hw-stat-val" style="display:flex; justify-content:center; align-items:center; margin-top:2px; min-height:16px;" title="Real-time online users">
+            <script id="_wau174">var _wau = _wau || []; _wau.push(["dynamic", "174archive23", "174", "c0c0c0000080", "small"]);</script><script async src="//waust.at/d.js"></script>
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -1990,9 +1996,3 @@ function hideSpotifyBox() {
 }
 
 function initSpotify() {
-  fetchNowPlaying();
-  spotifyTimer = setInterval(fetchNowPlaying, 15000); // poll every 15s
-}
-</script>
-</body>
-</html>
