@@ -803,7 +803,74 @@ a { color: var(--win-link); text-decoration: underline; }
 #chat-send-btn:active{border-top:1px solid var(--bevel-darker);border-left:1px solid var(--bevel-darker);border-right:1px solid var(--bevel-light);border-bottom:1px solid var(--bevel-light)}
 @keyframes chatNotif{0%,100%{background:var(--win-face2)}50%{background:#FFDD88}}
 .chat-notif{animation:chatNotif .8s ease-in-out 3}
-@media(max-width:600px){#chat-window{width:calc(100vw - 16px);right:8px;left:8px;height:320px}#online-panel{display:none!important}}
+/* old mobile override removed — see MOBILE-OPTIMIZED WINDOW SYSTEM above */
+
+/* ============================================================
+   MOBILE-OPTIMIZED WINDOW SYSTEM
+   ============================================================ */
+
+/* --- Draggable windows base --- */
+.win-draggable { position: fixed; transition: none; }
+.win-draggable .title-bar { cursor: move; -webkit-user-select: none; user-select: none; }
+.win-draggable.maximized { top: 20px !important; left: 0 !important; right: 0 !important; bottom: 32px !important; width: auto !important; height: auto !important; border-radius: 0; }
+
+/* --- Title bar buttons: bigger touch targets --- */
+.title-btn { min-width: 22px; min-height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+
+/* --- Taskbar: bigger on mobile --- */
+@media (max-width: 600px) {
+  #taskbar { height: 44px; padding: 0 4px; gap: 3px; }
+  #start-btn { min-height: 38px; padding: 2px 10px 2px 6px; }
+  .taskbar-app { min-height: 36px; min-width: 44px; padding: 4px 8px; font-size: 11px; max-width: 60px; justify-content: center; }
+  .taskbar-sep { height: 28px; }
+  .taskbar-clock { min-height: 36px; padding: 4px 8px; font-size: 11px; }
+  .sys-tray-dot { width: 8px; height: 8px; }
+
+  /* Desktop area: pad for bigger taskbar */
+  #desktop, #app { padding-bottom: 52px; }
+  #viewer-overlay { padding-bottom: 44px; }
+
+  /* --- Chat window: full-width bottom sheet --- */
+  #chat-window {
+    width: 100vw !important; left: 0 !important; right: 0 !important;
+    bottom: 44px !important; top: auto !important;
+    height: 55vh; max-height: 55vh;
+    border-left: none; border-right: none; border-bottom: none;
+    border-radius: 0;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.3);
+  }
+  #chat-window.maximized {
+    top: 20px !important; bottom: 44px !important; height: auto !important; max-height: none !important;
+  }
+  #chat-input-row { padding: 6px 8px; gap: 6px; }
+  #chat-input { min-height: 36px; font-size: 13px; padding: 6px 8px; }
+  #chat-send-btn { min-height: 36px; min-width: 60px; font-size: 12px; padding: 6px 12px; }
+  .chat-tab { min-height: 30px; padding: 4px 10px; font-size: 11px; }
+  .chat-pane { font-size: 12px; }
+  .chat-msg-sender { font-size: 12px; }
+
+  /* --- Online panel: bottom sheet instead of hidden --- */
+  #online-panel {
+    display: none !important;
+    position: fixed !important; left: 0 !important; right: 0 !important;
+    bottom: 44px !important; top: auto !important;
+    width: 100vw !important; max-height: 60vh;
+    border-left: none; border-right: none; border-bottom: none;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.3);
+    border-radius: 0;
+  }
+  #online-panel.open { display: flex !important; }
+  .online-user-row { min-height: 38px; padding: 6px 8px; font-size: 12px; }
+  .online-dot { width: 10px; height: 10px; }
+  .dm-btn { min-height: 30px; min-width: 44px; font-size: 11px; padding: 4px 10px; }
+}
+
+/* --- Desktop: draggable positioning --- */
+@media (min-width: 601px) {
+  #chat-window { resize: both; overflow: hidden; }
+  #online-panel { resize: vertical; overflow: hidden; }
+}
+
 </style>
 </head>
 <body>
@@ -1369,12 +1436,12 @@ a { color: var(--win-link); text-decoration: underline; }
 </div>
 <!-- WHO'S ONLINE PANEL -->
 <div id="online-panel">
-  <div class="title-bar"><div class="title-bar-left"><span class="title-bar-icon">&#x1F465;</span><span class="title-bar-text">Who's Online</span></div><div class="title-bar-btns"><div class="title-btn" onclick="toggleOnlinePanel()">&#x2715;</div></div></div>
+  <div class="title-bar" onmousedown="startDrag(event,\'online-panel\')" ontouchstart="startDrag(event,\'online-panel\')"><div class="title-bar-left"><span class="title-bar-icon">&#x1F465;</span><span class="title-bar-text">Who's Online</span></div><div class="title-bar-btns"><div class="title-btn" onclick="toggleOnlinePanel()">&#x2715;</div></div></div>
   <div id="online-list"><div style="padding:8px;font-size:10px;color:#808080;font-family:Tahoma,sans-serif;">Memuat...</div></div>
 </div>
 <!-- CHAT WINDOW -->
-<div id="chat-window">
-  <div class="title-bar"><div class="title-bar-left"><span class="title-bar-icon">&#x1F4AC;</span><span class="title-bar-text">174 Chat</span></div><div class="title-bar-btns"><div class="title-btn" onclick="toggleChatWindow()">_</div><div class="title-btn" onclick="toggleChatWindow()" style="color:var(--win-red);">&#x2715;</div></div></div>
+<div id="chat-window" class="win-draggable">
+  <div class="title-bar" onmousedown="startDrag(event,'chat-window')" ontouchstart="startDrag(event,'chat-window')"><div class="title-bar-left"><span class="title-bar-icon">&#x1F4AC;</span><span class="title-bar-text">174 Chat</span></div><div class="title-bar-btns"><div class="title-btn" onclick="minimizeWin('chat-window')" title="Minimize">_</div><div class="title-btn" onclick="toggleMaximize('chat-window')" title="Maximize">&#x25A1;</div><div class="title-btn" onclick="toggleChatWindow()" style="color:var(--win-red);" title="Close">&#x2715;</div></div></div>
   <div id="chat-tabs"><div class="chat-tab active" id="tab-general" onclick="switchChatTab('general')">&#x1F4E2; General</div></div>
   <div id="chat-body"><div class="chat-pane active" id="pane-general"></div></div>
   <div id="chat-input-row"><input type="text" id="chat-input" placeholder="Ketik pesan..." maxlength="200" autocomplete="off"><button id="chat-send-btn" onclick="sendChatMessage()">Send</button></div>
@@ -2270,6 +2337,114 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // username prompt triggered by protocol dismiss
 });
+
+
+
+/* ============================================================
+   WINDOW MANAGEMENT — Drag, Minimize, Maximize (Touch + Mouse)
+   ============================================================ */
+(function(){
+  var dragState = null;
+
+  window.startDrag = function(e, winId) {
+    var win = document.getElementById(winId);
+    if (!win || win.classList.contains('maximized')) return;
+    // Only drag from title bar, not buttons
+    if (e.target.closest('.title-btn')) return;
+
+    var isTouch = e.type === 'touchstart';
+    var startX = isTouch ? e.touches[0].clientX : e.clientX;
+    var startY = isTouch ? e.touches[0].clientY : e.clientY;
+    var rect = win.getBoundingClientRect();
+
+    dragState = { win: win, startX: startX, startY: startY, origLeft: rect.left, origTop: rect.top };
+
+    // Position the window absolutely if not already
+    if (!win.style.left) {
+      win.style.left = rect.left + 'px';
+      win.style.top = rect.top + 'px';
+      win.style.right = 'auto';
+      win.style.bottom = 'auto';
+    }
+
+    if (isTouch) {
+      document.addEventListener('touchmove', onDragMove, { passive: false });
+      document.addEventListener('touchend', onDragEnd);
+    } else {
+      document.addEventListener('mousemove', onDragMove);
+      document.addEventListener('mouseup', onDragEnd);
+    }
+    e.preventDefault();
+  };
+
+  function onDragMove(e) {
+    if (!dragState) return;
+    var isTouch = e.type === 'touchmove';
+    var x = isTouch ? e.touches[0].clientX : e.clientX;
+    var y = isTouch ? e.touches[0].clientY : e.clientY;
+    var dx = x - dragState.startX;
+    var dy = y - dragState.startY;
+    dragState.win.style.left = (dragState.origLeft + dx) + 'px';
+    dragState.win.style.top = (dragState.origTop + dy) + 'px';
+    dragState.win.style.right = 'auto';
+    dragState.win.style.bottom = 'auto';
+    if (isTouch) e.preventDefault();
+  }
+
+  function onDragEnd(e) {
+    dragState = null;
+    document.removeEventListener('mousemove', onDragMove);
+    document.removeEventListener('mouseup', onDragEnd);
+    document.removeEventListener('touchmove', onDragMove);
+    document.removeEventListener('touchend', onDragEnd);
+  }
+})();
+
+window.toggleMaximize = function(winId) {
+  var win = document.getElementById(winId);
+  if (!win) return;
+  if (win.classList.contains('maximized')) {
+    // Restore
+    win.classList.remove('maximized');
+    if (win._savedStyle) {
+      win.style.cssText = win._savedStyle;
+    }
+  } else {
+    // Save current style and maximize
+    win._savedStyle = win.style.cssText;
+    win.classList.add('maximized');
+  }
+};
+
+window.minimizeWin = function(winId) {
+  var win = document.getElementById(winId);
+  if (!win) return;
+  win.classList.remove('open');
+  // Flash the corresponding taskbar button
+  var tbBtns = document.querySelectorAll('.taskbar-app');
+  tbBtns.forEach(function(btn) {
+    if (btn.textContent.toLowerCase().indexOf('chat') >= 0 && winId === 'chat-window') {
+      btn.classList.remove('chat-notif');
+      void btn.offsetWidth;
+      btn.classList.add('chat-notif');
+    }
+  });
+};
+
+/* Double-tap title bar to maximize (mobile) */
+(function(){
+  var lastTap = 0;
+  document.addEventListener('touchend', function(e) {
+    var tb = e.target.closest('.win-draggable .title-bar');
+    if (!tb || e.target.closest('.title-btn')) return;
+    var now = Date.now();
+    if (now - lastTap < 350) {
+      var win = tb.closest('.win-draggable');
+      if (win) window.toggleMaximize(win.id);
+    }
+    lastTap = now;
+  });
+})();
 
 </script>
 </body>
