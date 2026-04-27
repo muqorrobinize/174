@@ -1008,6 +1008,31 @@ body.crt-on {
 #shutdown-screen.active { display: flex; }
 .shutdown-sub { font-size: 12px; color: #808080; margin-top: 12px; font-weight: normal; }
 
+
+/* ============================================================
+   SFX TOGGLE
+   ============================================================ */
+#sfx-toggle {
+  cursor: pointer; font-size: 12px; padding: 2px 6px;
+  border-top: 1px solid var(--bevel-light);
+  border-left: 1px solid var(--bevel-light);
+  border-right: 1px solid var(--bevel-darker);
+  border-bottom: 1px solid var(--bevel-darker);
+  background: var(--win-face2);
+  font-family: Tahoma, Arial, sans-serif;
+  display: flex; align-items: center; gap: 3px;
+  min-height: 22px;
+}
+#sfx-toggle:active {
+  border-top: 1px solid var(--bevel-darker);
+  border-left: 1px solid var(--bevel-darker);
+  border-right: 1px solid var(--bevel-light);
+  border-bottom: 1px solid var(--bevel-light);
+}
+@media (max-width: 600px) {
+  #sfx-toggle { min-height: 36px; min-width: 40px; font-size: 14px; }
+}
+
 </style>
 </head>
 <body>
@@ -1475,11 +1500,15 @@ body.crt-on {
     var sortedBirds = birds.slice().sort(function(a,b){return a.y-b.y;});
     sortedBirds.forEach(drawBird);
 
+    /* Draw fighter jet if active */
+    if(typeof window._drawJet==='function') window._drawJet(ctx,W,H);
+
     requestAnimationFrame(frame);
   }
 
   resize();
   initBirds();
+  window._skyBirds = birds;
   frame();
 })();
 </script>
@@ -1799,6 +1828,7 @@ body.crt-on {
   <div id="explorer-taskbar-btn" class="taskbar-app" style="display:none;" onclick="restoreWindow('explorer-win','explorer-taskbar-btn')">
     <span>💻</span> Explorer
   </div>
+  <div id="sfx-toggle" onclick="toggleAmbientSFX()" title="Toggle Sound Effects">ð</div>
   <div class="taskbar-clock">
     <div class="sys-tray-dot" id="sys-dot"></div>
     <span id="sys-status-bar">SYS_ACTIVE</span>
@@ -3088,6 +3118,434 @@ window.appendChatMsg = function(tabId, sender, text, isSelf, time) {
     }
   }
 };
+
+
+
+/* ============================================================
+   AMBIENT SOUND + FIGHTER JET SYSTEM
+   Web Audio API synthesized sounds — no external files
+   ============================================================ */
+(function(){
+  var ambientOn = false;
+  var ambientCtx = null;
+  var birdInterval = null;
+  var jetTimeout = null;
+  var jetActive = false;
+  var JET_INTERVAL_MS = 120000; /* 2 minutes */
+
+  function getCtx(){
+    if(!ambientCtx){
+      try{ ambientCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+    }
+    return ambientCtx;
+  }
+
+  /* ── BIRD CHIRP SYNTHESIZER ── */
+  function chirp(startTime){
+    var ctx = getCtx(); if(!ctx) return;
+    var t = startTime || ctx.currentTime;
+
+    /* Each chirp = 2-4 rapid notes */
+    var noteCount = 2 + Math.floor(Math.random()*3);
+    for(var i=0;i<noteCount;i++){
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      var baseFreq = 2800 + Math.random()*2200;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq, t + i*0.08);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq*(0.7+Math.random()*0.6), t + i*0.08 + 0.06);
+
+      gain.gain.setValueAtTime(0, t + i*0.08);
+      gain.gain.linearRampToValueAtTime(0.04 + Math.random()*0.03, t + i*0.08 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i*0.08 + 0.06 + Math.random()*0.03);
+
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t + i*0.08);
+      osc.stop(t + i*0.08 + 0.10);
+    }
+  }
+
+  function trill(startTime){
+    var ctx = getCtx(); if(!ctx) return;
+    var t = startTime || ctx.currentTime;
+    /* Rapid trill — 6-10 micro-notes */
+    var count = 6+Math.floor(Math.random()*5);
+    var baseFreq = 3500+Math.random()*1500;
+    for(var i=0;i<count;i++){
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      var f = baseFreq + (i%2===0?200:-200)*Math.random();
+      osc.frequency.setValueAtTime(f, t+i*0.035);
+      gain.gain.setValueAtTime(0.025, t+i*0.035);
+      gain.gain.exponentialRampToValueAtTime(0.001, t+i*0.035+0.03);
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.start(t+i*0.035);osc.stop(t+i*0.035+0.04);
+    }
+  }
+
+  function longCall(startTime){
+    var ctx = getCtx(); if(!ctx) return;
+    var t = startTime || ctx.currentTime;
+    /* Longer descending whistle — like a distant eagle */
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = 'sine';
+    var startF = 2000+Math.random()*800;
+    osc.frequency.setValueAtTime(startF, t);
+    osc.frequency.exponentialRampToValueAtTime(startF*0.5, t+0.6);
+    gain.gain.setValueAtTime(0.03, t);
+    gain.gain.linearRampToValueAtTime(0.04, t+0.1);
+    gain.gain.exponentialRampToValueAtTime(0.001, t+0.6);
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start(t);osc.stop(t+0.7);
+  }
+
+  function randomBirdSound(){
+    if(!ambientOn || jetActive) return;
+    var r = Math.random();
+    if(r<0.45) chirp();
+    else if(r<0.75) trill();
+    else longCall();
+  }
+
+  /* ── JET ENGINE SYNTHESIZER ── */
+  var jetNodes = null;
+
+  function startJetEngine(){
+    var ctx = getCtx(); if(!ctx) return;
+    /* Brown noise through bandpass for jet roar */
+    var bufferSize = ctx.sampleRate * 2;
+    var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    var lastOut = 0;
+    for(var i=0;i<bufferSize;i++){
+      var white = Math.random()*2-1;
+      data[i] = (lastOut + (0.02*white))/1.02;
+      lastOut = data[i];
+      data[i] *= 3.5;
+    }
+    var noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    noise.loop = true;
+
+    var bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 180;
+    bp.Q.value = 0.6;
+
+    var hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 60;
+
+    var gain = ctx.createGain();
+    gain.gain.value = 0;
+    /* Fade in */
+    gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime+1.5);
+
+    /* High whine overlay */
+    var whine = ctx.createOscillator();
+    whine.type = 'sawtooth';
+    whine.frequency.value = 320;
+    var whineGain = ctx.createGain();
+    whineGain.gain.value = 0;
+    whineGain.gain.linearRampToValueAtTime(0.015, ctx.currentTime+1.5);
+
+    noise.connect(bp);bp.connect(hp);hp.connect(gain);gain.connect(ctx.destination);
+    whine.connect(whineGain);whineGain.connect(ctx.destination);
+    noise.start();whine.start();
+
+    jetNodes = {noise:noise, whine:whine, gain:gain, whineGain:whineGain, ctx:ctx};
+  }
+
+  function stopJetEngine(){
+    if(!jetNodes) return;
+    var ctx = jetNodes.ctx;
+    var now = ctx.currentTime;
+    jetNodes.gain.gain.linearRampToValueAtTime(0, now+2);
+    jetNodes.whineGain.gain.linearRampToValueAtTime(0, now+2);
+    setTimeout(function(){
+      try{jetNodes.noise.stop();}catch(e){}
+      try{jetNodes.whine.stop();}catch(e){}
+      jetNodes=null;
+    },2500);
+  }
+
+  function dopplerShift(pan){
+    /* Pan is -1 (left) to 1 (right) — shift pitch */
+    if(!jetNodes) return;
+    var shift = 180 + pan*40; /* frequency shifts with position */
+    jetNodes.noise; /* bandpass is harder to shift dynamically, skip */
+    jetNodes.whine.frequency.value = 320 + pan*80;
+  }
+
+  /* ── MACHINE GUN BURST ── */
+  function gunBurst(){
+    var ctx = getCtx(); if(!ctx) return;
+    var now = ctx.currentTime;
+    var shots = 6+Math.floor(Math.random()*6);
+    for(var i=0;i<shots;i++){
+      var t = now + i*0.06;
+      /* Each shot = short noise burst */
+      var buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate*0.03), ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      for(var j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*Math.exp(-j/d.length*4);
+      var src = ctx.createBufferSource();
+      src.buffer = buf;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.15, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t+0.04);
+      src.connect(g);g.connect(ctx.destination);
+      src.start(t);
+    }
+  }
+
+  /* ── BIRD SCATTER SOUND (panicked chirps) ── */
+  function birdPanicChirps(){
+    var ctx = getCtx(); if(!ctx) return;
+    var now = ctx.currentTime;
+    for(var i=0;i<8;i++){
+      var t = now + Math.random()*0.5;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(3500+Math.random()*2000, t);
+      osc.frequency.exponentialRampToValueAtTime(5000+Math.random()*1000, t+0.04);
+      gain.gain.setValueAtTime(0.05, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t+0.06);
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.start(t);osc.stop(t+0.08);
+    }
+  }
+
+  /* ── FIGHTER JET RENDERING (added to sky canvas) ── */
+  /* Jet object: drawn on the sky canvas during frame() */
+  window._jetState = null;
+
+  function spawnJet(){
+    if(!ambientOn) return;
+    jetActive = true;
+    var fromLeft = Math.random() < 0.5;
+    var yPos = (window.innerHeight || 600) * (0.08 + Math.random()*0.25);
+    var speed = 3 + Math.random()*2;
+    var size = 14 + Math.random()*8;
+
+    window._jetState = {
+      x: fromLeft ? -size*10 : (window.innerWidth||1200)+size*10,
+      y: yPos,
+      speed: fromLeft ? speed : -speed,
+      size: size,
+      shootTimer: 0,
+      shootCooldown: 0.8+Math.random()*1.5,
+      shooting: false,
+      muzzleFlash: 0,
+      trail: [],
+    };
+
+    startJetEngine();
+
+    /* Jet crosses screen in ~8-12 seconds, then despawns */
+    setTimeout(function(){
+      window._jetState = null;
+      jetActive = false;
+      stopJetEngine();
+      /* Resume bird sounds after a pause */
+      setTimeout(function(){ if(ambientOn && !jetActive) randomBirdSound(); }, 2000);
+    }, 10000 + Math.random()*4000);
+  }
+
+  /* Draw jet on canvas — called from sky engine's frame() */
+  window._drawJet = function(ctx, W, H){
+    var j = window._jetState;
+    if(!j) return;
+
+    /* Update position */
+    j.x += j.speed;
+    var pan = (j.x / W)*2 - 1;
+    dopplerShift(pan);
+
+    /* Exhaust trail */
+    j.trail.push({x:j.x - j.speed*3, y:j.y + (Math.random()-0.5)*2, age:0});
+    if(j.trail.length > 30) j.trail.shift();
+
+    /* Draw trail */
+    j.trail.forEach(function(p){
+      p.age += 0.03;
+      var alpha = Math.max(0, 0.3 - p.age*0.15);
+      var radius = 2 + p.age*8;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(200,210,220,'+alpha+')';
+      ctx.fill();
+    });
+
+    var sz = j.size;
+    var dir = j.speed > 0 ? 1 : -1;
+
+    ctx.save();
+    ctx.translate(j.x, j.y);
+    if(dir < 0) ctx.scale(-1, 1);
+
+    /* Fuselage */
+    ctx.beginPath();
+    ctx.moveTo(sz*2.5, 0);
+    ctx.lineTo(sz*1, -sz*0.2);
+    ctx.lineTo(-sz*1.2, -sz*0.15);
+    ctx.lineTo(-sz*2, -sz*0.1);
+    ctx.lineTo(-sz*2, sz*0.1);
+    ctx.lineTo(-sz*1.2, sz*0.15);
+    ctx.lineTo(sz*1, sz*0.2);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(60,65,75,0.85)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(40,42,50,0.6)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    /* Cockpit */
+    ctx.beginPath();
+    ctx.ellipse(sz*1.5, -sz*0.05, sz*0.4, sz*0.12, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(140,200,255,0.7)';
+    ctx.fill();
+
+    /* Main wings (delta) */
+    ctx.beginPath();
+    ctx.moveTo(sz*0.2, -sz*0.15);
+    ctx.lineTo(-sz*0.8, -sz*1.6);
+    ctx.lineTo(-sz*1.2, -sz*1.5);
+    ctx.lineTo(-sz*0.5, -sz*0.15);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(55,60,70,0.8)';
+    ctx.fill();
+    /* Mirror wing */
+    ctx.beginPath();
+    ctx.moveTo(sz*0.2, sz*0.15);
+    ctx.lineTo(-sz*0.8, sz*1.6);
+    ctx.lineTo(-sz*1.2, sz*1.5);
+    ctx.lineTo(-sz*0.5, sz*0.15);
+    ctx.closePath();
+    ctx.fill();
+
+    /* Tail fins */
+    ctx.beginPath();
+    ctx.moveTo(-sz*1.5, -sz*0.1);
+    ctx.lineTo(-sz*2.2, -sz*0.8);
+    ctx.lineTo(-sz*2, -sz*0.1);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(50,55,65,0.8)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-sz*1.5, sz*0.1);
+    ctx.lineTo(-sz*2.2, sz*0.8);
+    ctx.lineTo(-sz*2, sz*0.1);
+    ctx.closePath();
+    ctx.fill();
+
+    /* Engine glow */
+    var glowG = ctx.createRadialGradient(-sz*2, 0, 0, -sz*2, 0, sz*0.8);
+    glowG.addColorStop(0, 'rgba(255,200,100,0.6)');
+    glowG.addColorStop(0.3, 'rgba(255,150,50,0.3)');
+    glowG.addColorStop(1, 'rgba(255,100,30,0)');
+    ctx.fillStyle = glowG;
+    ctx.beginPath();
+    ctx.arc(-sz*2, 0, sz*0.8, 0, Math.PI*2);
+    ctx.fill();
+
+    /* Muzzle flash when shooting */
+    if(j.muzzleFlash > 0){
+      j.muzzleFlash -= 0.05;
+      ctx.beginPath();
+      ctx.arc(sz*2.5, 0, sz*0.3*j.muzzleFlash*3, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,200,'+j.muzzleFlash+')';
+      ctx.fill();
+    }
+
+    ctx.restore();
+
+    /* Shooting logic */
+    j.shootTimer += 0.016;
+    if(j.shootTimer > j.shootCooldown && !j.shooting){
+      j.shooting = true;
+      j.muzzleFlash = 1.0;
+      j.shootTimer = 0;
+      j.shootCooldown = 1.2 + Math.random()*2.5;
+      gunBurst();
+      birdPanicChirps();
+      /* Make nearby birds scatter */
+      if(typeof scatterBirdsNear === 'function') scatterBirdsNear(j.x, j.y, 200);
+      setTimeout(function(){ j.shooting = false; }, 400);
+    }
+  };
+
+  /* Bird scatter function — exposed globally for jet to call */
+  window.scatterBirdsNear = function(jx, jy, radius){
+    /* Access birds array from sky engine */
+    /* Birds will get a temporary speed boost away from jet */
+    if(!window._skyBirds) return;
+    window._skyBirds.forEach(function(b){
+      var dx = b.x - jx, dy = b.y - jy;
+      var dist = Math.sqrt(dx*dx+dy*dy);
+      if(dist < radius){
+        b.baseY += (Math.random()-0.3)*80; /* scatter vertically */
+        b.speed *= 1.8; /* speed up temporarily */
+        /* Restore speed after 3 seconds */
+        var origSpeed = b.speed/1.8;
+        setTimeout(function(){ b.speed = origSpeed; }, 3000);
+      }
+    });
+  };
+
+  /* ── AMBIENT CONTROLLER ── */
+  function startAmbient(){
+    ambientOn = true;
+    document.getElementById('sfx-toggle').innerHTML = '\uD83D\uDD0A';
+    document.getElementById('sfx-toggle').title = 'SFX: ON (click to mute)';
+
+    /* Start bird chirps at random intervals */
+    function scheduleBird(){
+      if(!ambientOn) return;
+      var delay = jetActive ? 5000 : (1500 + Math.random()*4000);
+      birdInterval = setTimeout(function(){
+        randomBirdSound();
+        scheduleBird();
+      }, delay);
+    }
+    scheduleBird();
+
+    /* Schedule first jet */
+    jetTimeout = setTimeout(function jetLoop(){
+      if(!ambientOn) return;
+      spawnJet();
+      jetTimeout = setTimeout(jetLoop, JET_INTERVAL_MS + Math.random()*30000);
+    }, 30000 + Math.random()*30000); /* First jet after 30-60 seconds */
+  }
+
+  function stopAmbient(){
+    ambientOn = false;
+    jetActive = false;
+    window._jetState = null;
+    document.getElementById('sfx-toggle').innerHTML = '\uD83D\uDD07';
+    document.getElementById('sfx-toggle').title = 'SFX: OFF (click to enable)';
+    if(birdInterval){ clearTimeout(birdInterval); birdInterval=null; }
+    if(jetTimeout){ clearTimeout(jetTimeout); jetTimeout=null; }
+    stopJetEngine();
+  }
+
+  window.toggleAmbientSFX = function(){
+    /* Need user gesture to start AudioContext */
+    getCtx();
+    if(ambientCtx && ambientCtx.state === 'suspended') ambientCtx.resume();
+    if(ambientOn) stopAmbient();
+    else startAmbient();
+    localStorage.setItem('174_sfx', ambientOn?'1':'0');
+  };
+
+  /* Auto-start if previously enabled */
+  /* Don't auto-start — needs user gesture. Just set icon */
+  document.getElementById('sfx-toggle').innerHTML = '\uD83D\uDD07';
+  document.getElementById('sfx-toggle').title = 'SFX: OFF (click to enable)';
+})();
 
 </script>
 </body>
