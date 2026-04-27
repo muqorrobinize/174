@@ -1557,12 +1557,13 @@ function showMsgBox(msg, title) {
    ============================================================ */
 window.toggleProtocol = function(show) {
   const m = document.getElementById('protocol-modal');
+  if (!m) return;
   if (show) {
-    m.classList.remove('hidden');
+    m.style.display = 'flex';
   } else {
-    m.classList.add('hidden');
+    m.style.display = 'none';
     // Now prompt for username after protocol is accepted
-    setTimeout(promptOrInit, 300);
+    if (typeof promptOrInit === 'function') setTimeout(promptOrInit, 400);
   }
 };
 
